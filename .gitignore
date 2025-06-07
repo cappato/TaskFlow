@@ -345,3 +345,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Temporary scripts and files (Augment Agent working directory)
+.temp/
+*.temp
+*_temp.*
