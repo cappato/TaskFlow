@@ -350,3 +350,6 @@ FodyWeavers.xsd
 .temp/
 *.temp
 *_temp.*
+
+# Augment AI Assistant files
+.augment/
