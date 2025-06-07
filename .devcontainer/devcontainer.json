@@ -1,0 +1,59 @@
+{
+    "name": "TaskFlow Development",
+    "image": "mcr.microsoft.com/devcontainers/dotnet:8.0",
+    
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "18"
+        }
+    },
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-dotnettools.csharp",
+                "ms-dotnettools.csdevkit",
+                "ms-dotnettools.blazorwasm-companion",
+                "ms-vscode.vscode-json",
+                "bradlc.vscode-tailwindcss",
+                "formulahendry.auto-rename-tag",
+                "christian-kohler.path-intellisense",
+                "ms-azuretools.vscode-docker",
+                "github.vscode-pull-request-github",
+                "eamodio.gitlens",
+                "esbenp.prettier-vscode",
+                "redhat.vscode-yaml"
+            ],
+            "settings": {
+                "dotnet.defaultSolution": "TaskFlow.sln",
+                "files.exclude": {
+                    "**/bin": true,
+                    "**/obj": true,
+                    "**/.vs": true
+                }
+            }
+        }
+    },
+
+    "forwardPorts": [7000, 7001, 5000, 5001],
+    "portsAttributes": {
+        "7000": {
+            "label": "TaskFlow API",
+            "onAutoForward": "notify"
+        },
+        "7001": {
+            "label": "TaskFlow Client",
+            "onAutoForward": "openBrowser"
+        }
+    },
+
+    "postCreateCommand": "dotnet restore && dotnet build",
+    
+    "remoteUser": "vscode",
+    
+    "mounts": [
+        "source=${localWorkspaceFolder}/.devcontainer/mssql,target=/var/opt/mssql,type=bind"
+    ]
+}

@@ -1,0 +1,29 @@
+{
+    "dotnet.defaultSolution": "TaskFlow.sln",
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true,
+        "**/.vs": true
+    },
+    "omnisharp.enableEditorConfigSupport": true,
+    "omnisharp.enableImportCompletion": true,
+    "omnisharp.enableRoslynAnalyzers": true,
+    "csharp.semanticHighlighting.enabled": true,
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit",
+        "source.organizeImports": "explicit"
+    },
+    "files.associations": {
+        "*.razor": "razor"
+    },
+    "emmet.includeLanguages": {
+        "razor": "html"
+    },
+    "html.suggest.html5": true,
+    "css.validate": true,
+    "less.validate": true,
+    "scss.validate": true,
+    "typescript.preferences.includePackageJsonAutoImports": "auto",
+    "javascript.preferences.includePackageJsonAutoImports": "auto"
+}

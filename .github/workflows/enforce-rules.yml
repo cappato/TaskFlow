@@ -1,0 +1,254 @@
+name: 🔒 Enforce Repository Rules
+
+on:
+  push:
+    branches: [ main, 'feature/**', 'fix/**', 'refactor/**' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-structure:
+    name: 📁 Validate Project Structure
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check required directories
+      run: |
+        echo "🔍 Validating project structure..."
+        
+        # Check required directories exist
+        required_dirs=("src/TaskFlow.Client" "src/TaskFlow.Server" "src/TaskFlow.Shared" "tests/TaskFlow.Server.Tests")
+        
+        for dir in "${required_dirs[@]}"; do
+          if [ ! -d "$dir" ]; then
+            echo "❌ ERROR: Required directory '$dir' not found!"
+            exit 1
+          else
+            echo "✅ Found: $dir"
+          fi
+        done
+        
+        # Check required files exist
+        required_files=("TaskFlow.sln" "README.md" "REGLAS_DEL_REPOSITORIO.md")
+        
+        for file in "${required_files[@]}"; do
+          if [ ! -f "$file" ]; then
+            echo "❌ ERROR: Required file '$file' not found!"
+            exit 1
+          else
+            echo "✅ Found: $file"
+          fi
+        done
+        
+        echo "🎉 Project structure validation passed!"
+
+  validate-commits:
+    name: 📝 Validate Commit Messages
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Validate commit messages
+      run: |
+        echo "🔍 Validating commit messages..."
+        
+        # Get commits in this push
+        if [ "${{ github.event_name }}" = "push" ]; then
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            # New branch, check only the last commit
+            commits=$(git rev-list --max-count=1 HEAD)
+          else
+            # Existing branch, check commits since last push
+            commits=$(git rev-list ${{ github.event.before }}..${{ github.event.after }})
+          fi
+        fi
+        
+        # Conventional commit pattern
+        pattern="^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .{1,50}$"
+        
+        for commit in $commits; do
+          message=$(git log --format=%s -n 1 $commit)
+          echo "Checking commit: $message"
+          
+          if [[ ! $message =~ $pattern ]]; then
+            echo "❌ ERROR: Commit message does not follow conventional commits format!"
+            echo "Expected: type: description (max 50 chars)"
+            echo "Examples: feat: agregar login, fix: corregir bug en API"
+            echo "Got: $message"
+            exit 1
+          fi
+          
+          # Check commit size
+          files_changed=$(git diff-tree --no-commit-id --name-only -r $commit | wc -l)
+          lines_changed=$(git diff-tree --no-commit-id --numstat $commit | awk '{sum += $1 + $2} END {print sum}')
+          
+          if [ "$files_changed" -gt 10 ]; then
+            echo "❌ ERROR: Commit modifies too many files ($files_changed > 10)"
+            echo "Please split into smaller commits"
+            exit 1
+          fi
+          
+          if [ "$lines_changed" -gt 300 ]; then
+            echo "❌ ERROR: Commit changes too many lines ($lines_changed > 300)"
+            echo "Please split into smaller commits"
+            exit 1
+          fi
+          
+          echo "✅ Commit validation passed: $message"
+        done
+        
+        echo "🎉 All commit messages are valid!"
+
+  validate-branch-name:
+    name: 🌿 Validate Branch Name
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+    - name: Check branch name
+      run: |
+        echo "🔍 Validating branch name..."
+        branch_name="${{ github.head_ref }}"
+        
+        # Valid patterns
+        if [[ $branch_name =~ ^(feature|fix|refactor)\/[a-z0-9-]+$ ]]; then
+          echo "✅ Branch name is valid: $branch_name"
+        else
+          echo "❌ ERROR: Invalid branch name: $branch_name"
+          echo "Valid patterns:"
+          echo "  - feature/nombre-descriptivo"
+          echo "  - fix/descripcion-bug"
+          echo "  - refactor/componente"
+          echo "Use lowercase, hyphens only, no spaces or special characters"
+          exit 1
+        fi
+
+  validate-pr:
+    name: 📋 Validate Pull Request
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+    - name: Check PR title and description
+      run: |
+        echo "🔍 Validating Pull Request..."
+        
+        pr_title="${{ github.event.pull_request.title }}"
+        pr_body="${{ github.event.pull_request.body }}"
+        
+        # Check title length
+        if [ ${#pr_title} -lt 10 ]; then
+          echo "❌ ERROR: PR title too short (minimum 10 characters)"
+          echo "Got: $pr_title"
+          exit 1
+        fi
+        
+        if [ ${#pr_title} -gt 72 ]; then
+          echo "❌ ERROR: PR title too long (maximum 72 characters)"
+          echo "Got: $pr_title"
+          exit 1
+        fi
+        
+        # Check description exists
+        if [ -z "$pr_body" ] || [ ${#pr_body} -lt 20 ]; then
+          echo "❌ ERROR: PR description is required (minimum 20 characters)"
+          echo "Please describe what changes you made and why"
+          exit 1
+        fi
+        
+        echo "✅ PR validation passed!"
+
+  build-and-test:
+    name: 🔨 Build and Test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    
+    - name: Test with coverage
+      run: |
+        dotnet test --configuration Release --no-build \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./coverage
+    
+    - name: Check test coverage
+      run: |
+        echo "🔍 Checking test coverage..."
+        
+        # Install reportgenerator
+        dotnet tool install -g dotnet-reportgenerator-globaltool
+        
+        # Generate coverage report
+        reportgenerator \
+          -reports:"coverage/**/coverage.cobertura.xml" \
+          -targetdir:"coverage/report" \
+          -reporttypes:"TextSummary"
+        
+        # Extract coverage percentage
+        coverage=$(grep -oP 'Line coverage: \K[0-9.]+' coverage/report/Summary.txt || echo "0")
+        
+        echo "Current coverage: $coverage%"
+        
+        # Check minimum coverage (80%)
+        if (( $(echo "$coverage < 80" | bc -l) )); then
+          echo "❌ ERROR: Test coverage is below 80% (got $coverage%)"
+          echo "Please add more tests to increase coverage"
+          exit 1
+        fi
+        
+        echo "✅ Test coverage is sufficient: $coverage%"
+
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run security scan
+      run: |
+        echo "🔍 Running security scan..."
+
+        # Check for common security issues
+        if grep -r "password.*=" src/ --include="*.cs" --include="*.json"; then
+          echo "❌ WARNING: Potential hardcoded passwords found"
+        fi
+
+        if grep -r "api.*key.*=" src/ --include="*.cs" --include="*.json"; then
+          echo "❌ WARNING: Potential hardcoded API keys found"
+        fi
+
+        echo "✅ Basic security scan completed"
+
+  notify-status:
+    name: 📢 Notify Status
+    runs-on: ubuntu-latest
+    needs: [validate-structure, validate-commits, build-and-test]
+    if: always()
+    steps:
+    - name: Report results
+      run: |
+        echo "🎯 Repository Rules Enforcement Results:"
+        echo "Structure validation: ${{ needs.validate-structure.result }}"
+        echo "Commit validation: ${{ needs.validate-commits.result }}"
+        echo "Build and test: ${{ needs.build-and-test.result }}"
+
+        if [ "${{ needs.validate-structure.result }}" = "failure" ] ||
+           [ "${{ needs.validate-commits.result }}" = "failure" ] ||
+           [ "${{ needs.build-and-test.result }}" = "failure" ]; then
+          echo "❌ Some rules were violated. Please check the logs above."
+          exit 1
+        else
+          echo "✅ All repository rules are being followed!"
+        fi

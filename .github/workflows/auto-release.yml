@@ -1,0 +1,300 @@
+name: 🚀 Auto Release and Tagging
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+
+jobs:
+  analyze-changes:
+    name: 📊 Analyze Changes for Auto-Versioning
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+      version_type: ${{ steps.check.outputs.version_type }}
+      changelog: ${{ steps.check.outputs.changelog }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Analyze commits for version bump
+      id: check
+      run: |
+        echo "🔍 Analyzing commits since last tag..."
+        
+        # Get last tag
+        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+        echo "Last tag: $LAST_TAG"
+        
+        # Get commits since last tag
+        if [ "$LAST_TAG" = "v0.0.0" ]; then
+          COMMITS=$(git log --oneline --pretty=format:"%s")
+        else
+          COMMITS=$(git log ${LAST_TAG}..HEAD --oneline --pretty=format:"%s")
+        fi
+        
+        if [ -z "$COMMITS" ]; then
+          echo "No new commits since last tag"
+          echo "should_release=false" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        
+        echo "Commits to analyze:"
+        echo "$COMMITS"
+        
+        # Analyze commit types
+        HAS_BREAKING=false
+        HAS_FEAT=false
+        HAS_FIX=false
+        
+        while IFS= read -r commit; do
+          if [[ $commit =~ ^feat(\(.+\))?!: ]] || [[ $commit =~ BREAKING.CHANGE ]]; then
+            HAS_BREAKING=true
+          elif [[ $commit =~ ^feat(\(.+\))?: ]]; then
+            HAS_FEAT=true
+          elif [[ $commit =~ ^fix(\(.+\))?: ]]; then
+            HAS_FIX=true
+          fi
+        done <<< "$COMMITS"
+        
+        # Determine version bump type
+        if [ "$HAS_BREAKING" = true ]; then
+          VERSION_TYPE="major"
+        elif [ "$HAS_FEAT" = true ]; then
+          VERSION_TYPE="minor"
+        elif [ "$HAS_FIX" = true ]; then
+          VERSION_TYPE="patch"
+        else
+          echo "No significant changes found (only docs, style, refactor, test, chore)"
+          echo "should_release=false" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        
+        echo "should_release=true" >> $GITHUB_OUTPUT
+        echo "version_type=$VERSION_TYPE" >> $GITHUB_OUTPUT
+        
+        # Generate changelog
+        CHANGELOG=$(echo "$COMMITS" | sed 's/^/- /')
+        echo "changelog<<EOF" >> $GITHUB_OUTPUT
+        echo "$CHANGELOG" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        
+        echo "Recommended version bump: $VERSION_TYPE"
+
+  create-release:
+    name: 🏷️ Create Release
+    runs-on: ubuntu-latest
+    needs: analyze-changes
+    if: |
+      (github.event_name == 'push' && needs.analyze-changes.outputs.should_release == 'true') ||
+      github.event_name == 'workflow_dispatch'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    
+    - name: Calculate new version
+      id: version
+      run: |
+        # Get current version
+        CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+        echo "Current version: $CURRENT_VERSION"
+        
+        # Remove 'v' prefix for calculation
+        CURRENT_VERSION=${CURRENT_VERSION#v}
+        
+        # Split version into parts
+        IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+        MAJOR=${VERSION_PARTS[0]:-0}
+        MINOR=${VERSION_PARTS[1]:-0}
+        PATCH=${VERSION_PARTS[2]:-0}
+        
+        # Determine bump type
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          BUMP_TYPE="${{ github.event.inputs.version_type }}"
+        else
+          BUMP_TYPE="${{ needs.analyze-changes.outputs.version_type }}"
+        fi
+        
+        # Calculate new version
+        case $BUMP_TYPE in
+          major)
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+            ;;
+          minor)
+            MINOR=$((MINOR + 1))
+            PATCH=0
+            ;;
+          patch)
+            PATCH=$((PATCH + 1))
+            ;;
+        esac
+        
+        NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+        echo "New version: $NEW_VERSION"
+        echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+    
+    - name: Update version in project files
+      run: |
+        NEW_VERSION="${{ steps.version.outputs.new_version }}"
+        VERSION_NUMBER=${NEW_VERSION#v}
+        
+        echo "Updating version to $VERSION_NUMBER in project files..."
+        
+        # Update .csproj files
+        find src -name "*.csproj" -exec sed -i "s/<Version>.*<\/Version>/<Version>$VERSION_NUMBER<\/Version>/g" {} \;
+        find src -name "*.csproj" -exec sed -i "s/<AssemblyVersion>.*<\/AssemblyVersion>/<AssemblyVersion>$VERSION_NUMBER<\/AssemblyVersion>/g" {} \;
+        
+        # Add version tags if they don't exist
+        for csproj in src/*/*.csproj; do
+          if ! grep -q "<Version>" "$csproj"; then
+            sed -i "/<PropertyGroup>/a\\    <Version>$VERSION_NUMBER</Version>" "$csproj"
+          fi
+          if ! grep -q "<AssemblyVersion>" "$csproj"; then
+            sed -i "/<PropertyGroup>/a\\    <AssemblyVersion>$VERSION_NUMBER</AssemblyVersion>" "$csproj"
+          fi
+        done
+    
+    - name: Build and test before release
+      run: |
+        echo "🔨 Building project before release..."
+        dotnet restore
+        dotnet build --configuration Release --no-restore
+        dotnet test --configuration Release --no-build
+    
+    - name: Generate release notes
+      id: release_notes
+      run: |
+        NEW_VERSION="${{ steps.version.outputs.new_version }}"
+        BUMP_TYPE="${{ steps.version.outputs.bump_type }}"
+        
+        # Get commits since last tag
+        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+        
+        if [ "$LAST_TAG" = "v0.0.0" ]; then
+          COMMITS=$(git log --oneline --pretty=format:"- %s" HEAD)
+        else
+          COMMITS=$(git log ${LAST_TAG}..HEAD --oneline --pretty=format:"- %s")
+        fi
+        
+        # Create release notes
+        RELEASE_NOTES="## TaskFlow $NEW_VERSION
+
+### Tipo de Release: $(echo $BUMP_TYPE | tr '[:lower:]' '[:upper:]')
+
+### Cambios incluidos:
+$COMMITS
+
+### Instalación:
+\`\`\`bash
+git clone https://github.com/${{ github.repository }}.git
+cd TaskFlow
+git checkout $NEW_VERSION
+dotnet restore
+dotnet run --project src/TaskFlow.Server
+\`\`\`
+
+### Docker:
+\`\`\`bash
+docker-compose up
+\`\`\`
+
+---
+*Release generado automáticamente el $(date)*"
+        
+        echo "release_notes<<EOF" >> $GITHUB_OUTPUT
+        echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    
+    - name: Create and push tag
+      run: |
+        NEW_VERSION="${{ steps.version.outputs.new_version }}"
+        
+        # Configure git
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Commit version updates
+        git add .
+        if git diff --staged --quiet; then
+          echo "No version files to commit"
+        else
+          git commit -m "chore: bump version to $NEW_VERSION"
+          git push
+        fi
+        
+        # Create and push tag
+        git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
+        git push origin "$NEW_VERSION"
+    
+    - name: Create GitHub Release
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { owner, repo } = context.repo;
+          const newVersion = '${{ steps.version.outputs.new_version }}';
+          const releaseNotes = `${{ steps.release_notes.outputs.release_notes }}`;
+          
+          try {
+            const release = await github.rest.repos.createRelease({
+              owner,
+              repo,
+              tag_name: newVersion,
+              name: `TaskFlow ${newVersion}`,
+              body: releaseNotes,
+              draft: false,
+              prerelease: false
+            });
+            
+            console.log(`✅ Release created: ${release.data.html_url}`);
+          } catch (error) {
+            console.error('❌ Failed to create release:', error);
+            throw error;
+          }
+    
+    - name: Update CHANGELOG.md
+      run: |
+        NEW_VERSION="${{ steps.version.outputs.new_version }}"
+        RELEASE_NOTES="${{ steps.release_notes.outputs.release_notes }}"
+        
+        # Create new changelog entry
+        TEMP_FILE=$(mktemp)
+        echo "# Changelog" > $TEMP_FILE
+        echo "" >> $TEMP_FILE
+        echo "## [$NEW_VERSION] - $(date +%Y-%m-%d)" >> $TEMP_FILE
+        echo "" >> $TEMP_FILE
+        echo "${{ needs.analyze-changes.outputs.changelog }}" >> $TEMP_FILE
+        echo "" >> $TEMP_FILE
+        
+        # Append existing changelog (skip first line)
+        if [ -f CHANGELOG.md ]; then
+          tail -n +2 CHANGELOG.md >> $TEMP_FILE
+        fi
+        
+        mv $TEMP_FILE CHANGELOG.md
+        
+        # Commit changelog
+        git add CHANGELOG.md
+        git commit -m "docs: update CHANGELOG for $NEW_VERSION" || echo "No changelog changes to commit"
+        git push || echo "No changes to push"

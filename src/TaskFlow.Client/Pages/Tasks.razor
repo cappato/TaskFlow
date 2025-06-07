@@ -1,0 +1,370 @@
+@page "/tasks"
+
+<PageTitle>Tasks - TaskFlow</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Tasks</h1>
+                <button class="btn btn-primary" @onclick="ShowCreateModal">
+                    <span class="oi oi-plus" aria-hidden="true"></span> New Task
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <select class="form-select" @onchange="FilterByStatus">
+                <option value="">All Statuses</option>
+                @foreach (var status in Enum.GetValues<TaskStatus>())
+                {
+                    <option value="@status">@status</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select class="form-select" @onchange="FilterByProject">
+                <option value="">All Projects</option>
+                @if (projects != null)
+                {
+                    @foreach (var project in projects)
+                    {
+                        <option value="@project.Id">@project.Name</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            @if (isLoading)
+            {
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            }
+            else if (filteredTasks != null && filteredTasks.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Project</th>
+                                <th>Due Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var task in filteredTasks)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@task.Title</strong>
+                                        @if (!string.IsNullOrEmpty(task.Description))
+                                        {
+                                            <br><small class="text-muted">@task.Description</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-@GetStatusColor(task.Status)">@task.Status</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-@GetPriorityColor(task.Priority)">@task.Priority</span>
+                                    </td>
+                                    <td>@task.ProjectName</td>
+                                    <td>
+                                        @if (task.DueDate.HasValue)
+                                        {
+                                            @task.DueDate.Value.ToString("MMM dd, yyyy")
+                                        }
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => EditTask(task)">
+                                            <span class="oi oi-pencil" aria-hidden="true"></span>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTask(task.Id)">
+                                            <span class="oi oi-trash" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center">
+                    <p class="text-muted">No tasks found.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Task Modal -->
+@if (showModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(editingTask != null ? "Edit Task" : "Create New Task")</h5>
+                    <button type="button" class="btn-close" @onclick="HideModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="taskForm" OnValidSubmit="SaveTask">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <InputText class="form-control" @bind-Value="taskForm.Title" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <InputTextArea class="form-control" @bind-Value="taskForm.Description" rows="3" />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Priority</label>
+                                    <InputSelect class="form-select" @bind-Value="taskForm.Priority">
+                                        @foreach (var priority in Enum.GetValues<Priority>())
+                                        {
+                                            <option value="@priority">@priority</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Project</label>
+                                    <InputSelect class="form-select" @bind-Value="taskForm.ProjectId">
+                                        <option value="">Select Project</option>
+                                        @if (projects != null)
+                                        {
+                                            @foreach (var project in projects)
+                                            {
+                                                <option value="@project.Id">@project.Name</option>
+                                            }
+                                        }
+                                    </InputSelect>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Due Date</label>
+                            <InputDate class="form-control" @bind-Value="taskForm.DueDate" />
+                        </div>
+
+                        @if (editingTask != null)
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <InputSelect class="form-select" @bind-Value="taskForm.Status">
+                                    @foreach (var status in Enum.GetValues<TaskStatus>())
+                                    {
+                                        <option value="@status">@status</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                        }
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="HideModal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">
+                                @(editingTask != null ? "Update" : "Create")
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private IEnumerable<TaskDto>? tasks;
+    private IEnumerable<TaskDto>? filteredTasks;
+    private IEnumerable<ProjectDto>? projects;
+    private bool isLoading = true;
+    private bool showModal = false;
+    private TaskDto? editingTask;
+    private TaskFormModel taskForm = new();
+
+    [Inject] public ITaskApiService TaskService { get; set; } = default!;
+    [Inject] public IProjectApiService ProjectService { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        try
+        {
+            tasks = await TaskService.GetAllTasksAsync();
+            filteredTasks = tasks;
+            projects = await ProjectService.GetActiveProjectsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading tasks: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task FilterByStatus(ChangeEventArgs e)
+    {
+        var statusValue = e.Value?.ToString();
+        if (string.IsNullOrEmpty(statusValue))
+        {
+            filteredTasks = tasks;
+        }
+        else if (Enum.TryParse<TaskStatus>(statusValue, out var status))
+        {
+            filteredTasks = await TaskService.GetTasksByStatusAsync(status);
+        }
+    }
+
+    private async Task FilterByProject(ChangeEventArgs e)
+    {
+        var projectIdValue = e.Value?.ToString();
+        if (string.IsNullOrEmpty(projectIdValue))
+        {
+            filteredTasks = tasks;
+        }
+        else if (int.TryParse(projectIdValue, out var projectId))
+        {
+            filteredTasks = await TaskService.GetTasksByProjectIdAsync(projectId);
+        }
+    }
+
+    private void ShowCreateModal()
+    {
+        editingTask = null;
+        taskForm = new TaskFormModel();
+        showModal = true;
+    }
+
+    private void EditTask(TaskDto task)
+    {
+        editingTask = task;
+        taskForm = new TaskFormModel
+        {
+            Title = task.Title,
+            Description = task.Description,
+            Priority = task.Priority,
+            ProjectId = task.ProjectId,
+            DueDate = task.DueDate,
+            Status = task.Status
+        };
+        showModal = true;
+    }
+
+    private void HideModal()
+    {
+        showModal = false;
+        editingTask = null;
+        taskForm = new TaskFormModel();
+    }
+
+    private async Task SaveTask()
+    {
+        try
+        {
+            if (editingTask != null)
+            {
+                var updateDto = new UpdateTaskDto
+                {
+                    Title = taskForm.Title,
+                    Description = taskForm.Description,
+                    Priority = taskForm.Priority,
+                    ProjectId = taskForm.ProjectId,
+                    DueDate = taskForm.DueDate,
+                    Status = taskForm.Status
+                };
+                await TaskService.UpdateTaskAsync(editingTask.Id, updateDto);
+            }
+            else
+            {
+                var createDto = new CreateTaskDto
+                {
+                    Title = taskForm.Title,
+                    Description = taskForm.Description,
+                    Priority = taskForm.Priority,
+                    ProjectId = taskForm.ProjectId,
+                    DueDate = taskForm.DueDate
+                };
+                await TaskService.CreateTaskAsync(createDto);
+            }
+
+            HideModal();
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving task: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteTask(int taskId)
+    {
+        if (await TaskService.DeleteTaskAsync(taskId))
+        {
+            await LoadData();
+        }
+    }
+
+    private string GetStatusColor(TaskStatus status)
+    {
+        return status switch
+        {
+            TaskStatus.Pending => "secondary",
+            TaskStatus.InProgress => "primary",
+            TaskStatus.Completed => "success",
+            TaskStatus.Cancelled => "danger",
+            TaskStatus.OnHold => "warning",
+            _ => "secondary"
+        };
+    }
+
+    private string GetPriorityColor(Priority priority)
+    {
+        return priority switch
+        {
+            Priority.Low => "secondary",
+            Priority.Medium => "warning",
+            Priority.High => "danger",
+            Priority.Critical => "dark",
+            _ => "secondary"
+        };
+    }
+
+    public class TaskFormModel
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public Priority Priority { get; set; } = Priority.Medium;
+        public int? ProjectId { get; set; }
+        public DateTime? DueDate { get; set; }
+        public TaskStatus Status { get; set; } = TaskStatus.Pending;
+    }
+}

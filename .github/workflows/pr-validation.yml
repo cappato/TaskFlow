@@ -1,0 +1,260 @@
+name: 🔍 Pull Request Validation
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  pr-rules-check:
+    name: 📋 PR Rules Validation
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Validate PR Requirements
+      id: pr-validation
+      run: |
+        echo "🔍 Validating Pull Request requirements..."
+        
+        # Get PR information
+        PR_TITLE="${{ github.event.pull_request.title }}"
+        PR_BODY="${{ github.event.pull_request.body }}"
+        PR_BRANCH="${{ github.head_ref }}"
+        BASE_BRANCH="${{ github.base_ref }}"
+        
+        echo "PR Title: $PR_TITLE"
+        echo "PR Branch: $PR_BRANCH"
+        echo "Target Branch: $BASE_BRANCH"
+        
+        # Validation flags
+        VALIDATION_PASSED=true
+        ERRORS=()
+        
+        # 1. Validate branch name
+        if [[ ! $PR_BRANCH =~ ^(feature|fix|refactor)\/[a-z0-9-]+$ ]]; then
+          ERRORS+=("❌ Invalid branch name: '$PR_BRANCH'. Use: feature/name, fix/name, or refactor/name")
+          VALIDATION_PASSED=false
+        else
+          echo "✅ Branch name is valid"
+        fi
+        
+        # 2. Validate PR title
+        if [ ${#PR_TITLE} -lt 10 ]; then
+          ERRORS+=("❌ PR title too short (minimum 10 characters)")
+          VALIDATION_PASSED=false
+        elif [ ${#PR_TITLE} -gt 72 ]; then
+          ERRORS+=("❌ PR title too long (maximum 72 characters)")
+          VALIDATION_PASSED=false
+        else
+          echo "✅ PR title length is valid"
+        fi
+        
+        # 3. Validate PR description
+        if [ -z "$PR_BODY" ] || [ ${#PR_BODY} -lt 30 ]; then
+          ERRORS+=("❌ PR description required (minimum 30 characters). Explain WHAT and WHY.")
+          VALIDATION_PASSED=false
+        else
+          echo "✅ PR description is adequate"
+        fi
+        
+        # 4. Check if PR description contains required sections
+        if [[ ! $PR_BODY =~ "## Descripción" ]] && [[ ! $PR_BODY =~ "## Description" ]]; then
+          ERRORS+=("⚠️  Consider adding a '## Descripción' section to your PR")
+        fi
+        
+        # 5. Validate target branch
+        if [ "$BASE_BRANCH" != "main" ]; then
+          ERRORS+=("❌ PRs must target 'main' branch, not '$BASE_BRANCH'")
+          VALIDATION_PASSED=false
+        else
+          echo "✅ Target branch is correct"
+        fi
+        
+        # 6. Check for merge conflicts
+        git fetch origin main
+        if ! git merge-tree $(git merge-base HEAD origin/main) HEAD origin/main | grep -q "^$"; then
+          ERRORS+=("⚠️  Potential merge conflicts detected. Please rebase on latest main.")
+        fi
+        
+        # Report results
+        if [ "$VALIDATION_PASSED" = true ]; then
+          echo "🎉 All PR validation rules passed!"
+          echo "validation_status=success" >> $GITHUB_OUTPUT
+        else
+          echo "❌ PR validation failed:"
+          printf '%s\n' "${ERRORS[@]}"
+          echo "validation_status=failure" >> $GITHUB_OUTPUT
+          echo "errors<<EOF" >> $GITHUB_OUTPUT
+          printf '%s\n' "${ERRORS[@]}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        fi
+
+  commit-validation:
+    name: 📝 Validate All Commits in PR
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Validate commits
+      run: |
+        echo "🔍 Validating all commits in this PR..."
+        
+        # Get all commits in this PR
+        git fetch origin main
+        COMMITS=$(git rev-list origin/main..HEAD)
+        
+        if [ -z "$COMMITS" ]; then
+          echo "No commits found in this PR"
+          exit 0
+        fi
+        
+        VALIDATION_PASSED=true
+        COMMIT_COUNT=0
+        
+        # Conventional commit pattern (Spanish descriptions allowed)
+        PATTERN="^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .{1,50}$"
+        
+        for commit in $COMMITS; do
+          COMMIT_COUNT=$((COMMIT_COUNT + 1))
+          MESSAGE=$(git log --format=%s -n 1 $commit)
+          SHORT_HASH=$(git rev-parse --short $commit)
+          
+          echo "Checking commit $SHORT_HASH: $MESSAGE"
+          
+          # Validate commit message format
+          if [[ ! $MESSAGE =~ $PATTERN ]]; then
+            echo "❌ Invalid commit message format in $SHORT_HASH"
+            echo "   Expected: type: description (max 50 chars)"
+            echo "   Got: $MESSAGE"
+            VALIDATION_PASSED=false
+          fi
+          
+          # Check commit size
+          FILES_CHANGED=$(git diff-tree --no-commit-id --name-only -r $commit | wc -l)
+          LINES_CHANGED=$(git diff-tree --no-commit-id --numstat $commit | awk '{sum += $1 + $2} END {print sum}')
+          
+          if [ "$FILES_CHANGED" -gt 10 ]; then
+            echo "❌ Commit $SHORT_HASH modifies too many files ($FILES_CHANGED > 10)"
+            VALIDATION_PASSED=false
+          fi
+          
+          if [ "$LINES_CHANGED" -gt 300 ]; then
+            echo "❌ Commit $SHORT_HASH changes too many lines ($LINES_CHANGED > 300)"
+            VALIDATION_PASSED=false
+          fi
+          
+          if [ "$VALIDATION_PASSED" = true ]; then
+            echo "✅ Commit $SHORT_HASH is valid"
+          fi
+        done
+        
+        echo "Total commits in PR: $COMMIT_COUNT"
+        
+        if [ "$VALIDATION_PASSED" = false ]; then
+          echo "❌ Some commits don't follow the rules. Please fix them."
+          exit 1
+        else
+          echo "🎉 All commits follow the rules!"
+        fi
+
+  file-changes-validation:
+    name: 📁 Validate File Changes
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Check file changes
+      run: |
+        echo "🔍 Validating file changes..."
+        
+        # Get changed files
+        git fetch origin main
+        CHANGED_FILES=$(git diff --name-only origin/main..HEAD)
+        
+        if [ -z "$CHANGED_FILES" ]; then
+          echo "No files changed in this PR"
+          exit 0
+        fi
+        
+        echo "Changed files:"
+        echo "$CHANGED_FILES"
+        
+        # Check for forbidden file changes
+        FORBIDDEN_PATTERNS=(
+          "\.github/workflows/enforce-rules\.yml"
+          "REGLAS_DEL_REPOSITORIO\.md"
+        )
+        
+        for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
+          if echo "$CHANGED_FILES" | grep -E "$pattern"; then
+            echo "⚠️  WARNING: Changes to critical files detected: $pattern"
+            echo "These changes require special approval from maintainers"
+          fi
+        done
+        
+        # Check for large files
+        for file in $CHANGED_FILES; do
+          if [ -f "$file" ]; then
+            SIZE=$(wc -c < "$file")
+            if [ "$SIZE" -gt 100000 ]; then  # 100KB
+              echo "⚠️  WARNING: Large file detected: $file (${SIZE} bytes)"
+              echo "Consider if this file should be in the repository"
+            fi
+          fi
+        done
+        
+        echo "✅ File changes validation completed"
+
+  comment-pr:
+    name: 💬 Comment on PR
+    runs-on: ubuntu-latest
+    needs: [pr-rules-check, commit-validation, file-changes-validation]
+    if: always() && github.event.action == 'opened'
+    steps:
+    - name: Comment on PR
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { owner, repo, number } = context.issue;
+          
+          let comment = `## 🤖 Validación Automática de PR\n\n`;
+          
+          // Check validation results
+          const prValidation = '${{ needs.pr-rules-check.outputs.validation_status }}';
+          const commitValidation = '${{ needs.commit-validation.result }}';
+          const fileValidation = '${{ needs.file-changes-validation.result }}';
+          
+          if (prValidation === 'success' && commitValidation === 'success' && fileValidation === 'success') {
+            comment += `✅ **Todas las validaciones pasaron correctamente**\n\n`;
+            comment += `Tu PR cumple con todas las reglas del repositorio. ¡Buen trabajo!\n\n`;
+          } else {
+            comment += `❌ **Algunas validaciones fallaron**\n\n`;
+            comment += `Por favor revisa los errores en los checks de GitHub Actions y corrígelos.\n\n`;
+          }
+          
+          comment += `### 📋 Checklist de Reglas\n`;
+          comment += `- ${prValidation === 'success' ? '✅' : '❌'} Formato de PR válido\n`;
+          comment += `- ${commitValidation === 'success' ? '✅' : '❌'} Commits siguen convenciones\n`;
+          comment += `- ${fileValidation === 'success' ? '✅' : '❌'} Cambios de archivos válidos\n\n`;
+          
+          comment += `### 📚 Recursos\n`;
+          comment += `- [Reglas del Repositorio](../blob/main/REGLAS_DEL_REPOSITORIO.md)\n`;
+          comment += `- [Conventional Commits](https://www.conventionalcommits.org/)\n`;
+          comment += `- [Guía de Contribución](../blob/main/CONTRIBUTING.md)\n\n`;
+          
+          comment += `---\n`;
+          comment += `*Este comentario fue generado automáticamente por el sistema de validación.*`;
+          
+          await github.rest.issues.createComment({
+            owner,
+            repo,
+            issue_number: number,
+            body: comment
+          });
