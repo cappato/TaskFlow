@@ -1,4 +1,4 @@
-# 📋 TaskFlow
+# TaskFlow
 
 <div align="center">
 
@@ -11,36 +11,36 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://github.com/yourusername/TaskFlow/workflows/.NET%20Build%20and%20Test/badge.svg)](https://github.com/yourusername/TaskFlow/actions)
 
-[🚀 Quick Start](#-getting-started) • [📖 Documentation](#-documentation) • [🤝 Contributing](#-contributing) • [📄 License](#-license)
+[Quick Start](#getting-started) • [Documentation](#documentation) • [Contributing](#contributing) • [License](#license)
 
 </div>
 
 ---
 
-## ✨ Features
+## Features
 
-🎯 **Task Management**
+**Task Management**
 - Create, edit, and delete tasks with rich metadata
 - Multiple status tracking (Pending, In Progress, Completed, etc.)
 - Priority levels (Low, Medium, High, Critical)
 - Due date management with overdue alerts
 
-📁 **Project Organization**
+**Project Organization**
 - Organize tasks into projects
 - Track project progress and completion rates
 - Project timeline management
 
-📊 **Dashboard & Analytics**
+**Dashboard & Analytics**
 - Real-time task statistics
 - Productivity metrics and insights
 - Visual progress tracking
 
-🎨 **Modern UI/UX**
+**Modern UI/UX**
 - Responsive design with Bootstrap
 - Clean and intuitive interface
 - Mobile-friendly experience
 
-## 🚀 Technology Stack
+## Technology Stack
 
 ### Frontend (Client)
 - **Blazor WebAssembly** - SPA framework in C#
@@ -62,7 +62,7 @@
 - **FluentAssertions** - Readable assertions library
 - **Moq** - Mocking framework
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 TaskFlow/
@@ -94,7 +94,7 @@ TaskFlow/
 └── README.md
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
@@ -105,7 +105,7 @@ TaskFlow/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/TaskFlow.git
+   git clone https://github.com/cappato/TaskFlow.git
    cd TaskFlow
    ```
 
@@ -119,9 +119,9 @@ TaskFlow/
    ```
 
 3. **Access the application**
-   - 🌐 **Web App**: https://localhost:7001
-   - 🔧 **API**: https://localhost:7000
-   - 📚 **Swagger**: https://localhost:7000/swagger
+   - **Web App**: https://localhost:7001
+   - **API**: https://localhost:7000
+   - **Swagger**: https://localhost:7000/swagger
 
 ### Manual Setup
 
@@ -153,27 +153,27 @@ TaskFlow/
 
 </details>
 
-## 🎯 Features
+## Current Features
 
-### Current Features
-- ✅ Task management (CRUD operations)
-- ✅ Project management (CRUD operations)
-- ✅ Task status tracking (Pending, In Progress, Completed, etc.)
-- ✅ Priority levels (Low, Medium, High, Critical)
-- ✅ Task-Project relationships
-- ✅ Responsive UI with Bootstrap
-- ✅ REST API with Swagger documentation
-- ✅ Unit tests for business logic
+### Implemented
+- Task management (CRUD operations)
+- Project management (CRUD operations)
+- Task status tracking (Pending, In Progress, Completed, etc.)
+- Priority levels (Low, Medium, High, Critical)
+- Task-Project relationships
+- Responsive UI with Bootstrap
+- REST API with Swagger documentation
+- Unit tests for business logic
 
 ### Planned Features
-- 🔄 User authentication and authorization
-- 🔄 Task assignments to users
-- 🔄 Due date notifications
-- 🔄 Task comments and attachments
-- 🔄 Dashboard with analytics
-- 🔄 Real-time updates with SignalR
+- User authentication and authorization
+- Task assignments to users
+- Due date notifications
+- Task comments and attachments
+- Dashboard with analytics
+- Real-time updates with SignalR
 
-## 🏗️ Architecture
+## Architecture
 
 The application follows a clean architecture pattern:
 
@@ -183,7 +183,7 @@ The application follows a clean architecture pattern:
 - **Data Access Layer**: Repository pattern with Entity Framework Core
 - **Domain Layer**: Entity models and business rules
 
-## 🔧 Configuration
+## Configuration
 
 ### Database
 The application uses Entity Framework Core with SQL Server. The connection string can be configured in:
@@ -193,12 +193,12 @@ The application uses Entity Framework Core with SQL Server. The connection strin
 ### CORS
 CORS is configured to allow the Blazor client to communicate with the API. Update the CORS policy in `Program.cs` if needed.
 
-## 📝 API Documentation
+## API Documentation
 
 When running in development mode, Swagger UI is available at:
 `https://localhost:7000/swagger`
 
-## 📸 Screenshots
+## Screenshots
 
 <details>
 <summary>Click to view screenshots</summary>
@@ -214,19 +214,19 @@ When running in development mode, Swagger UI is available at:
 
 </details>
 
-## 🗺️ Roadmap
+## Roadmap
 
-- [ ] 🔐 User authentication and authorization
-- [ ] 👥 Team collaboration features
-- [ ] 📱 Mobile app (MAUI)
-- [ ] 🔔 Real-time notifications (SignalR)
-- [ ] 📎 File attachments
-- [ ] 💬 Task comments and discussions
-- [ ] 📊 Advanced analytics and reporting
-- [ ] 🌙 Dark mode theme
-- [ ] 🔌 Third-party integrations (GitHub, Slack, etc.)
+- [ ] User authentication and authorization
+- [ ] Team collaboration features
+- [ ] Mobile app (MAUI)
+- [ ] Real-time notifications (SignalR)
+- [ ] File attachments
+- [ ] Task comments and discussions
+- [ ] Advanced analytics and reporting
+- [ ] Dark mode theme
+- [ ] Third-party integrations (GitHub, Slack, etc.)
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
@@ -236,17 +236,17 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📞 Support
+## Support
 
-- 🐛 **Bug Reports**: [Create an issue](https://github.com/yourusername/TaskFlow/issues/new?template=bug_report.md)
-- 💡 **Feature Requests**: [Create an issue](https://github.com/yourusername/TaskFlow/issues/new?template=feature_request.md)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/TaskFlow/discussions)
+- **Bug Reports**: [Create an issue](https://github.com/cappato/TaskFlow/issues/new?template=bug_report.md)
+- **Feature Requests**: [Create an issue](https://github.com/cappato/TaskFlow/issues/new?template=feature_request.md)
+- **Discussions**: [GitHub Discussions](https://github.com/cappato/TaskFlow/discussions)
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with [Blazor WebAssembly](https://blazor.net/)
 - Powered by [ASP.NET Core](https://docs.microsoft.com/aspnet/core/)
@@ -257,8 +257,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**⭐ If you found this project helpful, please give it a star! ⭐**
+**If you found this project helpful, please give it a star!**
 
-Made with ❤️ by the TaskFlow team
+Made with care by the TaskFlow team
 
 </div>
