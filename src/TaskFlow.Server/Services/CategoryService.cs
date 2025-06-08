@@ -1,5 +1,5 @@
-using TaskFlow.Server.Models;
-using TaskFlow.Server.Repositories;
+using TaskFlow.Domain.Entities;
+using TaskFlow.Domain.Interfaces;
 using TaskFlow.Shared.DTOs;
 
 namespace TaskFlow.Server.Services;
@@ -116,18 +116,18 @@ public class CategoryService : ICategoryService
     {
         // Check if the proposed parent is actually a descendant of this category
         var parentCategory = await _categoryRepository.GetByIdAsync(parentCategoryId);
-        
+
         while (parentCategory != null)
         {
             if (parentCategory.Id == categoryId)
                 return true;
-                
+
             if (parentCategory.ParentCategoryId == null)
                 break;
-                
+
             parentCategory = await _categoryRepository.GetByIdAsync(parentCategory.ParentCategoryId.Value);
         }
-        
+
         return false;
     }
 

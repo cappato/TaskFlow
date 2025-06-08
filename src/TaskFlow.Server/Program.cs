@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TaskFlow.Server.Data;
 using TaskFlow.Server.Repositories;
 using TaskFlow.Server.Services;
+using TaskFlow.Domain.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

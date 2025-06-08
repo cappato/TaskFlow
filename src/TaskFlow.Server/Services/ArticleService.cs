@@ -1,7 +1,7 @@
-using TaskFlow.Server.Models;
-using TaskFlow.Server.Repositories;
+using TaskFlow.Domain.Entities;
+using TaskFlow.Domain.Interfaces;
+using TaskFlow.Domain.Enums;
 using TaskFlow.Shared.DTOs;
-using TaskFlow.Shared.Enums;
 
 namespace TaskFlow.Server.Services;
 

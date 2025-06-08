@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TaskFlow.Server.Services;
 using TaskFlow.Shared.DTOs;
-using TaskFlow.Shared.Enums;
+using TaskFlow.Domain.Enums;
 
 namespace TaskFlow.Server.Controllers;
 
@@ -66,7 +66,7 @@ public class ArticlesController : ControllerBase
 
     [HttpGet("attribute")]
     public async Task<ActionResult<IEnumerable<ArticleDto>>> GetArticlesByAttribute(
-        [FromQuery] string attributeName, 
+        [FromQuery] string attributeName,
         [FromQuery] string value)
     {
         if (string.IsNullOrEmpty(attributeName) || string.IsNullOrEmpty(value))

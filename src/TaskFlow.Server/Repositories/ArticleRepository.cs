@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Server.Data;
-using TaskFlow.Server.Models;
-using TaskFlow.Shared.Enums;
+using TaskFlow.Domain.Entities;
+using TaskFlow.Domain.Enums;
+using TaskFlow.Domain.Interfaces;
 
 namespace TaskFlow.Server.Repositories;
 
@@ -91,8 +92,8 @@ public class ArticleRepository : IArticleRepository
             .Include(a => a.Supplier)
             .Include(a => a.AttributeValues)
                 .ThenInclude(av => av.CustomAttribute)
-            .Where(a => a.AttributeValues.Any(av => 
-                av.CustomAttribute.Name == attributeName && 
+            .Where(a => a.AttributeValues.Any(av =>
+                av.CustomAttribute.Name == attributeName &&
                 av.Value.ToLower().Contains(value.ToLower())))
             .OrderByDescending(a => a.CreatedAt)
             .ToListAsync();
@@ -106,7 +107,7 @@ public class ArticleRepository : IArticleRepository
             .Include(a => a.Supplier)
             .Include(a => a.AttributeValues)
                 .ThenInclude(av => av.CustomAttribute)
-            .Where(a => 
+            .Where(a =>
                 a.Name.ToLower().Contains(term) ||
                 a.SKU.ToLower().Contains(term) ||
                 a.Brand.ToLower().Contains(term) ||

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Server.Data;
-using TaskFlow.Server.Models;
+using TaskFlow.Domain.Entities;
+using TaskFlow.Domain.Interfaces;
 
 namespace TaskFlow.Server.Repositories;
 
@@ -65,7 +66,7 @@ public class CategoryRepository : ICategoryRepository
         category.CreatedAt = DateTime.UtcNow;
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
-        
+
         return await GetByIdAsync(category.Id) ?? category;
     }
 

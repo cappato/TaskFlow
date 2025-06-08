@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Server.Data;
-using TaskFlow.Server.Models;
+using TaskFlow.Domain.Entities;
+using TaskFlow.Domain.Interfaces;
 
 namespace TaskFlow.Server.Repositories;
 
@@ -87,7 +88,7 @@ public class ArticleAttributeValueRepository : IArticleAttributeValueRepository
 
         // 3. Create new attribute values
         var newAttributeValues = new List<ArticleAttributeValue>();
-        
+
         foreach (var kvp in attributes)
         {
             var customAttribute = customAttributes.FirstOrDefault(ca => ca.Name == kvp.Key);

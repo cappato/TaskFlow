@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using TaskFlow.Server.Models;
-using TaskFlow.Shared.Enums;
+using TaskFlow.Domain.Entities;
+using TaskFlow.Domain.Enums;
 
 namespace TaskFlow.Server.Data;
 

@@ -1,5 +1,5 @@
-using TaskFlow.Server.Models;
-using TaskFlow.Server.Repositories;
+using TaskFlow.Domain.Entities;
+using TaskFlow.Domain.Interfaces;
 using TaskFlow.Shared.DTOs;
 
 namespace TaskFlow.Server.Services;
@@ -65,7 +65,7 @@ public class CustomAttributeService : ICustomAttributeService
         // Update properties
         if (!string.IsNullOrEmpty(updateAttributeDto.Name))
         {
-            if (updateAttributeDto.Name != existingAttribute.Name && 
+            if (updateAttributeDto.Name != existingAttribute.Name &&
                 await _customAttributeRepository.ExistsByNameAsync(updateAttributeDto.Name))
             {
                 throw new InvalidOperationException($"Ya existe un atributo con nombre: {updateAttributeDto.Name}");
