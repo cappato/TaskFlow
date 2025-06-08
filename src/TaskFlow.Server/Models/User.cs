@@ -9,5 +9,5 @@ public class User
     public bool IsActive { get; set; } = true;
 
     // Navigation properties
-    public virtual ICollection<TaskItem> AssignedTasks { get; set; } = new List<TaskItem>();
+    public virtual ICollection<Article> SuppliedArticles { get; set; } = new List<Article>();
 }
