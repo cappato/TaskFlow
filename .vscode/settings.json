@@ -6,7 +6,6 @@
         "**/.vs": true
     },
     "omnisharp.enableEditorConfigSupport": true,
-    "omnisharp.enableImportCompletion": true,
     "omnisharp.enableRoslynAnalyzers": true,
     "csharp.semanticHighlighting.enabled": true,
     "editor.formatOnSave": true,
@@ -25,5 +24,6 @@
     "less.validate": true,
     "scss.validate": true,
     "typescript.preferences.includePackageJsonAutoImports": "auto",
-    "javascript.preferences.includePackageJsonAutoImports": "auto"
+    "javascript.preferences.includePackageJsonAutoImports": "auto",
+    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true
 }

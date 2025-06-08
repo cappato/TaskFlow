@@ -5,6 +5,13 @@ using TaskFlow.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure port for Railway deployment
+if (!builder.Environment.IsDevelopment())
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -27,9 +34,20 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("BlazorClient", policy =>
     {
-        policy.WithOrigins("https://localhost:7001", "http://localhost:5001")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        if (builder.Environment.IsDevelopment())
+        {
+            policy.WithOrigins("https://localhost:7001", "http://localhost:5001")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        }
+        else
+        {
+            // Production CORS - allow Railway domains
+            policy.WithOrigins("https://*.railway.app", "https://*.up.railway.app")
+                  .SetIsOriginAllowedToAllowWildcardSubdomains()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        }
     });
 });
 
@@ -49,6 +67,9 @@ app.UseCors("BlazorClient");
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Health check endpoint for Railway
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 // Ensure database is created
 using (var scope = app.Services.CreateScope())

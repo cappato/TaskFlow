@@ -358,3 +358,11 @@ FodyWeavers.xsd
 
 # Augment AI Assistant files
 .augment/
+
+# Deployment files
+publish/
+*.zip
+*.tar.gz
+
+# Railway
+.railway/
