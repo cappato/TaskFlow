@@ -10,11 +10,11 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 // Configure HttpClient for API calls
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("https://localhost:7000/")
+    BaseAddress = new Uri("http://localhost:5001/")
 });
 
 // Add services
-builder.Services.AddScoped<ITaskApiService, TaskApiService>();
-builder.Services.AddScoped<IProjectApiService, ProjectApiService>();
+builder.Services.AddScoped<IArticleApiService, ArticleApiService>();
+builder.Services.AddScoped<ICustomAttributeApiService, CustomAttributeApiService>();
 
 await builder.Build().RunAsync();
