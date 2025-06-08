@@ -45,9 +45,9 @@ echo ========================================
 echo TaskFlow Development Environment Started!
 echo ========================================
 echo.
-echo API Server: https://localhost:7000
-echo Swagger UI: https://localhost:7000/swagger
-echo Blazor Client: https://localhost:7001
+echo API Server: http://localhost:5001
+echo Swagger UI: http://localhost:5001/swagger
+echo Blazor Client: http://localhost:5002
 echo.
 echo Press any key to stop all services...
 pause > nul

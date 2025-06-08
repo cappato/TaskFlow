@@ -30,7 +30,11 @@ public class TaskFlowDbContext : DbContext
             entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Description).HasMaxLength(1000);
             entity.Property(e => e.Brand).HasMaxLength(100);
-            entity.Property(e => e.Type).HasConversion<int>();
+            entity.Property(e => e.Type)
+                .HasConversion(
+                    v => v.ToString(),                    // Enum → String
+                    v => (ArticleType)Enum.Parse(typeof(ArticleType), v)  // String → Enum
+                );
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.HasIndex(e => e.SKU).IsUnique();
 
@@ -67,7 +71,11 @@ public class TaskFlowDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.DisplayName).IsRequired().HasMaxLength(150);
-            entity.Property(e => e.Type).HasConversion<int>();
+            entity.Property(e => e.Type)
+                .HasConversion(
+                    v => v.ToString(),                    // Enum → String
+                    v => (AttributeType)Enum.Parse(typeof(AttributeType), v)  // String → Enum
+                );
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.HasIndex(e => e.Name).IsUnique();
         });
