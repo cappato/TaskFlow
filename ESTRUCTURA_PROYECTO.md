@@ -4,38 +4,28 @@
 
 Sistema PIM (Product Information Manager) para gestión de artículos deportivos con atributos dinámicos, desarrollado en .NET 8 con Blazor WebAssembly.
 
-## � **PROPUESTA DE REFACTOR: Clean Architecture + DDD**
+## ✅ **ARQUITECTURA IMPLEMENTADA: Clean Architecture + DDD**
 
-### 📋 **Estructura Actual vs Propuesta**
+### 📋 **Estructura Actual (Clean Architecture)**
 
-**🟡 ACTUAL (Funcional pero acoplada):**
-
-```
-src/
-├── TaskFlow.Server/     # API + Servicios + Repositorios + Modelos
-├── TaskFlow.Client/     # Frontend Blazor
-└── TaskFlow.Shared/     # DTOs + Enums
-```
-
-**🟢 PROPUESTA (Clean Architecture):**
+**🟢 IMPLEMENTADO (Clean Architecture):**
 
 ```
 src/
-├── TaskFlow.Domain/          # 🆕 Entidades puras + Interfaces
-├── TaskFlow.Application/     # 🆕 Casos de uso + DTOs + Servicios
-├── TaskFlow.Infrastructure/  # 🆕 Repositorios + DbContext + External
-├── TaskFlow.Server/          # Solo Controllers + DI + Middleware
-├── TaskFlow.Client/          # Sin cambios (ya está bien)
-└── TaskFlow.Shared/          # Solo DTOs de comunicación API
+├── TaskFlow.Domain/          # ✅ Entidades + Interfaces + Enums
+├── TaskFlow.Server/          # ✅ Controllers + Repositorios + Servicios + DbContext
+├── TaskFlow.Client/          # ✅ Frontend Blazor WebAssembly
+└── TaskFlow.Shared/          # ✅ DTOs de comunicación API
 ```
 
-### 🎯 **Beneficios del Refactor:**
+### 🎯 **Beneficios Logrados:**
 
-- ✅ **Testabilidad**: Dominio puro sin dependencias
-- ✅ **Escalabilidad**: Preparado para MongoDB migration
-- ✅ **Mantenibilidad**: Responsabilidades ultra-claras
-- ✅ **Reutilización**: Dominio independiente del framework
+- ✅ **Separación de Responsabilidades**: Domain layer independiente
+- ✅ **Testabilidad**: Entidades puras sin dependencias externas
+- ✅ **Mantenibilidad**: Código organizado por capas
+- ✅ **Reutilización**: Domain entities reutilizables
 - ✅ **SOLID**: Principios aplicados correctamente
+- ✅ **DDD**: Domain-Driven Design implementado
 
 ## �📂 Estructura de Carpetas
 
@@ -64,20 +54,39 @@ TaskFlow/
 │   └── 📄 respuesta a auditoria.md       # Respuesta a auditoría
 │
 ├── 📁 src/                                # Código fuente
-│   ├── 📁 TaskFlow.Shared/                # Proyecto compartido
-│   │   ├── 📄 TaskFlow.Shared.csproj     # Archivo de proyecto
-│   │   ├── 📁 DTOs/                       # Data Transfer Objects
-│   │   │   ├── 📄 ArticleDto.cs          # DTO de artículos
-│   │   │   ├── 📄 CategoryDto.cs         # DTO de categorías
-│   │   │   ├── 📄 CustomAttributeDto.cs  # DTO de atributos
-│   │   │   └── 📄 ArticleAttributeValueDto.cs # DTO valores atributos
-│   │   └── 📁 Enums/                      # Enumeraciones
-│   │       ├── 📄 ArticleType.cs         # Tipos de artículos
-│   │       └── 📄 AttributeDataType.cs   # Tipos de datos atributos
+│   ├── 📁 TaskFlow.Domain/                # 🆕 Capa de Dominio (Clean Architecture)
+│   │   ├── 📄 TaskFlow.Domain.csproj     # Archivo de proyecto
+│   │   ├── 📁 Entities/                   # Entidades de dominio
+│   │   │   ├── 📄 Article.cs             # Entidad artículo
+│   │   │   ├── 📄 Category.cs            # Entidad categoría
+│   │   │   ├── 📄 CustomAttribute.cs     # Entidad atributo personalizado
+│   │   │   ├── 📄 ArticleAttributeValue.cs # Entidad valor atributo
+│   │   │   ├── 📄 ArticleVariant.cs      # Entidad variante artículo
+│   │   │   └── 📄 User.cs                # Entidad usuario
+│   │   ├── 📁 Enums/                      # Enumeraciones de dominio
+│   │   │   ├── 📄 ArticleType.cs         # Tipos de artículos
+│   │   │   └── 📄 AttributeType.cs       # Tipos de atributos
+│   │   └── 📁 Interfaces/                 # Interfaces de repositorios
+│   │       ├── 📄 IArticleRepository.cs  # Interfaz repositorio artículos
+│   │       ├── 📄 ICategoryRepository.cs # Interfaz repositorio categorías
+│   │       ├── 📄 ICustomAttributeRepository.cs # Interfaz repositorio atributos
+│   │       └── 📄 IArticleAttributeValueRepository.cs # Interfaz repositorio valores
 │   │
-│   ├── 📁 TaskFlow.Server/                # Backend API
-│   │   ├── 📄 TaskFlow.Server.csproj     # Archivo de proyecto
-│   │   ├── 📄 Program.cs                 # Punto de entrada
+│   ├── 📁 TaskFlow.Shared/                # Proyecto compartido (DTOs)
+│   │   ├── 📄 TaskFlow.Shared.csproj     # Archivo de proyecto
+│   │   └── 📁 DTOs/                       # Data Transfer Objects
+│   │       ├── 📄 ArticleDto.cs          # DTO de artículos
+│   │       ├── 📄 CategoryDto.cs         # DTO de categorías
+│   │       ├── 📄 CustomAttributeDto.cs  # DTO de atributos
+│   │       ├── 📄 CreateArticleDto.cs    # DTO creación artículos
+│   │       ├── 📄 UpdateArticleDto.cs    # DTO actualización artículos
+│   │       ├── 📄 CreateCustomAttributeDto.cs # DTO creación atributos
+│   │       ├── 📄 UpdateCustomAttributeDto.cs # DTO actualización atributos
+│   │       └── 📄 ArticleAttributeValueDto.cs # DTO valores atributos
+│   │
+│   ├── 📁 TaskFlow.Server/                # Backend API (Infrastructure Layer)
+│   │   ├── 📄 TaskFlow.Server.csproj     # Archivo de proyecto (referencia Domain)
+│   │   ├── 📄 Program.cs                 # Punto de entrada y configuración DI
 │   │   ├── 📄 appsettings.json           # Configuración general
 │   │   ├── 📄 appsettings.Development.json # Configuración desarrollo
 │   │   ├── 📄 appsettings.Production.json # Configuración producción
@@ -86,33 +95,22 @@ TaskFlow/
 │   │   ├── 📄 web.config                 # Configuración IIS
 │   │   │
 │   │   ├── 📁 Controllers/               # Controladores API
-│   │   │   ├── 📄 ArticlesController.cs  # API de artículos
+│   │   │   ├── 📄 ArticlesController.cs  # API de artículos (usa Domain entities)
 │   │   │   ├── 📄 CategoriesController.cs # API de categorías
 │   │   │   └── 📄 CustomAttributesController.cs # API de atributos
 │   │   │
 │   │   ├── 📁 Data/                      # Contexto de datos
-│   │   │   ├── 📄 TaskFlowDbContext.cs   # Contexto Entity Framework
-│   │   │   └── 📄 DbInitializer.cs       # Inicializador de datos
+│   │   │   └── 📄 TaskFlowDbContext.cs   # Contexto EF (usa Domain entities)
 │   │   │
-│   │   ├── 📁 Models/                    # Modelos de datos
-│   │   │   ├── 📄 Article.cs             # Modelo de artículo
-│   │   │   ├── 📄 Category.cs            # Modelo de categoría
-│   │   │   ├── 📄 CustomAttribute.cs     # Modelo de atributo
-│   │   │   └── 📄 ArticleAttributeValue.cs # Modelo valor atributo
+│   │   ├── 📁 Repositories/              # Implementaciones de repositorios
+│   │   │   ├── 📄 ArticleRepository.cs   # Implementa IArticleRepository (Domain)
+│   │   │   ├── 📄 CategoryRepository.cs  # Implementa ICategoryRepository (Domain)
+│   │   │   ├── 📄 CustomAttributeRepository.cs # Implementa ICustomAttributeRepository
+│   │   │   └── 📄 ArticleAttributeValueRepository.cs # Implementa IArticleAttributeValueRepository
 │   │   │
-│   │   ├── 📁 Repositories/              # Repositorios de datos
-│   │   │   ├── 📄 IArticleRepository.cs  # Interfaz artículos
-│   │   │   ├── 📄 ArticleRepository.cs   # Implementación artículos
-│   │   │   ├── 📄 ICategoryRepository.cs # Interfaz categorías
-│   │   │   ├── 📄 CategoryRepository.cs  # Implementación categorías
-│   │   │   ├── 📄 ICustomAttributeRepository.cs # Interfaz atributos
-│   │   │   ├── 📄 CustomAttributeRepository.cs # Implementación atributos
-│   │   │   ├── 📄 IArticleAttributeValueRepository.cs # Interfaz valores
-│   │   │   └── 📄 ArticleAttributeValueRepository.cs # Implementación valores
-│   │   │
-│   │   ├── 📁 Services/                  # Servicios de negocio
+│   │   ├── 📁 Services/                  # Servicios de aplicación
 │   │   │   ├── 📄 IArticleService.cs     # Interfaz servicio artículos
-│   │   │   ├── 📄 ArticleService.cs      # Servicio artículos
+│   │   │   ├── 📄 ArticleService.cs      # Servicio artículos (usa Domain entities)
 │   │   │   ├── 📄 ICategoryService.cs    # Interfaz servicio categorías
 │   │   │   ├── 📄 CategoryService.cs     # Servicio categorías
 │   │   │   ├── 📄 ICustomAttributeService.cs # Interfaz servicio atributos
@@ -189,27 +187,37 @@ TaskFlow/
 
 ## 🎯 Descripción de Componentes Principales
 
-### 🔧 Backend (TaskFlow.Server)
+### 🏛️ Domain Layer (TaskFlow.Domain)
+
+- **Entidades de dominio** puras sin dependencias externas
+- **Interfaces de repositorios** que definen contratos
+- **Enums de dominio** centralizados
+- **Lógica de negocio** encapsulada en entidades
+- **Independiente del framework** y base de datos
+
+### 🔧 Infrastructure Layer (TaskFlow.Server)
 
 - **API REST** con controladores para artículos, categorías y atributos
 - **Entity Framework Core** con SQLite para persistencia
-- **Patrón Repository** para acceso a datos
-- **Servicios de negocio** con validaciones y lógica
+- **Implementaciones de repositorios** que usan Domain interfaces
+- **Servicios de aplicación** con validaciones y lógica
 - **CORS configurado** para comunicación con frontend
+- **Inyección de dependencias** configurada
 
-### 🎨 Frontend (TaskFlow.Client)
+### 🎨 Presentation Layer (TaskFlow.Client)
 
 - **Blazor WebAssembly** con diseño moderno
 - **Tailwind CSS** para estilos responsivos
 - **Componentes reutilizables** y layouts modernos
 - **Servicios API** para comunicación con backend
 - **Formularios dinámicos** para atributos personalizados
+- **Referencias a Domain** para usar enums
 
-### 📦 Shared (TaskFlow.Shared)
+### 📦 Communication Layer (TaskFlow.Shared)
 
-- **DTOs** para transferencia de datos
-- **Enums** compartidos entre frontend y backend
-- **Modelos** de dominio comunes
+- **DTOs** para transferencia de datos entre capas
+- **Contratos de API** bien definidos
+- **Referencias a Domain** para consistencia de tipos
 
 ### 🧪 Tests (TaskFlow.Server.Tests)
 
@@ -231,10 +239,13 @@ TaskFlow/
 
 ## 📊 Métricas del Proyecto
 
-- **📁 Carpetas**: 25+
-- **📄 Archivos de código**: 50+
+- **📁 Proyectos**: 4 (Domain, Server, Client, Shared)
+- **📁 Carpetas**: 30+
+- **📄 Archivos de código**: 60+
 - **🧪 Tests**: 67 (100% éxito)
 - **🎯 Funcionalidades**: Sistema PIM completo
 - **📱 Responsive**: Diseño adaptativo
 - **🔒 Seguro**: Validaciones y CORS configurado
+- **🏗️ Arquitectura**: Clean Architecture + DDD implementado
+- **🔄 Separación**: Domain layer independiente
 
