@@ -1,4 +1,4 @@
-using TaskFlow.Shared.Enums;
+using TaskFlow.Domain.Enums;
 
 namespace TaskFlow.Shared.DTOs;
 
