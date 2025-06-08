@@ -1,185 +1,67 @@
 @page "/"
-@layout ModernLayout
 
-<PageTitle>Inicio - TaskFlow</PageTitle>
+<PageTitle>Inicio - TaskFlow PIM</PageTitle>
 
 <!-- Hero Section -->
 <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-8 mb-8 text-white">
     <div class="max-w-3xl">
-        <h1 class="text-4xl font-bold mb-4">Bienvenido a TaskFlow</h1>
-        <p class="text-xl text-blue-100 mb-6">Gestiona tus tareas y proyectos de manera eficiente con nuestra plataforma moderna</p>
+        <h1 class="text-4xl font-bold mb-4">Bienvenido a TaskFlow PIM</h1>
+        <p class="text-xl text-blue-100 mb-6">Gestiona tu catálogo de artículos deportivos con atributos dinámicos</p>
         <div class="flex space-x-4">
-            <Button Variant="ButtonVariant.Secondary" OnClick="@(() => NavigateToTasks())">
-                <Icon>
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                </Icon>
-                <ChildContent>Nueva Tarea</ChildContent>
-            </Button>
-            <Button Variant="ButtonVariant.Ghost" AdditionalClasses="text-white border-white hover:bg-white hover:text-blue-600">
-                <ChildContent>Ver Proyectos</ChildContent>
-            </Button>
+            <button class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors" @onclick="NavigateToArticles">Nuevo Artículo</button>
+            <button class="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors" @onclick="NavigateToAttributes">Gestionar Atributos</button>
         </div>
     </div>
 </div>
 
-@if (isLoading)
-{
-    <div class="flex justify-center items-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <span class="ml-3 text-gray-600">Cargando datos...</span>
+<!-- Features Info -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+            <svg class="w-6 h-6 text-yellow-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+            </svg>
+            Características del Sistema PIM
+        </h2>
     </div>
-}
-else
-{
-    <!-- Dashboard Statistics -->
-    <ModernDashboardStats Tasks="recentTasks" />
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-        <!-- Recent Tasks -->
-        <Card Title="Tareas Recientes" Hover="true">
-            <ChildContent>
-                @if (recentTasks != null && recentTasks.Any())
-                {
-                    <div class="space-y-4">
-                        @foreach (var task in recentTasks.Take(4))
-                        {
-                            <ModernTaskCard Task="task" ShowActions="false" />
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center py-8">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                        </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">No hay tareas</h3>
-                        <p class="mt-1 text-sm text-gray-500">Comienza creando tu primera tarea.</p>
-                        <div class="mt-6">
-                            <Button OnClick="@(() => NavigateToTasks())">
-                                <Icon>
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                    </svg>
-                                </Icon>
-                                <ChildContent>Crear Primera Tarea</ChildContent>
-                            </Button>
-                        </div>
-                    </div>
-                }
-            </ChildContent>
-            <Actions>
-                @if (recentTasks != null && recentTasks.Any())
-                {
-                    <Button OnClick="@(() => NavigateToTasks())">
-                        <ChildContent>Ver Todas las Tareas</ChildContent>
-                    </Button>
-                }
-            </Actions>
-        </Card>
-
-        <!-- Active Projects -->
-        <Card Title="Proyectos Activos" Hover="true">
-            <ChildContent>
-                @if (activeProjects != null && activeProjects.Any())
-                {
-                    <div class="space-y-4">
-                        @foreach (var project in activeProjects.Take(5))
-                        {
-                            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h4 class="font-medium text-gray-900">@project.Name</h4>
-                                    <span class="text-sm text-gray-500">@project.TaskCount tareas</span>
-                                </div>
-                                <p class="text-sm text-gray-600 mb-3">@project.Description</p>
-                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                         style="width: @(project.TaskCount > 0 ? (project.CompletedTaskCount * 100 / project.TaskCount) : 0)%"></div>
-                                </div>
-                                <div class="mt-2 text-xs text-gray-500">
-                                    @project.CompletedTaskCount de @project.TaskCount completadas
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center py-8">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                        </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">No hay proyectos</h3>
-                        <p class="mt-1 text-sm text-gray-500">Organiza tus tareas creando proyectos.</p>
-                        <div class="mt-6">
-                            <Button OnClick="@(() => NavigateToProjects())">
-                                <Icon>
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                    </svg>
-                                </Icon>
-                                <ChildContent>Crear Primer Proyecto</ChildContent>
-                            </Button>
-                        </div>
-                    </div>
-                }
-            </ChildContent>
-            <Actions>
-                @if (activeProjects != null && activeProjects.Any())
-                {
-                    <Button OnClick="@(() => NavigateToProjects())">
-                        <ChildContent>Ver Todos los Proyectos</ChildContent>
-                    </Button>
-                }
-            </Actions>
-        </Card>
+    <div class="p-6">
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Atributos Dinámicos</h3>
+                    <p class="text-gray-600">Crea campos personalizados como color, talle, material sin modificar código.</p>
+                </div>
+            </div>
+            <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Búsqueda Avanzada</h3>
+                    <p class="text-gray-600">Filtra productos por cualquier atributo personalizado que hayas creado.</p>
+                </div>
+            </div>
+        </div>
     </div>
-}
+</div>
 
-@using TaskFlow.Client.Components.UI
-@using TaskFlow.Client.Components.Layout
+@inject NavigationManager Navigation
 
 @code {
-    private IEnumerable<TaskDto>? recentTasks;
-    private IEnumerable<ProjectDto>? activeProjects;
-    private bool isLoading = true;
-
-    [Inject] public ITaskApiService TaskService { get; set; } = default!;
-    [Inject] public IProjectApiService ProjectService { get; set; } = default!;
-    [Inject] public NavigationManager Navigation { get; set; } = default!;
-
-    protected override async Task OnInitializedAsync()
+    private void NavigateToArticles()
     {
-        await LoadDashboardData();
+        Navigation.NavigateTo("/articles");
     }
 
-    private async Task LoadDashboardData()
+    private void NavigateToAttributes()
     {
-        isLoading = true;
-        try
-        {
-            recentTasks = await TaskService.GetAllTasksAsync();
-            activeProjects = await ProjectService.GetActiveProjectsAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading dashboard data: {ex.Message}");
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-
-    private void NavigateToTasks()
-    {
-        Navigation.NavigateTo("/tasks");
-    }
-
-    private void NavigateToProjects()
-    {
-        Navigation.NavigateTo("/projects");
+        Navigation.NavigateTo("/attributes");
     }
 }

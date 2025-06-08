@@ -1,0 +1,51 @@
+@using TaskFlow.Shared.DTOs
+@using TaskFlow.Shared.Enums
+
+<div class="space-y-4">
+    @if (Attributes != null && Attributes.Any())
+    {
+        @foreach (var attribute in Attributes.OrderBy(a => a.SortOrder))
+        {
+            <div class="form-group">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    @(attribute.DisplayName)
+                    @if (attribute.IsRequired)
+                    {
+                        <span class="text-red-500">*</span>
+                    }
+                </label>
+
+                <input type="text"
+                       class="form-control"
+                       value="@GetAttributeValue(attribute.Name)"
+                       @onchange="@(e => SetAttributeValue(attribute.Name, e.Value?.ToString() ?? string.Empty))" />
+
+                @if (!string.IsNullOrEmpty(attribute.DefaultValue) && string.IsNullOrEmpty(GetAttributeValue(attribute.Name)))
+                {
+                    <small class="text-muted">Valor por defecto: @(attribute.DefaultValue)</small>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <p class="text-muted">No hay atributos personalizados definidos.</p>
+    }
+</div>
+
+@code {
+    [Parameter] public IEnumerable<CustomAttributeDto>? Attributes { get; set; }
+    [Parameter] public Dictionary<string, object> Values { get; set; } = new();
+    [Parameter] public EventCallback<Dictionary<string, object>> ValuesChanged { get; set; }
+
+    private string GetAttributeValue(string attributeName)
+    {
+        return Values.TryGetValue(attributeName, out var value) ? value?.ToString() ?? string.Empty : string.Empty;
+    }
+
+    private async Task SetAttributeValue(string attributeName, string value)
+    {
+        Values[attributeName] = value;
+        await ValuesChanged.InvokeAsync(Values);
+    }
+}
