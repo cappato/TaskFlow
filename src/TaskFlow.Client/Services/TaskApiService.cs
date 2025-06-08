@@ -55,7 +55,7 @@ public class TaskApiService : ITaskApiService
         }
     }
 
-    public async Task<IEnumerable<TaskDto>> GetTasksByStatusAsync(TaskStatus status)
+    public async Task<IEnumerable<TaskDto>> GetTasksByStatusAsync(TaskState status)
     {
         try
         {
@@ -75,7 +75,7 @@ public class TaskApiService : ITaskApiService
         {
             var response = await _httpClient.PostAsJsonAsync(ApiEndpoint, createTaskDto);
             response.EnsureSuccessStatusCode();
-            
+
             var task = await response.Content.ReadFromJsonAsync<TaskDto>();
             return task ?? throw new InvalidOperationException("Failed to create task");
         }
@@ -92,7 +92,7 @@ public class TaskApiService : ITaskApiService
         {
             var response = await _httpClient.PutAsJsonAsync($"{ApiEndpoint}/{id}", updateTaskDto);
             response.EnsureSuccessStatusCode();
-            
+
             return await response.Content.ReadFromJsonAsync<TaskDto>();
         }
         catch (Exception ex)

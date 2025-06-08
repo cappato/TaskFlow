@@ -79,7 +79,7 @@ public class ProjectService : IProjectService
             EndDate = project.EndDate,
             IsActive = project.IsActive,
             TaskCount = project.Tasks.Count,
-            CompletedTaskCount = project.Tasks.Count(t => t.Status == TaskStatus.Completed)
+            CompletedTaskCount = project.Tasks.Count(t => t.Status == TaskState.Completed)
         };
     }
 }

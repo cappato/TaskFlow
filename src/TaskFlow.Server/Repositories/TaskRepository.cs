@@ -41,7 +41,7 @@ public class TaskRepository : ITaskRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<TaskItem>> GetByStatusAsync(TaskStatus status)
+    public async Task<IEnumerable<TaskItem>> GetByStatusAsync(TaskState status)
     {
         return await _context.Tasks
             .Include(t => t.Project)
@@ -66,7 +66,7 @@ public class TaskRepository : ITaskRepository
         task.CreatedAt = DateTime.UtcNow;
         _context.Tasks.Add(task);
         await _context.SaveChangesAsync();
-        
+
         return await GetByIdAsync(task.Id) ?? task;
     }
 
@@ -77,12 +77,12 @@ public class TaskRepository : ITaskRepository
             return null;
 
         _context.Entry(existingTask).CurrentValues.SetValues(task);
-        
-        if (task.Status == TaskStatus.Completed && existingTask.CompletedAt == null)
+
+        if (task.Status == TaskState.Completed && existingTask.CompletedAt == null)
         {
             existingTask.CompletedAt = DateTime.UtcNow;
         }
-        else if (task.Status != TaskStatus.Completed)
+        else if (task.Status != TaskState.Completed)
         {
             existingTask.CompletedAt = null;
         }

@@ -41,7 +41,7 @@ public class TasksController : ControllerBase
     }
 
     [HttpGet("status/{status}")]
-    public async Task<ActionResult<IEnumerable<TaskDto>>> GetTasksByStatus(TaskStatus status)
+    public async Task<ActionResult<IEnumerable<TaskDto>>> GetTasksByStatus(TaskState status)
     {
         var tasks = await _taskService.GetTasksByStatusAsync(status);
         return Ok(tasks);

@@ -32,7 +32,7 @@ public class TaskService : ITaskService
         return tasks.Select(MapToDto);
     }
 
-    public async Task<IEnumerable<TaskDto>> GetTasksByStatusAsync(TaskStatus status)
+    public async Task<IEnumerable<TaskDto>> GetTasksByStatusAsync(TaskState status)
     {
         var tasks = await _taskRepository.GetByStatusAsync(status);
         return tasks.Select(MapToDto);
@@ -54,7 +54,7 @@ public class TaskService : ITaskService
             DueDate = createTaskDto.DueDate,
             ProjectId = createTaskDto.ProjectId,
             AssignedToUserId = createTaskDto.AssignedToUserId,
-            Status = TaskStatus.Pending
+            Status = TaskState.Pending
         };
 
         var createdTask = await _taskRepository.CreateAsync(task);
@@ -70,22 +70,22 @@ public class TaskService : ITaskService
         // Update only provided fields
         if (!string.IsNullOrEmpty(updateTaskDto.Title))
             existingTask.Title = updateTaskDto.Title;
-        
+
         if (!string.IsNullOrEmpty(updateTaskDto.Description))
             existingTask.Description = updateTaskDto.Description;
-        
+
         if (updateTaskDto.Status.HasValue)
             existingTask.Status = updateTaskDto.Status.Value;
-        
+
         if (updateTaskDto.Priority.HasValue)
             existingTask.Priority = updateTaskDto.Priority.Value;
-        
+
         if (updateTaskDto.DueDate.HasValue)
             existingTask.DueDate = updateTaskDto.DueDate.Value;
-        
+
         if (updateTaskDto.ProjectId.HasValue)
             existingTask.ProjectId = updateTaskDto.ProjectId.Value;
-        
+
         if (updateTaskDto.AssignedToUserId.HasValue)
             existingTask.AssignedToUserId = updateTaskDto.AssignedToUserId.Value;
 

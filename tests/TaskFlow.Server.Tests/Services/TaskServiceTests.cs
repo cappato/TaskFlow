@@ -5,6 +5,7 @@ using TaskFlow.Server.Repositories;
 using TaskFlow.Server.Services;
 using TaskFlow.Shared.DTOs;
 using TaskFlow.Shared.Enums;
+using Xunit;
 
 namespace TaskFlow.Server.Tests.Services;
 
@@ -25,8 +26,8 @@ public class TaskServiceTests
         // Arrange
         var tasks = new List<TaskItem>
         {
-            new TaskItem { Id = 1, Title = "Task 1", Description = "Description 1", Status = TaskStatus.Pending, Priority = Priority.Medium, CreatedAt = DateTime.UtcNow },
-            new TaskItem { Id = 2, Title = "Task 2", Description = "Description 2", Status = TaskStatus.InProgress, Priority = Priority.High, CreatedAt = DateTime.UtcNow }
+            new TaskItem { Id = 1, Title = "Task 1", Description = "Description 1", Status = TaskState.Pending, Priority = Priority.Medium, CreatedAt = DateTime.UtcNow },
+            new TaskItem { Id = 2, Title = "Task 2", Description = "Description 2", Status = TaskState.InProgress, Priority = Priority.High, CreatedAt = DateTime.UtcNow }
         };
 
         _mockTaskRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(tasks);
@@ -44,14 +45,14 @@ public class TaskServiceTests
     public async Task GetTaskByIdAsync_WithValidId_ShouldReturnTask()
     {
         // Arrange
-        var task = new TaskItem 
-        { 
-            Id = 1, 
-            Title = "Test Task", 
-            Description = "Test Description", 
-            Status = TaskStatus.Pending, 
-            Priority = Priority.Medium, 
-            CreatedAt = DateTime.UtcNow 
+        var task = new TaskItem
+        {
+            Id = 1,
+            Title = "Test Task",
+            Description = "Test Description",
+            Status = TaskState.Pending,
+            Priority = Priority.Medium,
+            CreatedAt = DateTime.UtcNow
         };
 
         _mockTaskRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(task);
@@ -95,7 +96,7 @@ public class TaskServiceTests
             Title = createTaskDto.Title,
             Description = createTaskDto.Description,
             Priority = createTaskDto.Priority,
-            Status = TaskStatus.Pending,
+            Status = TaskState.Pending,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -109,7 +110,7 @@ public class TaskServiceTests
         result.Title.Should().Be("New Task");
         result.Description.Should().Be("New Description");
         result.Priority.Should().Be(Priority.High);
-        result.Status.Should().Be(TaskStatus.Pending);
+        result.Status.Should().Be(TaskState.Pending);
     }
 
     [Fact]
@@ -121,7 +122,7 @@ public class TaskServiceTests
             Id = 1,
             Title = "Original Title",
             Description = "Original Description",
-            Status = TaskStatus.Pending,
+            Status = TaskState.Pending,
             Priority = Priority.Medium,
             CreatedAt = DateTime.UtcNow
         };
@@ -129,7 +130,7 @@ public class TaskServiceTests
         var updateTaskDto = new UpdateTaskDto
         {
             Title = "Updated Title",
-            Status = TaskStatus.InProgress
+            Status = TaskState.InProgress
         };
 
         var updatedTask = new TaskItem
@@ -137,7 +138,7 @@ public class TaskServiceTests
             Id = 1,
             Title = "Updated Title",
             Description = "Original Description",
-            Status = TaskStatus.InProgress,
+            Status = TaskState.InProgress,
             Priority = Priority.Medium,
             CreatedAt = DateTime.UtcNow
         };
@@ -151,7 +152,7 @@ public class TaskServiceTests
         // Assert
         result.Should().NotBeNull();
         result!.Title.Should().Be("Updated Title");
-        result.Status.Should().Be(TaskStatus.InProgress);
+        result.Status.Should().Be(TaskState.InProgress);
     }
 
     [Fact]
