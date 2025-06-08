@@ -26,7 +26,7 @@
             <div class="mb-2">
                 <small class="text-muted">
                     <i class="oi oi-calendar"></i> Due: @Task.DueDate.Value.ToString("MMM dd, yyyy")
-                    @if (Task.DueDate.Value < DateTime.Now && Task.Status != TaskStatus.Completed)
+                    @if (Task.DueDate.Value < DateTime.Now && Task.Status != TaskState.Completed)
                     {
                         <span class="text-danger">(Overdue)</span>
                     }
@@ -47,7 +47,8 @@
             Created: @Task.CreatedAt.ToString("MMM dd, yyyy")
             @if (Task.CompletedAt.HasValue)
             {
-                <br>Completed: @Task.CompletedAt.Value.ToString("MMM dd, yyyy")
+                <br />
+                <text>Completed: @Task.CompletedAt.Value.ToString("MMM dd, yyyy")</text>
             }
         </div>
     </div>
@@ -59,7 +60,7 @@
                 <button class="btn btn-outline-primary btn-sm" @onclick="() => OnEdit.InvokeAsync(Task)">
                     <i class="oi oi-pencil"></i> Edit
                 </button>
-                @if (Task.Status != TaskStatus.Completed)
+                @if (Task.Status != TaskState.Completed)
                 {
                     <button class="btn btn-outline-success btn-sm" @onclick="() => OnMarkComplete.InvokeAsync(Task)">
                         <i class="oi oi-check"></i> Complete
@@ -80,15 +81,15 @@
     [Parameter] public EventCallback<TaskDto> OnDelete { get; set; }
     [Parameter] public EventCallback<TaskDto> OnMarkComplete { get; set; }
 
-    private string GetStatusColor(TaskStatus status)
+    private string GetStatusColor(TaskState status)
     {
         return status switch
         {
-            TaskStatus.Pending => "secondary",
-            TaskStatus.InProgress => "primary",
-            TaskStatus.Completed => "success",
-            TaskStatus.Cancelled => "danger",
-            TaskStatus.OnHold => "warning",
+            TaskState.Pending => "secondary",
+            TaskState.InProgress => "primary",
+            TaskState.Completed => "success",
+            TaskState.Cancelled => "danger",
+            TaskState.OnHold => "warning",
             _ => "secondary"
         };
     }
