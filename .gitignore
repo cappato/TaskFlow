@@ -254,6 +254,8 @@ CConversionReportLog.txt
 *.db
 *.sqlite
 *.sqlite3
+*.db-shm
+*.db-wal
 
 # Business Intelligence projects
 *.rdl.data
