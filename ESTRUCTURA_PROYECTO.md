@@ -1,9 +1,43 @@
 # 📁 Estructura del Proyecto TaskFlow PIM
 
 ## 🎯 Descripción General
+
 Sistema PIM (Product Information Manager) para gestión de artículos deportivos con atributos dinámicos, desarrollado en .NET 8 con Blazor WebAssembly.
 
-## 📂 Estructura de Carpetas
+## � **PROPUESTA DE REFACTOR: Clean Architecture + DDD**
+
+### 📋 **Estructura Actual vs Propuesta**
+
+**🟡 ACTUAL (Funcional pero acoplada):**
+
+```
+src/
+├── TaskFlow.Server/     # API + Servicios + Repositorios + Modelos
+├── TaskFlow.Client/     # Frontend Blazor
+└── TaskFlow.Shared/     # DTOs + Enums
+```
+
+**🟢 PROPUESTA (Clean Architecture):**
+
+```
+src/
+├── TaskFlow.Domain/          # 🆕 Entidades puras + Interfaces
+├── TaskFlow.Application/     # 🆕 Casos de uso + DTOs + Servicios
+├── TaskFlow.Infrastructure/  # 🆕 Repositorios + DbContext + External
+├── TaskFlow.Server/          # Solo Controllers + DI + Middleware
+├── TaskFlow.Client/          # Sin cambios (ya está bien)
+└── TaskFlow.Shared/          # Solo DTOs de comunicación API
+```
+
+### 🎯 **Beneficios del Refactor:**
+
+- ✅ **Testabilidad**: Dominio puro sin dependencias
+- ✅ **Escalabilidad**: Preparado para MongoDB migration
+- ✅ **Mantenibilidad**: Responsabilidades ultra-claras
+- ✅ **Reutilización**: Dominio independiente del framework
+- ✅ **SOLID**: Principios aplicados correctamente
+
+## �📂 Estructura de Carpetas
 
 ```
 TaskFlow/
@@ -156,6 +190,7 @@ TaskFlow/
 ## 🎯 Descripción de Componentes Principales
 
 ### 🔧 Backend (TaskFlow.Server)
+
 - **API REST** con controladores para artículos, categorías y atributos
 - **Entity Framework Core** con SQLite para persistencia
 - **Patrón Repository** para acceso a datos
@@ -163,6 +198,7 @@ TaskFlow/
 - **CORS configurado** para comunicación con frontend
 
 ### 🎨 Frontend (TaskFlow.Client)
+
 - **Blazor WebAssembly** con diseño moderno
 - **Tailwind CSS** para estilos responsivos
 - **Componentes reutilizables** y layouts modernos
@@ -170,11 +206,13 @@ TaskFlow/
 - **Formularios dinámicos** para atributos personalizados
 
 ### 📦 Shared (TaskFlow.Shared)
+
 - **DTOs** para transferencia de datos
 - **Enums** compartidos entre frontend y backend
 - **Modelos** de dominio comunes
 
 ### 🧪 Tests (TaskFlow.Server.Tests)
+
 - **67 tests unitarios** con 100% de éxito
 - **Tests de integración** end-to-end
 - **Cobertura completa** de controladores, servicios y repositorios
@@ -199,3 +237,4 @@ TaskFlow/
 - **🎯 Funcionalidades**: Sistema PIM completo
 - **📱 Responsive**: Diseño adaptativo
 - **🔒 Seguro**: Validaciones y CORS configurado
+
