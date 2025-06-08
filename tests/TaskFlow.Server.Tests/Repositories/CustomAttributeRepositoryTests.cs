@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Server.Data;
-using TaskFlow.Server.Models;
+using TaskFlow.Domain.Entities;
+using TaskFlow.Domain.Enums;
 using TaskFlow.Server.Repositories;
-using TaskFlow.Shared.Enums;
 using FluentAssertions;
 using Xunit;
 

@@ -1,9 +1,9 @@
 using Moq;
-using TaskFlow.Server.Models;
-using TaskFlow.Server.Repositories;
+using TaskFlow.Domain.Entities;
+using TaskFlow.Domain.Interfaces;
+using TaskFlow.Domain.Enums;
 using TaskFlow.Server.Services;
 using TaskFlow.Shared.DTOs;
-using TaskFlow.Shared.Enums;
 using FluentAssertions;
 using Xunit;
 

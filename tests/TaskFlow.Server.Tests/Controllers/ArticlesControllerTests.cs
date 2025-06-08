@@ -3,7 +3,7 @@ using Moq;
 using TaskFlow.Server.Controllers;
 using TaskFlow.Server.Services;
 using TaskFlow.Shared.DTOs;
-using TaskFlow.Shared.Enums;
+using TaskFlow.Domain.Enums;
 using FluentAssertions;
 using Xunit;
 
