@@ -366,3 +366,6 @@ publish/
 
 # Railway
 .railway/
+
+# Documentation folder (internal docs)
+docs/
