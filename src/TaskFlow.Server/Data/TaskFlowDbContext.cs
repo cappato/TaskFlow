@@ -60,11 +60,11 @@ public class TaskFlowDbContext : DbContext
 
         // Seed data
         modelBuilder.Entity<User>().HasData(
-            new User { Id = 1, Name = "Admin User", Email = "admin@taskflow.com", CreatedAt = DateTime.UtcNow, IsActive = true }
+            new User { Id = 1, Name = "Admin Cruzado", Email = "admin@cruzado.com", CreatedAt = DateTime.UtcNow, IsActive = true }
         );
 
         modelBuilder.Entity<Project>().HasData(
-            new Project { Id = 1, Name = "Sample Project", Description = "A sample project for testing", CreatedAt = DateTime.UtcNow, IsActive = true }
+            new Project { Id = 1, Name = "Alejandro Cruzado Project", Description = "Proyecto principal de Alejandro Cruzado", CreatedAt = DateTime.UtcNow, IsActive = true }
         );
     }
 }
