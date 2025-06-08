@@ -1,0 +1,132 @@
+@inherits LayoutComponentBase
+
+<div class="min-h-screen bg-gray-50">
+    <!-- Mobile menu overlay -->
+    <div class="@(_mobileMenuOpen ? "fixed inset-0 z-40 lg:hidden" : "hidden")" @onclick="CloseMobileMenu">
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-75"></div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="@(_mobileMenuOpen ? "fixed inset-y-0 left-0 z-50 w-64 lg:static lg:inset-0" : "hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:block lg:w-64")">
+        <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 shadow-xl lg:shadow-none border-r border-gray-200">
+            <!-- Logo -->
+            <div class="flex h-16 shrink-0 items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">TF</span>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-900">TaskFlow</h1>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex flex-1 flex-col">
+                <ul role="list" class="flex flex-1 flex-col gap-y-7">
+                    <li>
+                        <ul role="list" class="-mx-2 space-y-1">
+                            <li>
+                                <NavLink href="" Match="NavLinkMatch.All" 
+                                         class="@GetNavLinkClass("")">
+                                    <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                                    </svg>
+                                    Inicio
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink href="tasks" 
+                                         class="@GetNavLinkClass("tasks")">
+                                    <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3-6h3.75m-3.75 3h3.75m-3.75 3h3.75M5.25 6.75h13.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25H5.25a2.25 2.25 0 0 1-2.25-2.25V9a2.25 2.25 0 0 1 2.25-2.25Z" />
+                                    </svg>
+                                    Tareas
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink href="projects" 
+                                         class="@GetNavLinkClass("projects")">
+                                    <svg class="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+                                    </svg>
+                                    Proyectos
+                                </NavLink>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="lg:pl-64">
+        <!-- Top bar -->
+        <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+            <!-- Mobile menu button -->
+            <button type="button" class="-m-2.5 p-2.5 text-gray-700 lg:hidden" @onclick="ToggleMobileMenu">
+                <span class="sr-only">Abrir menú</span>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+            </button>
+
+            <!-- Separator -->
+            <div class="h-6 w-px bg-gray-200 lg:hidden"></div>
+
+            <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
+                <div class="flex items-center gap-x-4 lg:gap-x-6">
+                    <!-- Page title will be injected here -->
+                    <h1 class="text-xl font-semibold leading-6 text-gray-900">@PageTitle</h1>
+                </div>
+                <div class="ml-auto flex items-center gap-x-4 lg:gap-x-6">
+                    <!-- User menu -->
+                    <div class="flex items-center gap-x-3">
+                        <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                            <span class="text-white text-sm font-medium">AC</span>
+                        </div>
+                        <span class="hidden lg:block text-sm font-medium text-gray-700">Admin Cruzado</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page content -->
+        <main class="py-6">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                @Body
+            </div>
+        </main>
+    </div>
+</div>
+
+@code {
+    private bool _mobileMenuOpen = false;
+    
+    [Parameter] public string PageTitle { get; set; } = "Dashboard";
+
+    private void ToggleMobileMenu()
+    {
+        _mobileMenuOpen = !_mobileMenuOpen;
+    }
+
+    private void CloseMobileMenu()
+    {
+        _mobileMenuOpen = false;
+    }
+
+    private string GetNavLinkClass(string href)
+    {
+        var baseClasses = "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-colors duration-200";
+        var activeClasses = "bg-blue-50 text-blue-700";
+        var inactiveClasses = "text-gray-700 hover:text-blue-700 hover:bg-gray-50";
+        
+        // This is a simplified check - in a real app you'd want to use NavigationManager
+        return $"{baseClasses} {(IsCurrentPage(href) ? activeClasses : inactiveClasses)}";
+    }
+
+    private bool IsCurrentPage(string href)
+    {
+        // Simplified current page detection
+        return false; // Will be enhanced with NavigationManager
+    }
+}

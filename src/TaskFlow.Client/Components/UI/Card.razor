@@ -1,0 +1,61 @@
+<div class="@GetCardClasses()">
+    @if (!string.IsNullOrEmpty(Title))
+    {
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">@Title</h3>
+            @if (!string.IsNullOrEmpty(Subtitle))
+            {
+                <p class="mt-1 text-sm text-gray-500">@Subtitle</p>
+            }
+        </div>
+    }
+    
+    <div class="@GetContentClasses()">
+        @ChildContent
+    </div>
+    
+    @if (Actions != null)
+    {
+        <div class="px-6 py-3 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+            @Actions
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Subtitle { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? Actions { get; set; }
+    [Parameter] public bool Hover { get; set; } = false;
+    [Parameter] public bool Shadow { get; set; } = true;
+    [Parameter] public string Padding { get; set; } = "p-6";
+    [Parameter] public string AdditionalClasses { get; set; } = "";
+
+    private string GetCardClasses()
+    {
+        var classes = new List<string>
+        {
+            "bg-white",
+            "rounded-lg",
+            "border",
+            "border-gray-200"
+        };
+
+        if (Shadow)
+            classes.Add("shadow-sm");
+
+        if (Hover)
+            classes.Add("hover:shadow-md transition-shadow duration-200");
+
+        if (!string.IsNullOrEmpty(AdditionalClasses))
+            classes.Add(AdditionalClasses);
+
+        return string.Join(" ", classes);
+    }
+
+    private string GetContentClasses()
+    {
+        return string.IsNullOrEmpty(Title) ? Padding : "px-6 py-4";
+    }
+}

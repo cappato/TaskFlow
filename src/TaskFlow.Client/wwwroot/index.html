@@ -1,24 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" class="h-full bg-gray-50">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>TaskFlow</title>
+    <title>TaskFlow - Gestión de Tareas</title>
     <base href="/" />
-    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Heroicons for icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline/style.css">
+
+    <!-- Custom styles -->
     <link href="css/app.css" rel="stylesheet" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="TaskFlow.Client.styles.css" rel="stylesheet" />
 </head>
 
-<body>
-    <div id="app">Loading...</div>
+<body class="h-full">
+    <div id="app" class="h-full">
+        <div class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p class="text-gray-600 text-lg">Cargando TaskFlow...</p>
+            </div>
+        </div>
+    </div>
 
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
+    <div id="blazor-error-ui" class="fixed top-0 left-0 right-0 bg-red-500 text-white p-4 z-50 shadow-lg">
+        <div class="container mx-auto flex items-center justify-between">
+            <span>Ha ocurrido un error inesperado.</span>
+            <div class="space-x-2">
+                <a href="" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm transition-colors">Recargar</a>
+                <a class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm cursor-pointer transition-colors">✕</a>
+            </div>
+        </div>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
 </body>
