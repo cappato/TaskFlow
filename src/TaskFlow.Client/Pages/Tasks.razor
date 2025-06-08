@@ -1,14 +1,14 @@
 @page "/tasks"
 
-<PageTitle>Tasks - TaskFlow</PageTitle>
+<PageTitle>Tareas - TaskFlow</PageTitle>
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>Tasks</h1>
+                <h1>Tareas</h1>
                 <button class="btn btn-primary" @onclick="ShowCreateModal">
-                    <span class="oi oi-plus" aria-hidden="true"></span> New Task
+                    <span class="oi oi-plus" aria-hidden="true"></span> Nueva Tarea
                 </button>
             </div>
         </div>
@@ -17,16 +17,16 @@
     <div class="row mb-3">
         <div class="col-md-4">
             <select class="form-select" @onchange="FilterByStatus">
-                <option value="">All Statuses</option>
-                @foreach (var status in Enum.GetValues<TaskStatus>())
+                <option value="">Todos los Estados</option>
+                @foreach (var status in Enum.GetValues<TaskState>())
                 {
-                    <option value="@status">@status</option>
+                    <option value="@status">@GetStatusDisplayName(status)</option>
                 }
             </select>
         </div>
         <div class="col-md-4">
             <select class="form-select" @onchange="FilterByProject">
-                <option value="">All Projects</option>
+                <option value="">Todos los Proyectos</option>
                 @if (projects != null)
                 {
                     @foreach (var project in projects)
@@ -44,7 +44,7 @@
             {
                 <div class="text-center">
                     <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                        <span class="visually-hidden">Cargando...</span>
                     </div>
                 </div>
             }
@@ -54,12 +54,12 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Title</th>
-                                <th>Status</th>
-                                <th>Priority</th>
-                                <th>Project</th>
-                                <th>Due Date</th>
-                                <th>Actions</th>
+                                <th>Título</th>
+                                <th>Estado</th>
+                                <th>Prioridad</th>
+                                <th>Proyecto</th>
+                                <th>Fecha Límite</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -74,10 +74,10 @@
                                         }
                                     </td>
                                     <td>
-                                        <span class="badge bg-@GetStatusColor(task.Status)">@task.Status</span>
+                                        <span class="badge bg-@GetStatusColor(task.Status)">@GetStatusDisplayName(task.Status)</span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-@GetPriorityColor(task.Priority)">@task.Priority</span>
+                                        <span class="badge bg-@GetPriorityColor(task.Priority)">@GetPriorityDisplayName(task.Priority)</span>
                                     </td>
                                     <td>@task.ProjectName</td>
                                     <td>
@@ -103,7 +103,7 @@
             else
             {
                 <div class="text-center">
-                    <p class="text-muted">No tasks found.</p>
+                    <p class="text-muted">No se encontraron tareas.</p>
                 </div>
             }
         </div>
@@ -117,7 +117,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">@(editingTask != null ? "Edit Task" : "Create New Task")</h5>
+                    <h5 class="modal-title">@(editingTask != null ? "Editar Tarea" : "Crear Nueva Tarea")</h5>
                     <button type="button" class="btn-close" @onclick="HideModal"></button>
                 </div>
                 <div class="modal-body">
@@ -126,32 +126,32 @@
                         <ValidationSummary />
 
                         <div class="mb-3">
-                            <label class="form-label">Title</label>
+                            <label class="form-label">Título</label>
                             <InputText class="form-control" @bind-Value="taskForm.Title" />
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
+                            <label class="form-label">Descripción</label>
                             <InputTextArea class="form-control" @bind-Value="taskForm.Description" rows="3" />
                         </div>
 
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Priority</label>
+                                    <label class="form-label">Prioridad</label>
                                     <InputSelect class="form-select" @bind-Value="taskForm.Priority">
                                         @foreach (var priority in Enum.GetValues<Priority>())
                                         {
-                                            <option value="@priority">@priority</option>
+                                            <option value="@priority">@GetPriorityDisplayName(priority)</option>
                                         }
                                     </InputSelect>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Project</label>
+                                    <label class="form-label">Proyecto</label>
                                     <InputSelect class="form-select" @bind-Value="taskForm.ProjectId">
-                                        <option value="">Select Project</option>
+                                        <option value="">Seleccionar Proyecto</option>
                                         @if (projects != null)
                                         {
                                             @foreach (var project in projects)
@@ -165,27 +165,27 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Due Date</label>
+                            <label class="form-label">Fecha Límite</label>
                             <InputDate class="form-control" @bind-Value="taskForm.DueDate" />
                         </div>
 
                         @if (editingTask != null)
                         {
                             <div class="mb-3">
-                                <label class="form-label">Status</label>
+                                <label class="form-label">Estado</label>
                                 <InputSelect class="form-select" @bind-Value="taskForm.Status">
-                                    @foreach (var status in Enum.GetValues<TaskStatus>())
+                                    @foreach (var status in Enum.GetValues<TaskState>())
                                     {
-                                        <option value="@status">@status</option>
+                                        <option value="@status">@GetStatusDisplayName(status)</option>
                                     }
                                 </InputSelect>
                             </div>
                         }
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" @onclick="HideModal">Cancel</button>
+                            <button type="button" class="btn btn-secondary" @onclick="HideModal">Cancelar</button>
                             <button type="submit" class="btn btn-primary">
-                                @(editingTask != null ? "Update" : "Create")
+                                @(editingTask != null ? "Actualizar" : "Crear")
                             </button>
                         </div>
                     </EditForm>
@@ -238,7 +238,7 @@
         {
             filteredTasks = tasks;
         }
-        else if (Enum.TryParse<TaskStatus>(statusValue, out var status))
+        else if (Enum.TryParse<TaskState>(statusValue, out var status))
         {
             filteredTasks = await TaskService.GetTasksByStatusAsync(status);
         }
@@ -333,15 +333,15 @@
         }
     }
 
-    private string GetStatusColor(TaskStatus status)
+    private string GetStatusColor(TaskState status)
     {
         return status switch
         {
-            TaskStatus.Pending => "secondary",
-            TaskStatus.InProgress => "primary",
-            TaskStatus.Completed => "success",
-            TaskStatus.Cancelled => "danger",
-            TaskStatus.OnHold => "warning",
+            TaskState.Pending => "secondary",
+            TaskState.InProgress => "primary",
+            TaskState.Completed => "success",
+            TaskState.Cancelled => "danger",
+            TaskState.OnHold => "warning",
             _ => "secondary"
         };
     }
@@ -358,6 +358,31 @@
         };
     }
 
+    private string GetStatusDisplayName(TaskState status)
+    {
+        return status switch
+        {
+            TaskState.Pending => "Pendiente",
+            TaskState.InProgress => "En Progreso",
+            TaskState.Completed => "Completada",
+            TaskState.Cancelled => "Cancelada",
+            TaskState.OnHold => "En Espera",
+            _ => status.ToString()
+        };
+    }
+
+    private string GetPriorityDisplayName(Priority priority)
+    {
+        return priority switch
+        {
+            Priority.Low => "Baja",
+            Priority.Medium => "Media",
+            Priority.High => "Alta",
+            Priority.Critical => "Crítica",
+            _ => priority.ToString()
+        };
+    }
+
     public class TaskFormModel
     {
         public string Title { get; set; } = string.Empty;
@@ -365,6 +390,6 @@
         public Priority Priority { get; set; } = Priority.Medium;
         public int? ProjectId { get; set; }
         public DateTime? DueDate { get; set; }
-        public TaskStatus Status { get; set; } = TaskStatus.Pending;
+        public TaskState Status { get; set; } = TaskState.Pending;
     }
 }

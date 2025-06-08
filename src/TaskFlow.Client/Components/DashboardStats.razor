@@ -6,7 +6,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <h2 class="text-primary">@TotalTasks</h2>
-                <p class="card-text">Total Tasks</p>
+                <p class="card-text">Total Tareas</p>
             </div>
         </div>
     </div>
@@ -14,7 +14,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <h2 class="text-warning">@PendingTasks</h2>
-                <p class="card-text">Pending</p>
+                <p class="card-text">Pendientes</p>
             </div>
         </div>
     </div>
@@ -22,7 +22,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <h2 class="text-info">@InProgressTasks</h2>
-                <p class="card-text">In Progress</p>
+                <p class="card-text">En Progreso</p>
             </div>
         </div>
     </div>
@@ -30,7 +30,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <h2 class="text-success">@CompletedTasks</h2>
-                <p class="card-text">Completed</p>
+                <p class="card-text">Completadas</p>
             </div>
         </div>
     </div>
@@ -40,37 +40,37 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Task Completion Rate</h5>
+                <h5 class="card-title">Tasa de Finalización</h5>
                 <div class="progress mb-2" style="height: 20px;">
-                    <div class="progress-bar bg-success" role="progressbar" 
+                    <div class="progress-bar bg-success" role="progressbar"
                          style="width: @CompletionPercentage%"
                          aria-valuenow="@CompletionPercentage" aria-valuemin="0" aria-valuemax="100">
                         @CompletionPercentage.ToString("F1")%
                     </div>
                 </div>
-                <small class="text-muted">@CompletedTasks of @TotalTasks tasks completed</small>
+                <small class="text-muted">@CompletedTasks de @TotalTasks tareas completadas</small>
             </div>
         </div>
     </div>
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Priority Distribution</h5>
+                <h5 class="card-title">Distribución por Prioridad</h5>
                 <div class="mb-2">
                     <div class="d-flex justify-content-between">
-                        <span>Critical</span>
+                        <span>Crítica</span>
                         <span class="badge bg-dark">@CriticalTasks</span>
                     </div>
                     <div class="d-flex justify-content-between">
-                        <span>High</span>
+                        <span>Alta</span>
                         <span class="badge bg-danger">@HighTasks</span>
                     </div>
                     <div class="d-flex justify-content-between">
-                        <span>Medium</span>
+                        <span>Media</span>
                         <span class="badge bg-warning">@MediumTasks</span>
                     </div>
                     <div class="d-flex justify-content-between">
-                        <span>Low</span>
+                        <span>Baja</span>
                         <span class="badge bg-secondary">@LowTasks</span>
                     </div>
                 </div>
@@ -84,9 +84,9 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="alert alert-warning">
-                <h6 class="alert-heading">⚠️ Attention Required</h6>
-                You have <strong>@OverdueTasks</strong> overdue task@(OverdueTasks > 1 ? "s" : ""). 
-                <a href="/tasks" class="alert-link">Review them now</a>.
+                <h6 class="alert-heading">⚠️ Atención Requerida</h6>
+                Tienes <strong>@OverdueTasks</strong> tarea@(OverdueTasks > 1 ? "s" : "") vencida@(OverdueTasks > 1 ? "s" : "").
+                <a href="/tasks" class="alert-link">Revísalas ahora</a>.
             </div>
         </div>
     </div>
@@ -96,9 +96,9 @@
     [Parameter] public IEnumerable<TaskDto>? Tasks { get; set; }
 
     private int TotalTasks => Tasks?.Count() ?? 0;
-    private int PendingTasks => Tasks?.Count(t => t.Status == TaskStatus.Pending) ?? 0;
-    private int InProgressTasks => Tasks?.Count(t => t.Status == TaskStatus.InProgress) ?? 0;
-    private int CompletedTasks => Tasks?.Count(t => t.Status == TaskStatus.Completed) ?? 0;
+    private int PendingTasks => Tasks?.Count(t => t.Status == TaskState.Pending) ?? 0;
+    private int InProgressTasks => Tasks?.Count(t => t.Status == TaskState.InProgress) ?? 0;
+    private int CompletedTasks => Tasks?.Count(t => t.Status == TaskState.Completed) ?? 0;
     private int CriticalTasks => Tasks?.Count(t => t.Priority == Priority.Critical) ?? 0;
     private int HighTasks => Tasks?.Count(t => t.Priority == Priority.High) ?? 0;
     private int MediumTasks => Tasks?.Count(t => t.Priority == Priority.Medium) ?? 0;
@@ -109,5 +109,5 @@
     private int OverdueTasks => Tasks?.Count(t => 
         t.DueDate.HasValue && 
         t.DueDate.Value < DateTime.Now && 
-        t.Status != TaskStatus.Completed) ?? 0;
+        t.Status != TaskState.Completed) ?? 0;
 }

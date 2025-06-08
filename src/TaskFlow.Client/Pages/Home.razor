@@ -1,12 +1,12 @@
 @page "/"
 
-<PageTitle>Home - TaskFlow</PageTitle>
+<PageTitle>Inicio - TaskFlow</PageTitle>
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1>Welcome to TaskFlow</h1>
-            <p class="lead">Manage your tasks and projects efficiently</p>
+            <h1>Bienvenido a TaskFlow</h1>
+            <p class="lead">Gestiona tus tareas y proyectos de manera eficiente</p>
         </div>
     </div>
 
@@ -14,7 +14,7 @@
     {
         <div class="text-center">
             <div class="spinner-border" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">Cargando...</span>
             </div>
         </div>
     }
@@ -27,7 +27,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Recent Tasks</h5>
+                        <h5 class="card-title">Tareas Recientes</h5>
                         @if (recentTasks != null && recentTasks.Any())
                         {
                             <div class="row">
@@ -39,12 +39,12 @@
                                 }
                             </div>
                             <div class="mt-3">
-                                <a href="/tasks" class="btn btn-primary">View All Tasks</a>
+                                <a href="/tasks" class="btn btn-primary">Ver Todas las Tareas</a>
                             </div>
                         }
                         else
                         {
-                            <p class="text-muted">No tasks found. <a href="/tasks">Create your first task</a></p>
+                            <p class="text-muted">No se encontraron tareas. <a href="/tasks">Crea tu primera tarea</a></p>
                         }
                     </div>
                 </div>
@@ -53,7 +53,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Active Projects</h5>
+                        <h5 class="card-title">Proyectos Activos</h5>
                         @if (activeProjects != null && activeProjects.Any())
                         {
                             <div class="list-group list-group-flush">
@@ -62,7 +62,7 @@
                                     <div class="list-group-item">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1">@project.Name</h6>
-                                            <small>@project.TaskCount tasks</small>
+                                            <small>@project.TaskCount tareas</small>
                                         </div>
                                         <p class="mb-1">@project.Description</p>
                                         <div class="progress mt-2" style="height: 5px;">
@@ -73,12 +73,12 @@
                                 }
                             </div>
                             <div class="mt-3">
-                                <a href="/projects" class="btn btn-primary">View All Projects</a>
+                                <a href="/projects" class="btn btn-primary">Ver Todos los Proyectos</a>
                             </div>
                         }
                         else
                         {
-                            <p class="text-muted">No projects found. <a href="/projects">Create your first project</a></p>
+                            <p class="text-muted">No se encontraron proyectos. <a href="/projects">Crea tu primer proyecto</a></p>
                         }
                     </div>
                 </div>
