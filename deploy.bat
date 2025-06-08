@@ -26,13 +26,14 @@ echo.
 echo 🌐 Ready for deployment!
 echo.
 echo Next steps:
-echo 1. Push to GitHub (triggers automatic Railway deployment)
-echo 2. Or manually deploy using Railway CLI
+echo 1. Push to GitHub (triggers automatic Azure deployment)
+echo 2. Or deploy from Visual Studio:
+echo    - Right-click TaskFlow.Server → Publish
+echo    - Azure → App Service → Deploy
 echo.
-echo Railway CLI commands:
-echo   railway login
-echo   railway link [your-project-id]
-echo   railway up
+echo Azure CLI commands (optional):
+echo   az login
+echo   az webapp up --name your-app-name --resource-group your-rg
 echo.
 echo ✅ Deployment preparation complete!
 pause

@@ -1,14 +1,17 @@
 # 🚀 TaskFlow Deployment Guide
 
-## Railway Deployment (Recommended)
+## Azure App Service Deployment (Recommended - FREE)
 
 ### Prerequisites
+
 - GitHub account
-- Railway account (free): https://railway.app
+- Azure account (free): https://azure.microsoft.com/free/
+- Visual Studio 2022 (recommended)
 
 ### Automatic Deployment Setup
 
 1. **Connect GitHub to Railway**
+
    ```bash
    1. Go to https://railway.app
    2. Sign up with GitHub
@@ -18,6 +21,7 @@
    ```
 
 2. **Configure Environment Variables**
+
    ```bash
    ASPNETCORE_ENVIRONMENT=Production
    PORT=8080
@@ -31,6 +35,7 @@
 ### Manual Deployment
 
 1. **Install Railway CLI**
+
    ```bash
    npm install -g @railway/cli
    ```
@@ -59,6 +64,7 @@ RAILWAY_SERVICE=your_service_id
 ```
 
 To get Railway token:
+
 1. Go to Railway dashboard
 2. Account Settings → Tokens
 3. Create new token
@@ -68,6 +74,7 @@ To get Railway token:
 ### Azure App Service
 
 1. **Create App Service**
+
    ```bash
    az webapp create --resource-group myResourceGroup --plan myAppServicePlan --name myapp --runtime "DOTNET|8.0"
    ```
@@ -80,6 +87,7 @@ To get Railway token:
 ### Render
 
 1. **Connect GitHub**
+
    - Go to https://render.com
    - New → Web Service
    - Connect GitHub repository
@@ -104,6 +112,7 @@ The application automatically configures for production:
 ### Health Check
 
 Available at `/health` endpoint:
+
 ```json
 {
   "status": "healthy",
@@ -114,12 +123,14 @@ Available at `/health` endpoint:
 ## Monitoring
 
 ### Railway Dashboard
+
 - View logs in real-time
 - Monitor resource usage
 - Configure custom domains
 - Set up metrics and alerts
 
 ### Application Logs
+
 ```bash
 railway logs
 ```
@@ -129,16 +140,19 @@ railway logs
 ### Common Issues
 
 **🔴 Build Failures**
+
 - Check Dockerfile syntax
 - Verify all dependencies are restored
 - Review build logs in Railway dashboard
 
 **🔴 Runtime Errors**
+
 - Check environment variables
 - Verify database path permissions
 - Review application logs
 
 **🔴 CORS Issues**
+
 - Update allowed origins in Program.cs
 - Verify Railway domain configuration
 
@@ -159,11 +173,13 @@ railway shell
 ## Performance Optimization
 
 ### Railway Free Tier Limits
+
 - 512 MB RAM
 - 1 GB disk space
 - 500 hours/month
 
 ### Optimization Tips
+
 - Enable response compression
 - Use SQLite for small datasets
 - Implement caching for static data
@@ -172,6 +188,7 @@ railway shell
 ## Security
 
 ### Production Checklist
+
 - [ ] HTTPS enabled (automatic on Railway)
 - [ ] Environment variables secured
 - [ ] Database access restricted
@@ -181,10 +198,13 @@ railway shell
 ## Scaling
 
 ### Horizontal Scaling
+
 Railway supports automatic scaling based on traffic.
 
 ### Database Considerations
+
 For larger applications, consider:
+
 - PostgreSQL (Railway provides free tier)
 - External database services
 - Database connection pooling
@@ -202,3 +222,4 @@ For larger applications, consider:
 - [ ] Application accessible via Railway URL
 
 **🎉 Your TaskFlow application is now live!**
+

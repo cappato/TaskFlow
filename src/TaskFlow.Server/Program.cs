@@ -5,11 +5,16 @@ using TaskFlow.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure port for Railway deployment
+// Configure for Azure App Service
 if (!builder.Environment.IsDevelopment())
 {
-    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+    // Azure App Service handles port configuration automatically
+    // Ensure data directory exists for SQLite
+    var dataDir = Path.Combine(builder.Environment.ContentRootPath, "App_Data");
+    if (!Directory.Exists(dataDir))
+    {
+        Directory.CreateDirectory(dataDir);
+    }
 }
 
 // Add services to the container.
@@ -42,8 +47,8 @@ builder.Services.AddCors(options =>
         }
         else
         {
-            // Production CORS - allow Railway domains
-            policy.WithOrigins("https://*.railway.app", "https://*.up.railway.app")
+            // Production CORS - allow Azure domains
+            policy.WithOrigins("https://*.azurewebsites.net", "https://*.azurestaticapps.net")
                   .SetIsOriginAllowedToAllowWildcardSubdomains()
                   .AllowAnyHeader()
                   .AllowAnyMethod();
@@ -68,7 +73,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Health check endpoint for Railway
+// Health check endpoint for Azure App Service
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 // Ensure database is created
