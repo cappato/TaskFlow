@@ -27,12 +27,15 @@ builder.Services.AddDbContext<TaskFlowDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add repositories
-builder.Services.AddScoped<ITaskRepository, TaskRepository>();
-builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICustomAttributeRepository, CustomAttributeRepository>();
+builder.Services.AddScoped<IArticleAttributeValueRepository, ArticleAttributeValueRepository>();
 
 // Add services
-builder.Services.AddScoped<ITaskService, TaskService>();
-builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<IArticleService, ArticleService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICustomAttributeService, CustomAttributeService>();
 
 // Add CORS for Blazor client
 builder.Services.AddCors(options =>
@@ -41,7 +44,7 @@ builder.Services.AddCors(options =>
     {
         if (builder.Environment.IsDevelopment())
         {
-            policy.WithOrigins("https://localhost:7001", "http://localhost:5001")
+            policy.WithOrigins("https://localhost:7002", "http://localhost:5002", "https://localhost:7001", "http://localhost:5001")
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         }
@@ -65,7 +68,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Disabled for development
 
 app.UseCors("BlazorClient");
 
