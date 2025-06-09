@@ -1,3 +1,4 @@
+using AutoMapper;
 using PimFlow.Domain.Entities;
 using PimFlow.Domain.Interfaces;
 using PimFlow.Domain.Enums;
@@ -11,63 +12,66 @@ public class ArticleService : IArticleService
     private readonly IArticleRepository _articleRepository;
     private readonly ICustomAttributeRepository _customAttributeRepository;
     private readonly IArticleAttributeValueRepository _attributeValueRepository;
+    private readonly IMapper _mapper;
 
     public ArticleService(
         IArticleRepository articleRepository,
         ICustomAttributeRepository customAttributeRepository,
-        IArticleAttributeValueRepository attributeValueRepository)
+        IArticleAttributeValueRepository attributeValueRepository,
+        IMapper mapper)
     {
         _articleRepository = articleRepository;
         _customAttributeRepository = customAttributeRepository;
         _attributeValueRepository = attributeValueRepository;
+        _mapper = mapper;
     }
 
     public async Task<IEnumerable<ArticleDto>> GetAllArticlesAsync()
     {
         var articles = await _articleRepository.GetAllAsync();
-        return articles.Select(MapToDto);
+        return _mapper.Map<IEnumerable<ArticleDto>>(articles);
     }
 
     public async Task<ArticleDto?> GetArticleByIdAsync(int id)
     {
         var article = await _articleRepository.GetByIdAsync(id);
-        return article != null ? MapToDto(article) : null;
+        return article != null ? _mapper.Map<ArticleDto>(article) : null;
     }
 
     public async Task<ArticleDto?> GetArticleBySKUAsync(string sku)
     {
         var article = await _articleRepository.GetBySKUAsync(sku);
-        return article != null ? MapToDto(article) : null;
+        return article != null ? _mapper.Map<ArticleDto>(article) : null;
     }
 
     public async Task<IEnumerable<ArticleDto>> GetArticlesByCategoryIdAsync(int categoryId)
     {
         var articles = await _articleRepository.GetByCategoryIdAsync(categoryId);
-        return articles.Select(MapToDto);
+        return _mapper.Map<IEnumerable<ArticleDto>>(articles);
     }
 
     public async Task<IEnumerable<ArticleDto>> GetArticlesByTypeAsync(ArticleType type)
     {
         var articles = await _articleRepository.GetByTypeAsync(type);
-        return articles.Select(MapToDto);
+        return _mapper.Map<IEnumerable<ArticleDto>>(articles);
     }
 
     public async Task<IEnumerable<ArticleDto>> GetArticlesByBrandAsync(string brand)
     {
         var articles = await _articleRepository.GetByBrandAsync(brand);
-        return articles.Select(MapToDto);
+        return _mapper.Map<IEnumerable<ArticleDto>>(articles);
     }
 
     public async Task<IEnumerable<ArticleDto>> GetArticlesByAttributeAsync(string attributeName, string value)
     {
         var articles = await _articleRepository.GetByAttributeAsync(attributeName, value);
-        return articles.Select(MapToDto);
+        return _mapper.Map<IEnumerable<ArticleDto>>(articles);
     }
 
     public async Task<IEnumerable<ArticleDto>> SearchArticlesAsync(string searchTerm)
     {
         var articles = await _articleRepository.SearchAsync(searchTerm);
-        return articles.Select(MapToDto);
+        return _mapper.Map<IEnumerable<ArticleDto>>(articles);
     }
 
     public async Task<ArticleDto> CreateArticleAsync(CreateArticleDto createArticleDto)
@@ -78,17 +82,7 @@ public class ArticleService : IArticleService
             throw new InvalidOperationException($"Ya existe un artículo con SKU: {createArticleDto.SKU}");
         }
 
-        var article = new Article
-        {
-            SKU = createArticleDto.SKU,
-            Name = createArticleDto.Name,
-            Description = createArticleDto.Description,
-            Type = EnumMapper.ToDomain(createArticleDto.Type),
-            Brand = createArticleDto.Brand,
-            CategoryId = createArticleDto.CategoryId,
-            SupplierId = createArticleDto.SupplierId,
-            CreatedAt = DateTime.UtcNow
-        };
+        var article = _mapper.Map<Article>(createArticleDto);
 
         var createdArticle = await _articleRepository.CreateAsync(article);
 
@@ -100,7 +94,7 @@ public class ArticleService : IArticleService
             createdArticle = await _articleRepository.GetByIdAsync(createdArticle.Id) ?? createdArticle;
         }
 
-        return MapToDto(createdArticle);
+        return _mapper.Map<ArticleDto>(createdArticle);
     }
 
     public async Task<ArticleDto?> UpdateArticleAsync(int id, UpdateArticleDto updateArticleDto)
@@ -152,7 +146,7 @@ public class ArticleService : IArticleService
             updatedArticle = await _articleRepository.GetByIdAsync(id);
         }
 
-        return updatedArticle != null ? MapToDto(updatedArticle) : null;
+        return updatedArticle != null ? _mapper.Map<ArticleDto>(updatedArticle) : null;
     }
 
     public async Task<bool> DeleteArticleAsync(int id)
@@ -165,53 +159,5 @@ public class ArticleService : IArticleService
         await _attributeValueRepository.SaveAttributesForArticleAsync(articleId, customAttributes);
     }
 
-    private static ArticleDto MapToDto(Article article)
-    {
-        var dto = new ArticleDto
-        {
-            Id = article.Id,
-            SKU = article.SKU,
-            Name = article.Name,
-            Description = article.Description,
-            Type = EnumMapper.ToShared(article.Type),
-            Brand = article.Brand,
-            CreatedAt = article.CreatedAt,
-            UpdatedAt = article.UpdatedAt,
-            IsActive = article.IsActive,
-            CategoryId = article.CategoryId,
-            CategoryName = article.Category?.Name,
-            SupplierId = article.SupplierId,
-            SupplierName = article.Supplier?.Name
-        };
 
-        // Map custom attributes
-        if (article.AttributeValues?.Any() == true)
-        {
-            dto.CustomAttributes = article.AttributeValues.ToDictionary(
-                av => av.CustomAttribute.Name,
-                av => (object)av.Value
-            );
-        }
-
-        // Map variants
-        if (article.Variants?.Any() == true)
-        {
-            dto.Variants = article.Variants.Select(v => new ArticleVariantDto
-            {
-                Id = v.Id,
-                SKU = v.SKU,
-                ArticleId = v.ArticleId,
-                Size = v.Size,
-                Color = v.Color,
-                Stock = v.Stock,
-                WholesalePrice = v.WholesalePrice,
-                RetailPrice = v.RetailPrice,
-                IsActive = v.IsActive,
-                CreatedAt = v.CreatedAt,
-                UpdatedAt = v.UpdatedAt
-            }).ToList();
-        }
-
-        return dto;
-    }
 }
