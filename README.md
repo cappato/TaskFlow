@@ -240,6 +240,37 @@ For the best development experience with Visual Studio 2022:
 - Run tests: `Test` → `Run All Tests` (should pass 7/7)
 - Check Swagger: Navigate to `https://localhost:7000/swagger`
 
+## 🌊 Git Flow Mejorado
+
+Este proyecto utiliza un **Git Flow mejorado** que preserva historia y garantiza calidad:
+
+### **📋 Comandos Rápidos:**
+```bash
+# Crear nueva feature
+./scripts/create-feature.sh nombre-feature
+
+# Validar feature
+./scripts/validate-feature.sh
+
+# Ver estado del workflow
+./scripts/git-flow-status.sh
+
+# Verificar antes de merge
+./scripts/pre-merge-check.sh feature/nombre
+```
+
+### **📚 Documentación Completa:**
+- [Git Flow Mejorado](docs/git-flow-improved.md)
+- [Scripts de Automatización](scripts/README.md)
+- [Reglas de Onboarding](docs/onboarding-rules.md)
+
+### **🎯 Workflow Rápido:**
+1. `./scripts/create-feature.sh mi-feature` - Crear feature
+2. Desarrollar con commits convencionales
+3. `./scripts/validate-feature.sh` - Validar
+4. `git push -u origin $(git branch --show-current)` - Push
+5. Mergear a develop siguiendo el proceso documentado
+
 ## Current Features
 
 ### Implemented
