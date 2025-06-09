@@ -1,7 +1,9 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using PimFlow.Server.Data;
 using PimFlow.Domain.Entities;
 using PimFlow.Domain.Enums;
+using PimFlow.Server.Mapping;
 using PimFlow.Server.Repositories;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
@@ -17,6 +19,7 @@ public class PIMIntegrationTests : IDisposable
     private readonly ArticleRepository _articleRepository;
     private readonly CustomAttributeRepository _attributeRepository;
     private readonly ArticleAttributeValueRepository _attributeValueRepository;
+    private readonly IMapper _mapper;
     private readonly ArticleService _articleService;
     private readonly CustomAttributeService _attributeService;
 
@@ -30,7 +33,16 @@ public class PIMIntegrationTests : IDisposable
         _articleRepository = new ArticleRepository(_context);
         _attributeRepository = new CustomAttributeRepository(_context);
         _attributeValueRepository = new ArticleAttributeValueRepository(_context);
-        _articleService = new ArticleService(_articleRepository, _attributeRepository, _attributeValueRepository);
+
+        // Configure AutoMapper
+        var configuration = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<ArticleMappingProfile>();
+            cfg.AddProfile<CustomAttributeMappingProfile>();
+        });
+        _mapper = configuration.CreateMapper();
+
+        _articleService = new ArticleService(_articleRepository, _attributeRepository, _attributeValueRepository, _mapper);
         _attributeService = new CustomAttributeService(_attributeRepository);
 
         // Seed basic data

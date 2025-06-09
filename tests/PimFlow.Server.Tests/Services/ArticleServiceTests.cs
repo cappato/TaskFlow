@@ -1,7 +1,9 @@
+using AutoMapper;
 using Moq;
 using PimFlow.Domain.Entities;
 using PimFlow.Domain.Interfaces;
 using PimFlow.Domain.Enums;
+using PimFlow.Server.Mapping;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
 using PimFlow.Shared.Mappers;
@@ -15,6 +17,7 @@ public class ArticleServiceTests
     private readonly Mock<IArticleRepository> _mockArticleRepository;
     private readonly Mock<ICustomAttributeRepository> _mockCustomAttributeRepository;
     private readonly Mock<IArticleAttributeValueRepository> _mockAttributeValueRepository;
+    private readonly IMapper _mapper;
     private readonly ArticleService _service;
 
     public ArticleServiceTests()
@@ -22,7 +25,15 @@ public class ArticleServiceTests
         _mockArticleRepository = new Mock<IArticleRepository>();
         _mockCustomAttributeRepository = new Mock<ICustomAttributeRepository>();
         _mockAttributeValueRepository = new Mock<IArticleAttributeValueRepository>();
-        _service = new ArticleService(_mockArticleRepository.Object, _mockCustomAttributeRepository.Object, _mockAttributeValueRepository.Object);
+        // Configure real AutoMapper instead of mocks
+        var configuration = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<ArticleMappingProfile>();
+            cfg.AddProfile<CustomAttributeMappingProfile>();
+        });
+        _mapper = configuration.CreateMapper();
+
+        _service = new ArticleService(_mockArticleRepository.Object, _mockCustomAttributeRepository.Object, _mockAttributeValueRepository.Object, _mapper);
     }
 
     [Fact]
@@ -313,4 +324,7 @@ public class ArticleServiceTests
 
         _mockArticleRepository.Verify(x => x.GetByAttributeAsync("color", "red"), Times.Once);
     }
+
+    // ✅ REMOVED: Manual mapping methods - now using real AutoMapper
+    // This ensures tests use the same mapping logic as production
 }
