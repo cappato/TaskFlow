@@ -22,7 +22,7 @@ public static class ArticleSpecifications
             _excludeId = excludeId;
         }
 
-        public override bool IsSatisfiedBy(Article entity)
+        protected override bool IsSatisfiedByCore(Article entity)
         {
             // Para validación síncrona, usamos la versión async
             return IsSatisfiedByAsync(entity).GetAwaiter().GetResult();
@@ -50,7 +50,7 @@ public static class ArticleSpecifications
     /// </summary>
     public class ActiveArticleSpecification : Specification<Article>
     {
-        public override bool IsSatisfiedBy(Article entity)
+        protected override bool IsSatisfiedByCore(Article entity)
         {
             return entity.IsActive;
         }
@@ -63,7 +63,7 @@ public static class ArticleSpecifications
     /// </summary>
     public class CompleteArticleDataSpecification : Specification<Article>
     {
-        public override bool IsSatisfiedBy(Article entity)
+        protected override bool IsSatisfiedByCore(Article entity)
         {
             return !string.IsNullOrWhiteSpace(entity.SKU) &&
                    !string.IsNullOrWhiteSpace(entity.Name) &&
@@ -78,7 +78,7 @@ public static class ArticleSpecifications
     /// </summary>
     public class ValidSKUFormatSpecification : Specification<Article>
     {
-        public override bool IsSatisfiedBy(Article entity)
+        protected override bool IsSatisfiedByCore(Article entity)
         {
             return SKU.IsValid(entity.SKU);
         }
@@ -91,7 +91,7 @@ public static class ArticleSpecifications
     /// </summary>
     public class ValidNameFormatSpecification : Specification<Article>
     {
-        public override bool IsSatisfiedBy(Article entity)
+        protected override bool IsSatisfiedByCore(Article entity)
         {
             return ProductName.IsValid(entity.Name);
         }
@@ -104,7 +104,7 @@ public static class ArticleSpecifications
     /// </summary>
     public class ValidBrandFormatSpecification : Specification<Article>
     {
-        public override bool IsSatisfiedBy(Article entity)
+        protected override bool IsSatisfiedByCore(Article entity)
         {
             return Brand.IsValid(entity.Brand);
         }
@@ -128,7 +128,7 @@ public static class ArticleSpecifications
                 .And(new UniqueSKUSpecification(skuExistsAsync));
         }
 
-        public override bool IsSatisfiedBy(Article entity)
+        protected override bool IsSatisfiedByCore(Article entity)
         {
             return _compositeSpec.IsSatisfiedBy(entity);
         }
@@ -152,7 +152,7 @@ public static class ArticleSpecifications
                 .And(new UniqueSKUSpecification(skuExistsAsync, articleId));
         }
 
-        public override bool IsSatisfiedBy(Article entity)
+        protected override bool IsSatisfiedByCore(Article entity)
         {
             return _compositeSpec.IsSatisfiedBy(entity);
         }
