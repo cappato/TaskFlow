@@ -75,30 +75,35 @@
 ```
 TaskFlow/
 ├── src/
-│   ├── TaskFlow.Client/             # Blazor WebAssembly (frontend)
-│   │   ├── Pages/                   # Razor pages (Home, Tasks, Projects)
-│   │   ├── Components/              # Reusable components
-│   │   ├── Services/                # API service calls
-│   │   └── Program.cs               # Client configuration
+│   ├── TaskFlow.Domain/             # 🏛️ Domain Layer (Clean Architecture)
+│   │   ├── Entities/                # Domain entities (Article, Category, etc.)
+│   │   ├── Enums/                   # Domain enums (ArticleType, AttributeType)
+│   │   └── Interfaces/              # Repository interfaces
 │   │
-│   ├── TaskFlow.Server/             # ASP.NET Core Web API (backend)
+│   ├── TaskFlow.Server/             # 🔧 Infrastructure Layer (API + Data)
 │   │   ├── Controllers/             # API Controllers
-│   │   ├── Services/                # Business logic
-│   │   ├── Repositories/            # Data access
-│   │   ├── Models/                  # Domain entities
+│   │   ├── Services/                # Application services
+│   │   ├── Repositories/            # Repository implementations
 │   │   ├── Data/                    # DbContext and migrations
 │   │   └── Program.cs               # API configuration
 │   │
-│   ├── TaskFlow.Shared/             # Shared models
-│   │   ├── DTOs/                    # Data Transfer Objects
-│   │   ├── Enums/                   # TaskStatus, Priority, etc.
-│   │   └── Contracts/               # Shared interfaces
+│   ├── TaskFlow.Client/             # 🎨 Presentation Layer (Blazor WebAssembly)
+│   │   ├── Pages/                   # Razor pages (Home, Articles, Attributes)
+│   │   ├── Components/              # Reusable UI components
+│   │   ├── Services/                # API service calls
+│   │   └── Program.cs               # Client configuration
+│   │
+│   ├── TaskFlow.Shared/             # 📦 Communication Layer
+│   │   └── DTOs/                    # Data Transfer Objects
 │   │
 │   └── TaskFlow.sln                 # Main solution
 │
 ├── tests/
-│   └── TaskFlow.Server.Tests/       # Backend unit tests
+│   └── TaskFlow.Server.Tests/       # Backend unit tests (67 tests)
 │
+├── gitflow.sh                       # Git Flow commands (Linux/Mac)
+├── gitflow.bat                      # Git Flow commands (Windows)
+├── GITFLOW.md                       # Git Flow documentation
 └── README.md
 ```
 
@@ -228,6 +233,65 @@ For the best development experience with Visual Studio 2022:
 - Run tests: `Test` → `Run All Tests` (should pass 7/7)
 - Check Swagger: Navigate to `https://localhost:7000/swagger`
 
+## Development Workflow
+
+### Git Flow
+
+This project uses **Git Flow** for organized development with structured branching:
+
+```
+main                    # 🚀 Production releases (stable)
+├── develop             # 🔧 Development integration
+│   ├── feature/login   # ✨ New features
+│   ├── feature/api     # ✨ New features
+│   └── feature/ui      # ✨ New features
+├── release/v1.2.0      # 🚀 Release preparation
+└── hotfix/v1.1.1       # 🔥 Urgent fixes
+```
+
+### Quick Commands
+
+```bash
+# Check current status
+./gitflow.sh status
+
+# Start new feature
+./gitflow.sh feature start feature-name
+
+# Finish feature (merge to develop)
+./gitflow.sh feature finish feature-name
+
+# Create release
+./gitflow.sh release start v1.2.0
+./gitflow.sh release finish v1.2.0
+
+# Emergency hotfix
+./gitflow.sh hotfix start v1.1.1
+./gitflow.sh hotfix finish v1.1.1
+```
+
+### Development Guidelines
+
+1. **Never commit directly to `main`** - Always use Git Flow
+2. **Use `develop` as base** for all new development
+3. **Create features** for any new functionality:
+   ```bash
+   ./gitflow.sh feature start user-authentication
+   ```
+4. **Follow conventional commits**:
+   ```bash
+   git commit -m "feat: add user login functionality"
+   git commit -m "fix: resolve authentication bug"
+   git commit -m "docs: update API documentation"
+   ```
+5. **Test before finishing features** - Run tests and verify functionality
+
+### For Contributors
+
+- 📖 **Full Git Flow documentation**: [GITFLOW.md](GITFLOW.md)
+- 🔧 **Development setup**: Follow [Getting Started](#getting-started)
+- 📋 **Contribution guidelines**: [CONTRIBUTING.md](CONTRIBUTING.md)
+
 ## Current Features
 
 ### Implemented
@@ -256,13 +320,18 @@ For the best development experience with Visual Studio 2022:
 
 ## Architecture
 
-The application follows a clean architecture pattern:
+The application follows **Clean Architecture + DDD** (Domain-Driven Design):
 
-- **Presentation Layer**: Blazor WebAssembly client
-- **API Layer**: ASP.NET Core Web API controllers
-- **Business Logic Layer**: Service classes
-- **Data Access Layer**: Repository pattern with Entity Framework Core
-- **Domain Layer**: Entity models and business rules
+- **🏛️ Domain Layer** (`TaskFlow.Domain`): Pure business entities, enums, and repository interfaces
+- **🔧 Infrastructure Layer** (`TaskFlow.Server`): API controllers, repository implementations, and data access
+- **🎨 Presentation Layer** (`TaskFlow.Client`): Blazor WebAssembly UI components and pages
+- **📦 Communication Layer** (`TaskFlow.Shared`): DTOs for API communication
+
+### Benefits Achieved:
+- ✅ **Separation of Concerns**: Each layer has clear responsibilities
+- ✅ **Testability**: 67 unit tests with 100% success rate
+- ✅ **Maintainability**: Clean, organized codebase
+- ✅ **Scalability**: Ready for future enhancements
 
 ## Configuration
 
@@ -318,13 +387,30 @@ When running in development mode, Swagger UI is available at:
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+We welcome contributions! Please follow our Git Flow workflow:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. **Fork the repository**
+2. **Clone and setup**:
+   ```bash
+   git clone https://github.com/your-username/TaskFlow.git
+   cd TaskFlow
+   ./gitflow.sh init
+   ```
+3. **Create a feature** (instead of manual branch):
+   ```bash
+   ./gitflow.sh feature start amazing-feature
+   ```
+4. **Develop and commit** with conventional commits:
+   ```bash
+   git commit -m 'feat: add amazing feature'
+   ```
+5. **Finish feature**:
+   ```bash
+   ./gitflow.sh feature finish amazing-feature
+   ```
+6. **Push and create Pull Request** from `develop` branch
+
+📖 **Detailed guidelines**: [CONTRIBUTING.md](CONTRIBUTING.md) | [GITFLOW.md](GITFLOW.md)
 
 ## Support
 
