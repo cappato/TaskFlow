@@ -5,7 +5,11 @@ using PimFlow.Shared.Mappers;
 
 namespace PimFlow.Server.Services;
 
-public class CustomAttributeService : ICustomAttributeService
+/// <summary>
+/// CustomAttribute service implementing segregated interfaces
+/// Follows Interface Segregation Principle by implementing specific interfaces
+/// </summary>
+public class CustomAttributeService : ICustomAttributeService, ICustomAttributeReader, ICustomAttributeWriter
 {
     private readonly ICustomAttributeRepository _customAttributeRepository;
 

@@ -6,6 +6,8 @@ using PimFlow.Domain.Enums;
 using PimFlow.Server.Mapping;
 using PimFlow.Server.Repositories;
 using PimFlow.Server.Services;
+using PimFlow.Server.Validation;
+using PimFlow.Server.Validation.Article;
 using PimFlow.Shared.DTOs;
 using PimFlow.Shared.Mappers;
 using FluentAssertions;
@@ -33,6 +35,7 @@ public class PIMIntegrationTests : IDisposable
         _articleRepository = new ArticleRepository(_context);
         _attributeRepository = new CustomAttributeRepository(_context);
         _attributeValueRepository = new ArticleAttributeValueRepository(_context);
+        var _categoryRepository = new CategoryRepository(_context);
 
         // Configure AutoMapper
         var configuration = new MapperConfiguration(cfg =>
@@ -42,7 +45,22 @@ public class PIMIntegrationTests : IDisposable
         });
         _mapper = configuration.CreateMapper();
 
-        _articleService = new ArticleService(_articleRepository, _attributeRepository, _attributeValueRepository, _mapper);
+        // Create CQRS services for integration testing with Strategy Pattern
+        var createPipeline = new ValidationPipeline<CreateArticleDto>();
+        var updatePipeline = new ValidationPipeline<(int Id, UpdateArticleDto Dto)>();
+
+        // Register validation strategies
+        createPipeline.RegisterStrategy(new BasicFieldValidationStrategy());
+        createPipeline.RegisterStrategy(new BusinessRulesValidationStrategy(_articleRepository, _categoryRepository));
+
+        updatePipeline.RegisterStrategy(new BasicFieldUpdateValidationStrategy());
+        updatePipeline.RegisterStrategy(new BusinessRulesUpdateValidationStrategy(_articleRepository, _categoryRepository));
+
+        var validationService = new ArticleValidationService(createPipeline, updatePipeline);
+        var queryService = new ArticleQueryService(_articleRepository, _mapper);
+        var commandService = new ArticleCommandService(_articleRepository, _attributeValueRepository, validationService, _mapper);
+
+        _articleService = new ArticleService(queryService, commandService);
         _attributeService = new CustomAttributeService(_attributeRepository);
 
         // Seed basic data
@@ -277,7 +295,8 @@ public class PIMIntegrationTests : IDisposable
         var firstArticleDto = new CreateArticleDto
         {
             SKU = "UNIQUE-SKU-001",
-            Name = "First Article"
+            Name = "First Article",
+            CategoryId = 1 // Required by new validation
         };
 
         await _articleService.CreateArticleAsync(firstArticleDto);
@@ -285,7 +304,8 @@ public class PIMIntegrationTests : IDisposable
         var duplicateArticleDto = new CreateArticleDto
         {
             SKU = "UNIQUE-SKU-001",
-            Name = "Duplicate Article"
+            Name = "Duplicate Article",
+            CategoryId = 1 // Required by new validation
         };
 
         var articleException = await Assert.ThrowsAsync<InvalidOperationException>(
@@ -304,7 +324,8 @@ public class PIMIntegrationTests : IDisposable
             Name = "Zapatillas de Running",
             Description = "Perfectas para correr en asfalto",
             Brand = "TestBrand",
-            Type = EnumMapper.ToShared(ArticleType.Footwear)
+            Type = EnumMapper.ToShared(ArticleType.Footwear),
+            CategoryId = 1 // Required by new validation
         };
 
         await _articleService.CreateArticleAsync(articleDto);

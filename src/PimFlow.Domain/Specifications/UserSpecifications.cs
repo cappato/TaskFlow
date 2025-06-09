@@ -22,7 +22,7 @@ public static class UserSpecifications
             _excludeId = excludeId;
         }
 
-        public override bool IsSatisfiedBy(User entity)
+        protected override bool IsSatisfiedByCore(User entity)
         {
             // Para validación síncrona, usamos la versión async
             return IsSatisfiedByAsync(entity).GetAwaiter().GetResult();
@@ -34,7 +34,7 @@ public static class UserSpecifications
                 return false;
 
             var exists = await _emailExistsAsync(entity.Email);
-            
+
             // Si estamos actualizando, excluir el ID actual
             if (_excludeId.HasValue && entity.Id == _excludeId.Value)
                 return true;
@@ -50,7 +50,7 @@ public static class UserSpecifications
     /// </summary>
     public class ActiveUserSpecification : Specification<User>
     {
-        public override bool IsSatisfiedBy(User entity)
+        protected override bool IsSatisfiedByCore(User entity)
         {
             return entity.IsActive;
         }
@@ -63,7 +63,7 @@ public static class UserSpecifications
     /// </summary>
     public class CompleteUserDataSpecification : Specification<User>
     {
-        public override bool IsSatisfiedBy(User entity)
+        protected override bool IsSatisfiedByCore(User entity)
         {
             return !string.IsNullOrWhiteSpace(entity.Name) &&
                    !string.IsNullOrWhiteSpace(entity.Email);
@@ -77,7 +77,7 @@ public static class UserSpecifications
     /// </summary>
     public class ValidEmailFormatSpecification : Specification<User>
     {
-        public override bool IsSatisfiedBy(User entity)
+        protected override bool IsSatisfiedByCore(User entity)
         {
             return Email.IsValid(entity.Email);
         }
@@ -90,7 +90,7 @@ public static class UserSpecifications
     /// </summary>
     public class ValidNameFormatSpecification : Specification<User>
     {
-        public override bool IsSatisfiedBy(User entity)
+        protected override bool IsSatisfiedByCore(User entity)
         {
             return ProductName.IsValid(entity.Name);
         }
@@ -113,7 +113,7 @@ public static class UserSpecifications
                 .And(new UniqueEmailSpecification(emailExistsAsync));
         }
 
-        public override bool IsSatisfiedBy(User entity)
+        protected override bool IsSatisfiedByCore(User entity)
         {
             return _compositeSpec.IsSatisfiedBy(entity);
         }
@@ -136,7 +136,7 @@ public static class UserSpecifications
                 .And(new UniqueEmailSpecification(emailExistsAsync, userId));
         }
 
-        public override bool IsSatisfiedBy(User entity)
+        protected override bool IsSatisfiedByCore(User entity)
         {
             return _compositeSpec.IsSatisfiedBy(entity);
         }
