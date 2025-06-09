@@ -218,10 +218,10 @@ For the best development experience with Visual Studio 2022:
 - Change ports in `launchSettings.json` files
 - Or stop other applications using those ports
 
-**🔴 CORS errors:**
+**🔴 Connection errors:**
 
-- Verify URLs in `src/PimFlow.Server/Program.cs` match your client URLs
-- Default: `"https://localhost:7001", "http://localhost:5001"`
+- Verify the application is running on the correct port
+- Default: `http://localhost:5001` (Hosted architecture - no CORS needed)
 
 **🔴 Database errors:**
 
@@ -292,9 +292,9 @@ The application uses **SQLite** for development (no setup required). The databas
 
 To reset the database, simply delete the `PimFlow.db` file and restart the application.
 
-### CORS
+### Hosted Architecture
 
-CORS is configured to allow the Blazor client to communicate with the API. Update the CORS policy in `Program.cs` if needed.
+The application uses **Blazor WebAssembly Hosted** architecture where the server serves both the API and the client from the same origin. This eliminates CORS configuration and provides better performance.
 
 ## API Documentation
 

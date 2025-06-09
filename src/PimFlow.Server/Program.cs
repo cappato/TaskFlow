@@ -23,6 +23,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Add Blazor WebAssembly hosting
+builder.Services.AddRazorPages();
+
 // Add Entity Framework
 builder.Services.AddDbContext<PimFlowDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -38,27 +41,7 @@ builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICustomAttributeService, CustomAttributeService>();
 
-// Add CORS for Blazor client
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("BlazorClient", policy =>
-    {
-        if (builder.Environment.IsDevelopment())
-        {
-            policy.WithOrigins("https://localhost:7002", "http://localhost:5002", "https://localhost:7001", "http://localhost:5001")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        }
-        else
-        {
-            // Production CORS - allow Azure domains
-            policy.WithOrigins("https://*.azurewebsites.net", "https://*.azurestaticapps.net")
-                  .SetIsOriginAllowedToAllowWildcardSubdomains()
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        }
-    });
-});
+// CORS no longer needed in Hosted architecture - Client served from same origin
 
 var app = builder.Build();
 
@@ -67,15 +50,24 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseWebAssemblyDebugging();
+}
+else
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
 }
 
-// app.UseHttpsRedirection(); // Disabled for development
+app.UseHttpsRedirection();
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
 
-app.UseCors("BlazorClient");
-
+app.UseRouting();
 app.UseAuthorization();
 
+app.MapRazorPages();
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 
 // Health check endpoint for Azure App Service
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
