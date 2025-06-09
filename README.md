@@ -1,15 +1,15 @@
-# TaskFlow
+# PimFlow
 
 <div align="center">
 
-![TaskFlow Logo](https://via.placeholder.com/200x100/1b6ec2/ffffff?text=TaskFlow)
+![PimFlow Logo](https://via.placeholder.com/200x100/1b6ec2/ffffff?text=PimFlow)
 
-**A modern task and project management application built with Blazor WebAssembly and ASP.NET Core Web API**
+**A modern Product Information Management (PIM) system built with Blazor WebAssembly and ASP.NET Core Web API**
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)
 [![Blazor](https://img.shields.io/badge/Blazor-WebAssembly-blue.svg)](https://blazor.net/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://github.com/yourusername/TaskFlow/workflows/.NET%20Build%20and%20Test/badge.svg)](https://github.com/yourusername/TaskFlow/actions)
+[![Build Status](https://github.com/cappato/PimFlow/workflows/.NET%20Build%20and%20Test/badge.svg)](https://github.com/cappato/PimFlow/actions)
 
 [Quick Start](#getting-started) • [Documentation](#documentation) • [Contributing](#contributing) • [License](#license)
 
@@ -19,24 +19,31 @@
 
 ## Features
 
-**Task Management**
+**Product Information Management**
 
-- Create, edit, and delete tasks with rich metadata
-- Multiple status tracking (Pending, In Progress, Completed, etc.)
-- Priority levels (Low, Medium, High, Critical)
-- Due date management with overdue alerts
+- Create, edit, and delete articles with rich metadata
+- Multiple article types (Footwear, Clothing, Accessories)
+- Custom attributes management (Text, Number, Select, Color, etc.)
+- Dynamic attribute values per article
 
-**Project Organization**
+**Category Organization**
 
-- Organize tasks into projects
-- Track project progress and completion rates
-- Project timeline management
+- Organize articles into categories
+- Hierarchical category structure
+- Category-based filtering and search
+
+**Custom Attributes System**
+
+- Define custom attributes for products
+- Multiple data types support
+- Flexible attribute assignment
+- Dynamic form generation
 
 **Dashboard & Analytics**
 
-- Real-time task statistics
-- Productivity metrics and insights
-- Visual progress tracking
+- Real-time product statistics
+- Inventory insights and metrics
+- Visual data representation
 
 **Modern UI/UX**
 
@@ -73,32 +80,37 @@
 ## Project Structure
 
 ```
-TaskFlow/
+PimFlow/
 ├── src/
-│   ├── TaskFlow.Client/             # Blazor WebAssembly (frontend)
-│   │   ├── Pages/                   # Razor pages (Home, Tasks, Projects)
-│   │   ├── Components/              # Reusable components
-│   │   ├── Services/                # API service calls
-│   │   └── Program.cs               # Client configuration
+│   ├── PimFlow.Domain/              # 🏛️ Domain Layer (Clean Architecture)
+│   │   ├── Entities/                # Domain entities (Article, Category, etc.)
+│   │   ├── Enums/                   # Domain enums (ArticleType, AttributeType)
+│   │   └── Interfaces/              # Repository interfaces
 │   │
-│   ├── TaskFlow.Server/             # ASP.NET Core Web API (backend)
+│   ├── PimFlow.Server/              # 🔧 Infrastructure Layer (API + Data)
 │   │   ├── Controllers/             # API Controllers
-│   │   ├── Services/                # Business logic
-│   │   ├── Repositories/            # Data access
-│   │   ├── Models/                  # Domain entities
+│   │   ├── Services/                # Application services
+│   │   ├── Repositories/            # Repository implementations
 │   │   ├── Data/                    # DbContext and migrations
 │   │   └── Program.cs               # API configuration
 │   │
-│   ├── TaskFlow.Shared/             # Shared models
-│   │   ├── DTOs/                    # Data Transfer Objects
-│   │   ├── Enums/                   # TaskStatus, Priority, etc.
-│   │   └── Contracts/               # Shared interfaces
+│   ├── PimFlow.Client/              # 🎨 Presentation Layer (Blazor WebAssembly)
+│   │   ├── Pages/                   # Razor pages (Home, Articles, Attributes)
+│   │   ├── Components/              # Reusable UI components
+│   │   ├── Services/                # API service calls
+│   │   └── Program.cs               # Client configuration
 │   │
-│   └── TaskFlow.sln                 # Main solution
+│   ├── PimFlow.Shared/              # 📦 Communication Layer
+│   │   └── DTOs/                    # Data Transfer Objects
+│   │
+│   └── PimFlow.sln                  # Main solution
 │
 ├── tests/
-│   └── TaskFlow.Server.Tests/       # Backend unit tests
+│   └── PimFlow.Server.Tests/        # Backend unit tests (67 tests)
 │
+├── gitflow.sh                       # Git Flow commands (Linux/Mac)
+├── gitflow.bat                      # Git Flow commands (Windows)
+├── GITFLOW.md                       # Git Flow documentation
 └── README.md
 ```
 
@@ -116,8 +128,8 @@ TaskFlow/
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/cappato/TaskFlow.git
-   cd TaskFlow
+   git clone https://github.com/cappato/PimFlow.git
+   cd PimFlow
    ```
 
 2. **Run with automated script**
@@ -142,16 +154,16 @@ For the best development experience with Visual Studio 2022:
 1. **Open the solution**
 
    - `File` → `Open` → `Project/Solution`
-   - Select `TaskFlow.sln`
+   - Select `PimFlow.sln`
 
 2. **Configure multiple startup projects**
 
    - Right-click on the solution → `Properties`
    - `Startup Project` → `Multiple startup projects`
    - Set both projects to `Start`:
-     - ✅ **TaskFlow.Server** → `Start`
-     - ✅ **TaskFlow.Client** → `Start`
-     - ⚪ **TaskFlow.Shared** → `None`
+     - ✅ **PimFlow.Server** → `Start`
+     - ✅ **PimFlow.Client** → `Start`
+     - ⚪ **PimFlow.Shared** → `None`
 
 3. **Run the application**
 
@@ -160,9 +172,9 @@ For the best development experience with Visual Studio 2022:
    - Your browser will open to the Blazor client
 
 4. **Verify everything works**
-   - Navigate to the **Tareas** section
-   - Create a new task to test functionality
-   - Check that you see "Admin Cruzado" and "Alejandro Cruzado Project"
+   - Navigate to the **Artículos** section
+   - Create a new article to test functionality
+   - Check that you see custom attributes and categories
 
 ### Manual Setup
 
@@ -178,20 +190,20 @@ For the best development experience with Visual Studio 2022:
 2. **Run the API (Terminal 1)**
 
    ```bash
-   cd src/TaskFlow.Server
+   cd src/PimFlow.Server
    dotnet run
    ```
 
 3. **Run the Client (Terminal 2)**
 
    ```bash
-   cd src/TaskFlow.Client
+   cd src/PimFlow.Client
    dotnet run
    ```
 
 4. **Run tests**
    ```bash
-   cd tests/TaskFlow.Server.Tests
+   cd tests/PimFlow.Server.Tests
    dotnet test
    ```
 
@@ -208,13 +220,13 @@ For the best development experience with Visual Studio 2022:
 
 **🔴 CORS errors:**
 
-- Verify URLs in `src/TaskFlow.Server/Program.cs` match your client URLs
+- Verify URLs in `src/PimFlow.Server/Program.cs` match your client URLs
 - Default: `"https://localhost:7001", "http://localhost:5001"`
 
 **🔴 Database errors:**
 
 - SQLite database is created automatically on first run
-- Location: `src/TaskFlow.Server/TaskFlow.db`
+- Location: `src/PimFlow.Server/PimFlow.db`
 - Delete the file to reset the database
 
 **🔴 Build errors:**
@@ -232,27 +244,31 @@ For the best development experience with Visual Studio 2022:
 
 ### Implemented
 
-- ✅ **Task management** (CRUD operations)
-- ✅ **Project management** (CRUD operations)
-- ✅ **Task status tracking** (Pendiente, En Progreso, Completada, etc.)
-- ✅ **Priority levels** (Baja, Media, Alta, Crítica)
-- ✅ **Task-Project relationships**
+- ✅ **Article management** (CRUD operations)
+- ✅ **Category management** (CRUD operations)
+- ✅ **Custom attributes system** (Text, Number, Select, Color, Boolean, etc.)
+- ✅ **Article types** (Footwear, Clothing, Accessories)
+- ✅ **Dynamic attribute values** per article
 - ✅ **Spanish UI** (Complete interface translation)
-- ✅ **Dashboard with statistics** (completion rates, priority distribution)
-- ✅ **Responsive UI** with Bootstrap
+- ✅ **Dashboard with statistics** (article counts, attribute distribution)
+- ✅ **Responsive UI** with Tailwind CSS
 - ✅ **REST API** with Swagger documentation
-- ✅ **SQLite database** (no setup required)
-- ✅ **Unit tests** for business logic (7/7 passing)
-- ✅ **Real-time filtering** by status and project
+- ✅ **SQLite database** with Entity Framework migrations
+- ✅ **Unit tests** for business logic (67/67 passing)
+- ✅ **Clean Architecture** with Domain-Driven Design
+- ✅ **Git Flow** workflow implementation
 
 ### Planned Features
 
 - User authentication and authorization
-- Task assignments to users
-- Due date notifications
-- Task comments and attachments
-- Dashboard with analytics
+- Multi-tenant support for different companies
+- Product variants and SKU management
+- Inventory tracking and stock levels
+- Product images and media management
+- Advanced search and filtering
+- Data import/export functionality
 - Real-time updates with SignalR
+- Blazor WebAssembly Hosted architecture
 
 ## Architecture
 
@@ -270,11 +286,11 @@ The application follows a clean architecture pattern:
 
 The application uses **SQLite** for development (no setup required). The database is automatically created on first run.
 
-- **Database file**: `src/TaskFlow.Server/TaskFlow.db`
-- **Connection string**: Configured in `src/TaskFlow.Server/appsettings.Development.json`
-- **Seed data**: Includes "Admin Cruzado" user and "Alejandro Cruzado Project"
+- **Database file**: `src/PimFlow.Server/PimFlow.db`
+- **Connection string**: Configured in `src/PimFlow.Server/appsettings.Development.json`
+- **Seed data**: Includes sample articles, categories, and custom attributes
 
-To reset the database, simply delete the `TaskFlow.db` file and restart the application.
+To reset the database, simply delete the `PimFlow.db` file and restart the application.
 
 ### CORS
 
@@ -292,29 +308,33 @@ When running in development mode, Swagger UI is available at:
 
 ### Dashboard
 
-![Dashboard](https://via.placeholder.com/800x400/f8f9fa/333333?text=Dashboard+Screenshot)
+![Dashboard](https://via.placeholder.com/800x400/f8f9fa/333333?text=PIM+Dashboard+Screenshot)
 
-### Task Management
+### Article Management
 
-![Tasks](https://via.placeholder.com/800x400/f8f9fa/333333?text=Task+Management+Screenshot)
+![Articles](https://via.placeholder.com/800x400/f8f9fa/333333?text=Article+Management+Screenshot)
 
-### Project Overview
+### Custom Attributes
 
-![Projects](https://via.placeholder.com/800x400/f8f9fa/333333?text=Project+Overview+Screenshot)
+![Attributes](https://via.placeholder.com/800x400/f8f9fa/333333?text=Custom+Attributes+Screenshot)
 
 </details>
 
 ## Roadmap
 
+- [ ] Blazor WebAssembly Hosted architecture
 - [ ] User authentication and authorization
-- [ ] Team collaboration features
-- [ ] Mobile app (MAUI)
+- [ ] Multi-tenant support
+- [ ] Product variants and SKU management
+- [ ] Inventory tracking
+- [ ] Product images and media management
+- [ ] Advanced search and filtering
+- [ ] Data import/export (CSV, Excel)
 - [ ] Real-time notifications (SignalR)
-- [ ] File attachments
-- [ ] Task comments and discussions
+- [ ] Mobile app (MAUI)
 - [ ] Advanced analytics and reporting
 - [ ] Dark mode theme
-- [ ] Third-party integrations (GitHub, Slack, etc.)
+- [ ] Third-party integrations (ERP systems, e-commerce platforms)
 
 ## Contributing
 
@@ -328,9 +348,9 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## Support
 
-- **Bug Reports**: [Create an issue](https://github.com/cappato/TaskFlow/issues/new?template=bug_report.md)
-- **Feature Requests**: [Create an issue](https://github.com/cappato/TaskFlow/issues/new?template=feature_request.md)
-- **Discussions**: [GitHub Discussions](https://github.com/cappato/TaskFlow/discussions)
+- **Bug Reports**: [Create an issue](https://github.com/cappato/PimFlow/issues/new?template=bug_report.md)
+- **Feature Requests**: [Create an issue](https://github.com/cappato/PimFlow/issues/new?template=feature_request.md)
+- **Discussions**: [GitHub Discussions](https://github.com/cappato/PimFlow/discussions)
 
 ## License
 
@@ -349,7 +369,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **If you found this project helpful, please give it a star!**
 
-Made with care by the TaskFlow team
+Made with care by the PimFlow team
 
 </div>
 
