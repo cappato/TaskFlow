@@ -79,6 +79,29 @@ Crea una nueva feature automáticamente.
 ./scripts/create-feature.sh nombre-de-la-feature
 ```
 
+### **5. 🏗️ test-architecture**
+Ejecuta tests de arquitectura por categorías.
+
+**Uso:**
+```bash
+# Tests críticos (obligatorios)
+./scripts/test-architecture.ps1 -Category Critical
+
+# Tests aspiracionales (objetivos)
+./scripts/test-architecture.ps1 -Category Aspirational
+
+# Tests de monitoreo (métricas)
+./scripts/test-architecture.ps1 -Category Monitoring
+
+# Todos los tests
+./scripts/test-architecture.ps1 -Category All
+```
+
+**Categorías:**
+- **Critical**: Deben pasar siempre (bloquean desarrollo)
+- **Aspirational**: Objetivos arquitectónicos (pueden fallar temporalmente)
+- **Monitoring**: Métricas y tendencias (informativos)
+
 **Ejemplo:**
 ```bash
 ./scripts/create-feature.sh user-authentication

@@ -66,6 +66,18 @@ if (Get-Command dotnet -ErrorAction SilentlyContinue) {
     Write-Warning-Custom "dotnet no encontrado, saltando build"
 }
 
+# 6. Verificar arquitectura (tests criticos)
+Write-Host "Verificando arquitectura..." -ForegroundColor Blue
+if (Test-Path "tests/PimFlow.Architecture.Tests/") {
+    $archResult = dotnet test tests/PimFlow.Architecture.Tests/ --filter "Category=Critical" --verbosity minimal
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error-Custom "Tests criticos de arquitectura fallaron"
+    }
+    Write-Success "Arquitectura validada"
+} else {
+    Write-Warning-Custom "Tests de arquitectura no encontrados, saltando"
+}
+
 # 6. Verificar cambios no commiteados
 Write-Host "Verificando cambios pendientes..." -ForegroundColor Blue
 $changes = git diff-index --quiet HEAD
