@@ -4,6 +4,7 @@ using PimFlow.Server.Repositories;
 using PimFlow.Server.Services;
 using PimFlow.Domain.Interfaces;
 using PimFlow.Server.Configuration;
+using PimFlow.Server.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,9 @@ builder.Services.AddSwaggerGen();
 
 // Add Blazor WebAssembly hosting
 builder.Services.AddRazorPages();
+
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(ArticleMappingProfile));
 
 // Add Entity Framework with centralized configuration
 builder.Services.AddDbContext<PimFlowDbContext>(options =>
