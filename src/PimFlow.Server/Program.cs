@@ -5,6 +5,9 @@ using PimFlow.Server.Services;
 using PimFlow.Domain.Interfaces;
 using PimFlow.Server.Configuration;
 using PimFlow.Server.Mapping;
+using PimFlow.Server.Validation;
+using PimFlow.Server.Validation.Article;
+using PimFlow.Shared.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,10 +64,65 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICustomAttributeRepository, CustomAttributeRepository>();
 builder.Services.AddScoped<IArticleAttributeValueRepository, ArticleAttributeValueRepository>();
 
-// Add services
+// Add services - CQRS pattern implementation
+// Query services (read operations)
+builder.Services.AddScoped<IArticleQueryService, ArticleQueryService>();
+
+// Command services (write operations)
+builder.Services.AddScoped<IArticleCommandService, ArticleCommandService>();
+
+// Validation services - Strategy Pattern (Open/Closed Principle)
+builder.Services.AddScoped<IValidationPipeline<CreateArticleDto>, ValidationPipeline<CreateArticleDto>>();
+builder.Services.AddScoped<IValidationPipeline<(int Id, UpdateArticleDto Dto)>, ValidationPipeline<(int Id, UpdateArticleDto Dto)>>();
+
+// Validation strategies - NEW STRATEGIES CAN BE ADDED WITHOUT MODIFYING EXISTING CODE
+builder.Services.AddScoped<IArticleCreateValidationStrategy, BasicFieldValidationStrategy>();
+builder.Services.AddScoped<IArticleCreateValidationStrategy, BusinessRulesValidationStrategy>();
+builder.Services.AddScoped<IArticleUpdateValidationStrategy, BasicFieldUpdateValidationStrategy>();
+builder.Services.AddScoped<IArticleUpdateValidationStrategy, BusinessRulesUpdateValidationStrategy>();
+
+// Register strategies in pipelines
+builder.Services.AddScoped<IArticleValidationService>(provider =>
+{
+    var createPipeline = provider.GetRequiredService<IValidationPipeline<CreateArticleDto>>();
+    var updatePipeline = provider.GetRequiredService<IValidationPipeline<(int Id, UpdateArticleDto Dto)>>();
+
+    // Register create strategies
+    var createStrategies = provider.GetServices<IArticleCreateValidationStrategy>();
+    foreach (var strategy in createStrategies)
+    {
+        createPipeline.RegisterStrategy(strategy);
+    }
+
+    // Register update strategies
+    var updateStrategies = provider.GetServices<IArticleUpdateValidationStrategy>();
+    foreach (var strategy in updateStrategies)
+    {
+        updatePipeline.RegisterStrategy(strategy);
+    }
+
+    return new ArticleValidationService(createPipeline, updatePipeline);
+});
+
+// Facade services (backward compatibility)
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICustomAttributeService, CustomAttributeService>();
+
+// INTERFACE SEGREGATION PRINCIPLE (ISP) - Segregated interfaces registration
+// Article segregated interfaces
+builder.Services.AddScoped<IArticleReader>(provider => provider.GetRequiredService<ArticleService>());
+builder.Services.AddScoped<IArticleFilter>(provider => provider.GetRequiredService<ArticleService>());
+builder.Services.AddScoped<IArticleWriter>(provider => provider.GetRequiredService<ArticleService>());
+
+// Category segregated interfaces
+builder.Services.AddScoped<ICategoryReader>(provider => provider.GetRequiredService<CategoryService>());
+builder.Services.AddScoped<ICategoryHierarchy>(provider => provider.GetRequiredService<CategoryService>());
+builder.Services.AddScoped<ICategoryWriter>(provider => provider.GetRequiredService<CategoryService>());
+
+// CustomAttribute segregated interfaces
+builder.Services.AddScoped<ICustomAttributeReader>(provider => provider.GetRequiredService<CustomAttributeService>());
+builder.Services.AddScoped<ICustomAttributeWriter>(provider => provider.GetRequiredService<CustomAttributeService>());
 
 // CORS no longer needed in Hosted architecture - Client served from same origin
 
