@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using PimFlow.Domain.Enums;
+using PimFlow.Shared.Enums;
 
 namespace PimFlow.Shared.DTOs;
 
