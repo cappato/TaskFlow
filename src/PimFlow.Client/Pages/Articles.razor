@@ -3,7 +3,10 @@
 @using PimFlow.Client.Components.UI
 @using PimFlow.Client.Components.Layout
 @using PimFlow.Client.Components
-@using PimFlow.Domain.Enums
+@using PimFlow.Shared.DTOs
+@using PimFlow.Shared.Enums
+@using PimFlow.Shared.Mappers
+@using PimFlow.Client.Services
 
 <PageTitle>Artículos - PimFlow PIM</PageTitle>
 
@@ -53,7 +56,7 @@ else if (articles != null && articles.Any())
                             <span class="font-medium">SKU:</span> @article.SKU
                         </p>
                         <p class="text-sm text-gray-600">
-                            <span class="font-medium">Tipo:</span> @GetArticleTypeDisplayName(article.Type)
+                            <span class="font-medium">Tipo:</span> @EnumMapper.GetArticleTypeDisplayName(EnumMapper.ToDomain(article.Type))
                         </p>
                         @if (!string.IsNullOrEmpty(article.Brand))
                         {
@@ -165,9 +168,9 @@ else
                             <label class="block text-sm font-medium text-gray-700">Tipo</label>
                             <select @bind="articleForm.Type" 
                                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                @foreach (var type in Enum.GetValues<ArticleType>())
+                                @foreach (var type in EnumMapper.GetAllArticleTypesForUI())
                                 {
-                                    <option value="@type">@GetArticleTypeDisplayName(type)</option>
+                                    <option value="@type.Value">@type.DisplayName</option>
                                 }
                             </select>
                         </div>
@@ -332,23 +335,12 @@ else
         return Task.CompletedTask;
     }
 
-    private string GetArticleTypeDisplayName(ArticleType type)
-    {
-        return type switch
-        {
-            ArticleType.Footwear => "Calzado",
-            ArticleType.Clothing => "Ropa",
-            ArticleType.Accessory => "Accesorio",
-            _ => type.ToString()
-        };
-    }
-
     public class ArticleFormModel
     {
         public string SKU { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public ArticleType Type { get; set; } = ArticleType.Footwear;
+        public PimFlow.Shared.Enums.ArticleType Type { get; set; } = PimFlow.Shared.Enums.ArticleType.Footwear;
         public string Brand { get; set; } = string.Empty;
         public Dictionary<string, object> CustomAttributes { get; set; } = new();
     }

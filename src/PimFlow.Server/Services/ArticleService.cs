@@ -2,6 +2,7 @@ using PimFlow.Domain.Entities;
 using PimFlow.Domain.Interfaces;
 using PimFlow.Domain.Enums;
 using PimFlow.Shared.DTOs;
+using PimFlow.Shared.Mappers;
 
 namespace PimFlow.Server.Services;
 
@@ -82,7 +83,7 @@ public class ArticleService : IArticleService
             SKU = createArticleDto.SKU,
             Name = createArticleDto.Name,
             Description = createArticleDto.Description,
-            Type = createArticleDto.Type,
+            Type = EnumMapper.ToDomain(createArticleDto.Type),
             Brand = createArticleDto.Brand,
             CategoryId = createArticleDto.CategoryId,
             SupplierId = createArticleDto.SupplierId,
@@ -125,7 +126,7 @@ public class ArticleService : IArticleService
             existingArticle.Description = updateArticleDto.Description;
 
         if (updateArticleDto.Type.HasValue)
-            existingArticle.Type = updateArticleDto.Type.Value;
+            existingArticle.Type = EnumMapper.ToDomain(updateArticleDto.Type.Value);
 
         if (!string.IsNullOrEmpty(updateArticleDto.Brand))
             existingArticle.Brand = updateArticleDto.Brand;
@@ -172,7 +173,7 @@ public class ArticleService : IArticleService
             SKU = article.SKU,
             Name = article.Name,
             Description = article.Description,
-            Type = article.Type,
+            Type = EnumMapper.ToShared(article.Type),
             Brand = article.Brand,
             CreatedAt = article.CreatedAt,
             UpdatedAt = article.UpdatedAt,

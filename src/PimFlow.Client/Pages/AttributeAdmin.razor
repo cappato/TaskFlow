@@ -3,7 +3,10 @@
 @using PimFlow.Client.Components.UI
 @using PimFlow.Client.Components.Layout
 @using PimFlow.Client.Components
-@using PimFlow.Domain.Enums
+@using PimFlow.Shared.DTOs
+@using PimFlow.Shared.Enums
+@using PimFlow.Shared.Mappers
+@using PimFlow.Client.Services
 
 <PageTitle>Atributos Personalizados - PimFlow PIM</PageTitle>
 
@@ -58,7 +61,7 @@ else if (attributes != null && attributes.Any())
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                @GetAttributeTypeDisplayName(attribute.Type)
+                                @EnumMapper.GetAttributeTypeDisplayName(EnumMapper.ToDomain(attribute.Type))
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -137,9 +140,9 @@ else
                         <label class="block text-sm font-medium text-gray-700">Tipo</label>
                         <select @bind="attributeForm.Type" 
                                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                            @foreach (var type in Enum.GetValues<AttributeType>())
+                            @foreach (var type in EnumMapper.GetAllAttributeTypesForUI())
                             {
-                                <option value="@type">@GetAttributeTypeDisplayName(type)</option>
+                                <option value="@type.Value">@type.DisplayName</option>
                             }
                         </select>
                     </div>
@@ -272,28 +275,11 @@ else
         }
     }
 
-    private string GetAttributeTypeDisplayName(AttributeType type)
-    {
-        return type switch
-        {
-            AttributeType.Text => "Texto",
-            AttributeType.Number => "Número",
-            AttributeType.Integer => "Entero",
-            AttributeType.Boolean => "Verdadero/Falso",
-            AttributeType.Date => "Fecha",
-            AttributeType.DateTime => "Fecha y Hora",
-            AttributeType.Color => "Color",
-            AttributeType.Email => "Email",
-            AttributeType.Url => "URL",
-            _ => type.ToString()
-        };
-    }
-
     public class AttributeFormModel
     {
         public string Name { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
-        public AttributeType Type { get; set; } = AttributeType.Text;
+        public PimFlow.Shared.Enums.AttributeType Type { get; set; } = PimFlow.Shared.Enums.AttributeType.Text;
         public bool IsRequired { get; set; } = false;
     }
 }

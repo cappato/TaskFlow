@@ -1,6 +1,7 @@
 using PimFlow.Domain.Entities;
 using PimFlow.Domain.Interfaces;
 using PimFlow.Shared.DTOs;
+using PimFlow.Shared.Mappers;
 
 namespace PimFlow.Server.Services;
 
@@ -43,7 +44,7 @@ public class CustomAttributeService : ICustomAttributeService
         {
             Name = createAttributeDto.Name,
             DisplayName = createAttributeDto.DisplayName,
-            Type = createAttributeDto.Type,
+            Type = EnumMapper.ToDomain(createAttributeDto.Type),
             IsRequired = createAttributeDto.IsRequired,
             DefaultValue = createAttributeDto.DefaultValue,
             ValidationRules = createAttributeDto.ValidationRules,
@@ -77,7 +78,7 @@ public class CustomAttributeService : ICustomAttributeService
             existingAttribute.DisplayName = updateAttributeDto.DisplayName;
 
         if (updateAttributeDto.Type.HasValue)
-            existingAttribute.Type = updateAttributeDto.Type.Value;
+            existingAttribute.Type = EnumMapper.ToDomain(updateAttributeDto.Type.Value);
 
         if (updateAttributeDto.IsRequired.HasValue)
             existingAttribute.IsRequired = updateAttributeDto.IsRequired.Value;
@@ -112,7 +113,7 @@ public class CustomAttributeService : ICustomAttributeService
             Id = attribute.Id,
             Name = attribute.Name,
             DisplayName = attribute.DisplayName,
-            Type = attribute.Type,
+            Type = EnumMapper.ToShared(attribute.Type),
             IsRequired = attribute.IsRequired,
             DefaultValue = attribute.DefaultValue,
             ValidationRules = attribute.ValidationRules,

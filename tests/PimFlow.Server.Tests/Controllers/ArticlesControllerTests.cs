@@ -3,7 +3,8 @@ using Moq;
 using PimFlow.Server.Controllers;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
-using PimFlow.Domain.Enums;
+using PimFlow.Shared.Enums;
+using PimFlow.Shared.Mappers;
 using FluentAssertions;
 using Xunit;
 

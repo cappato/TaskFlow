@@ -1,0 +1,371 @@
+@* 
+EJEMPLO: Cómo se vería el componente Articles.razor actualizado
+para usar los nuevos ViewModels y servicios desacoplados
+*@
+
+@page "/articles"
+@using PimFlow.Shared.ViewModels
+@using PimFlow.Shared.Services
+@using PimFlow.Shared.Validators
+@using PimFlow.Shared.Mappers
+@using PimFlow.Shared.Enums
+@inject IArticleService ArticleService
+@inject ICategoryService CategoryService
+
+<PageTitle>Gestión de Artículos</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Gestión de Artículos</h1>
+                <button class="btn btn-primary" @onclick="ShowCreateModal">
+                    <i class="fas fa-plus me-2"></i>Nuevo Artículo
+                </button>
+            </div>
+
+            @if (isLoading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+            }
+            else if (articles?.Any() == true)
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th>Marca</th>
+                                        <th>Estado</th>
+                                        <th>Creado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var article in articles)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <code>@article.SKU</code>
+                                            </td>
+                                            <td>
+                                                <strong>@article.Name</strong>
+                                                @if (!string.IsNullOrEmpty(article.Description))
+                                                {
+                                                    <br><small class="text-muted">@article.Description</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">
+                                                    @GetArticleTypeDisplayName(article.Type)
+                                                </span>
+                                            </td>
+                                            <td>@article.Brand</td>
+                                            <td>
+                                                <span class="badge @(article.IsActive ? "bg-success" : "bg-secondary")">
+                                                    @article.StatusText
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small>@article.CreatedAtFormatted</small>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary" @onclick="() => EditArticle(article)">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger" @onclick="() => DeleteArticle(article.Id)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No hay artículos registrados</h5>
+                    <button class="btn btn-primary mt-3" @onclick="ShowCreateModal">
+                        Crear primer artículo
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@* Modal para crear/editar artículos *@
+@if (showModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        @(isEditing ? "Editar Artículo" : "Nuevo Artículo")
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="HideModal"></button>
+                </div>
+                <div class="modal-body">
+                    @if (validationErrors.Any())
+                    {
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach (var error in validationErrors)
+                                {
+                                    <li>@error</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <EditForm Model="articleForm" OnValidSubmit="SaveArticle">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">SKU *</label>
+                                    <InputText @bind-Value="articleForm.SKU" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo *</label>
+                                    <InputSelect @bind-Value="articleForm.Type" class="form-select">
+                                        @foreach (var type in availableTypes)
+                                        {
+                                            <option value="@type.Value">@type.DisplayName</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre *</label>
+                                    <InputText @bind-Value="articleForm.Name" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Marca *</label>
+                                    <InputText @bind-Value="articleForm.Brand" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <InputTextArea @bind-Value="articleForm.Description" class="form-control" rows="3" />
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="HideModal">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                                @if (isSaving)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                @(isEditing ? "Actualizar" : "Crear")
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    // ViewModels para UI
+    private List<ArticleViewModel>? articles;
+    private CreateArticleViewModel articleForm = new();
+    private UpdateArticleViewModel? editingArticle;
+    
+    // Estado de UI
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool showModal = false;
+    private bool isEditing = false;
+    private List<string> validationErrors = new();
+    
+    // Datos para formularios
+    private List<(string Value, string DisplayName, string Description)> availableTypes = new();
+    
+    // Validadores
+    private readonly CreateArticleViewModelValidator createValidator = new();
+    private readonly UpdateArticleViewModelValidator updateValidator = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        LoadAvailableTypes();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        try
+        {
+            var response = await ArticleService.GetAllArticlesAsync();
+            if (response.IsSuccess)
+            {
+                articles = response.Data ?? new List<ArticleViewModel>();
+            }
+            else
+            {
+                // Manejar error
+                validationErrors = response.GetAllErrors();
+            }
+        }
+        catch (Exception ex)
+        {
+            validationErrors = new List<string> { $"Error al cargar datos: {ex.Message}" };
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void LoadAvailableTypes()
+    {
+        availableTypes = EnumMapper.GetAllArticleTypesForUI();
+    }
+
+    private void ShowCreateModal()
+    {
+        isEditing = false;
+        articleForm = new CreateArticleViewModel();
+        validationErrors.Clear();
+        showModal = true;
+    }
+
+    private void EditArticle(ArticleViewModel article)
+    {
+        isEditing = true;
+        editingArticle = ArticleMapper.ToUpdateViewModel(ArticleMapper.ToDto(article));
+        articleForm = ArticleMapper.ToCreateViewModel(ArticleMapper.ToDto(article));
+        validationErrors.Clear();
+        showModal = true;
+    }
+
+    private void HideModal()
+    {
+        showModal = false;
+        isEditing = false;
+        editingArticle = null;
+        articleForm = new CreateArticleViewModel();
+        validationErrors.Clear();
+    }
+
+    private async Task SaveArticle()
+    {
+        isSaving = true;
+        validationErrors.Clear();
+
+        try
+        {
+            if (isEditing && editingArticle != null)
+            {
+                // Validar antes de enviar
+                var validationResult = await updateValidator.ValidateAsync(
+                    ArticleMapper.ToUpdateViewModel(ArticleMapper.ToDto(articleForm)));
+                
+                if (!validationResult.IsSuccess)
+                {
+                    validationErrors = validationResult.GetAllErrors();
+                    return;
+                }
+
+                var response = await ArticleService.UpdateArticleAsync(
+                    editingArticle.Id, 
+                    ArticleMapper.ToUpdateViewModel(ArticleMapper.ToDto(articleForm)));
+                
+                if (response.IsSuccess)
+                {
+                    HideModal();
+                    await LoadData();
+                }
+                else
+                {
+                    validationErrors = response.GetAllErrors();
+                }
+            }
+            else
+            {
+                // Validar antes de enviar
+                var validationResult = await createValidator.ValidateAsync(articleForm);
+                
+                if (!validationResult.IsSuccess)
+                {
+                    validationErrors = validationResult.GetAllErrors();
+                    return;
+                }
+
+                var response = await ArticleService.CreateArticleAsync(articleForm);
+                
+                if (response.IsSuccess)
+                {
+                    HideModal();
+                    await LoadData();
+                }
+                else
+                {
+                    validationErrors = response.GetAllErrors();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            validationErrors = new List<string> { $"Error al guardar: {ex.Message}" };
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task DeleteArticle(int id)
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "¿Estás seguro de que quieres eliminar este artículo?"))
+        {
+            var response = await ArticleService.DeleteArticleAsync(id);
+            if (response.IsSuccess)
+            {
+                await LoadData();
+            }
+            else
+            {
+                validationErrors = response.GetAllErrors();
+            }
+        }
+    }
+
+    private string GetArticleTypeDisplayName(string type)
+    {
+        if (Enum.TryParse<ArticleType>(type, out var articleType))
+        {
+            return articleType.GetDisplayName();
+        }
+        return type;
+    }
+}

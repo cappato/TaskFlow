@@ -1,4 +1,4 @@
-using PimFlow.Domain.Enums;
+using PimFlow.Shared.Enums;
 
 namespace PimFlow.Shared.DTOs;
 
