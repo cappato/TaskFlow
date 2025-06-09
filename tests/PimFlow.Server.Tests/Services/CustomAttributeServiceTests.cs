@@ -4,6 +4,7 @@ using PimFlow.Domain.Interfaces;
 using PimFlow.Domain.Enums;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
+using PimFlow.Shared.Mappers;
 using FluentAssertions;
 using Xunit;
 
@@ -63,7 +64,7 @@ public class CustomAttributeServiceTests
         var firstAttribute = result.First();
         firstAttribute.Name.Should().Be("color");
         firstAttribute.DisplayName.Should().Be("Color");
-        firstAttribute.Type.Should().Be(AttributeType.Text);
+        firstAttribute.Type.Should().Be(EnumMapper.ToShared(AttributeType.Text));
         firstAttribute.IsRequired.Should().BeTrue();
     }
 
@@ -148,7 +149,7 @@ public class CustomAttributeServiceTests
         {
             Name = "material",
             DisplayName = "Material",
-            Type = AttributeType.Text,
+            Type = EnumMapper.ToShared(AttributeType.Text),
             IsRequired = false,
             SortOrder = 3
         };
@@ -158,7 +159,7 @@ public class CustomAttributeServiceTests
             Id = 1,
             Name = createDto.Name,
             DisplayName = createDto.DisplayName,
-            Type = createDto.Type,
+            Type = EnumMapper.ToDomain(createDto.Type),
             IsRequired = createDto.IsRequired,
             SortOrder = createDto.SortOrder,
             IsActive = true,
@@ -178,7 +179,7 @@ public class CustomAttributeServiceTests
         result.Should().NotBeNull();
         result.Name.Should().Be("material");
         result.DisplayName.Should().Be("Material");
-        result.Type.Should().Be(AttributeType.Text);
+        result.Type.Should().Be(EnumMapper.ToShared(AttributeType.Text));
         result.IsActive.Should().BeTrue();
 
         _mockRepository.Verify(x => x.ExistsByNameAsync(createDto.Name), Times.Once);
@@ -226,7 +227,7 @@ public class CustomAttributeServiceTests
         {
             DisplayName = "Updated Color",
             IsRequired = true,
-            Type = AttributeType.Color
+            Type = EnumMapper.ToShared(AttributeType.Color)
         };
 
         var updatedAttribute = new CustomAttribute
@@ -254,7 +255,7 @@ public class CustomAttributeServiceTests
         result.Should().NotBeNull();
         result!.DisplayName.Should().Be("Updated Color");
         result.IsRequired.Should().BeTrue();
-        result.Type.Should().Be(AttributeType.Color);
+        result.Type.Should().Be(EnumMapper.ToShared(AttributeType.Color));
 
         _mockRepository.Verify(x => x.GetByIdAsync(1), Times.Once);
         _mockRepository.Verify(x => x.UpdateAsync(It.IsAny<CustomAttribute>()), Times.Once);

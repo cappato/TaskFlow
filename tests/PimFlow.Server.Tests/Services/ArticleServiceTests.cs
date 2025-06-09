@@ -4,6 +4,7 @@ using PimFlow.Domain.Interfaces;
 using PimFlow.Domain.Enums;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
+using PimFlow.Shared.Mappers;
 using FluentAssertions;
 using Xunit;
 
@@ -120,7 +121,7 @@ public class ArticleServiceTests
             SKU = "NEW-001",
             Name = "New Article",
             Description = "New Description",
-            Type = ArticleType.Clothing,
+            Type = EnumMapper.ToShared(ArticleType.Clothing),
             Brand = "New Brand",
             CustomAttributes = new Dictionary<string, object>
             {
@@ -135,7 +136,7 @@ public class ArticleServiceTests
             SKU = createDto.SKU,
             Name = createDto.Name,
             Description = createDto.Description,
-            Type = createDto.Type,
+            Type = EnumMapper.ToDomain(createDto.Type),
             Brand = createDto.Brand,
             CreatedAt = DateTime.UtcNow,
             IsActive = true
@@ -154,7 +155,7 @@ public class ArticleServiceTests
         result.Should().NotBeNull();
         result.SKU.Should().Be("NEW-001");
         result.Name.Should().Be("New Article");
-        result.Type.Should().Be(ArticleType.Clothing);
+        result.Type.Should().Be(EnumMapper.ToShared(ArticleType.Clothing));
 
         _mockArticleRepository.Verify(x => x.ExistsBySKUAsync(createDto.SKU), Times.Once);
         _mockArticleRepository.Verify(x => x.CreateAsync(It.IsAny<Article>()), Times.Once);

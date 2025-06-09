@@ -5,6 +5,7 @@ using PimFlow.Domain.Enums;
 using PimFlow.Server.Repositories;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
+using PimFlow.Shared.Mappers;
 using FluentAssertions;
 using Xunit;
 
@@ -69,7 +70,7 @@ public class PIMIntegrationTests : IDisposable
         {
             Name = "color",
             DisplayName = "Color",
-            Type = AttributeType.Text,
+            Type = EnumMapper.ToShared(AttributeType.Text),
             IsRequired = true,
             SortOrder = 1
         };
@@ -78,7 +79,7 @@ public class PIMIntegrationTests : IDisposable
         {
             Name = "size",
             DisplayName = "Talle",
-            Type = AttributeType.Text,
+            Type = EnumMapper.ToShared(AttributeType.Text),
             IsRequired = true,
             SortOrder = 2
         };
@@ -87,7 +88,7 @@ public class PIMIntegrationTests : IDisposable
         {
             Name = "waterproof",
             DisplayName = "Resistente al Agua",
-            Type = AttributeType.Boolean,
+            Type = EnumMapper.ToShared(AttributeType.Boolean),
             IsRequired = false,
             SortOrder = 3
         };
@@ -109,7 +110,7 @@ public class PIMIntegrationTests : IDisposable
             SKU = "NIKE-AIR-001",
             Name = "Nike Air Max 90",
             Description = "Zapatillas deportivas clásicas",
-            Type = ArticleType.Footwear,
+            Type = EnumMapper.ToShared(ArticleType.Footwear),
             Brand = "Nike",
             CategoryId = 1,
             SupplierId = 1,
@@ -143,7 +144,7 @@ public class PIMIntegrationTests : IDisposable
             SKU = "ADIDAS-UB-001",
             Name = "Adidas Ultraboost 22",
             Description = "Zapatillas de running",
-            Type = ArticleType.Footwear,
+            Type = EnumMapper.ToShared(ArticleType.Footwear),
             Brand = "Adidas",
             CategoryId = 1,
             SupplierId = 1,
@@ -200,7 +201,7 @@ public class PIMIntegrationTests : IDisposable
         {
             Name = "material",
             DisplayName = "Material",
-            Type = AttributeType.Text,
+            Type = EnumMapper.ToShared(AttributeType.Text),
             IsRequired = false,
             SortOrder = 1
         };
@@ -214,14 +215,14 @@ public class PIMIntegrationTests : IDisposable
         {
             DisplayName = "Material del Producto",
             IsRequired = true,
-            Type = AttributeType.Select
+            Type = EnumMapper.ToShared(AttributeType.Select)
         };
 
         var updated = await _attributeService.UpdateAttributeAsync(created.Id, updateDto);
         updated.Should().NotBeNull();
         updated!.DisplayName.Should().Be("Material del Producto");
         updated.IsRequired.Should().BeTrue();
-        updated.Type.Should().Be(AttributeType.Select);
+        updated.Type.Should().Be(EnumMapper.ToShared(AttributeType.Select));
 
         // Verify it appears in active attributes
         var activeAttributes = await _attributeService.GetActiveAttributesAsync();
@@ -291,7 +292,7 @@ public class PIMIntegrationTests : IDisposable
             Name = "Zapatillas de Running",
             Description = "Perfectas para correr en asfalto",
             Brand = "TestBrand",
-            Type = ArticleType.Footwear
+            Type = EnumMapper.ToShared(ArticleType.Footwear)
         };
 
         await _articleService.CreateArticleAsync(articleDto);
