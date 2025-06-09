@@ -1,61 +1,60 @@
+using AutoMapper;
 using PimFlow.Domain.Entities;
 using PimFlow.Domain.Interfaces;
 using PimFlow.Shared.DTOs;
 
 namespace PimFlow.Server.Services;
 
-public class CategoryService : ICategoryService
+/// <summary>
+/// Category service implementing segregated interfaces
+/// Follows Interface Segregation Principle by implementing specific interfaces
+/// </summary>
+public class CategoryService : ICategoryService, ICategoryReader, ICategoryHierarchy, ICategoryWriter
 {
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IMapper _mapper;
 
-    public CategoryService(ICategoryRepository categoryRepository)
+    public CategoryService(ICategoryRepository categoryRepository, IMapper mapper)
     {
         _categoryRepository = categoryRepository;
+        _mapper = mapper;
     }
 
     public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
     {
         var categories = await _categoryRepository.GetAllAsync();
-        return categories.Select(MapToDto);
+        return _mapper.Map<IEnumerable<CategoryDto>>(categories);
     }
 
     public async Task<IEnumerable<CategoryDto>> GetActiveCategoriesAsync()
     {
         var categories = await _categoryRepository.GetActiveAsync();
-        return categories.Select(MapToDto);
+        return _mapper.Map<IEnumerable<CategoryDto>>(categories);
     }
 
     public async Task<IEnumerable<CategoryDto>> GetRootCategoriesAsync()
     {
         var categories = await _categoryRepository.GetRootCategoriesAsync();
-        return categories.Select(MapToDto);
+        return _mapper.Map<IEnumerable<CategoryDto>>(categories);
     }
 
     public async Task<IEnumerable<CategoryDto>> GetSubCategoriesAsync(int parentId)
     {
         var categories = await _categoryRepository.GetSubCategoriesAsync(parentId);
-        return categories.Select(MapToDto);
+        return _mapper.Map<IEnumerable<CategoryDto>>(categories);
     }
 
     public async Task<CategoryDto?> GetCategoryByIdAsync(int id)
     {
         var category = await _categoryRepository.GetByIdAsync(id);
-        return category != null ? MapToDto(category) : null;
+        return category != null ? _mapper.Map<CategoryDto>(category) : null;
     }
 
     public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto createCategoryDto)
     {
-        var category = new Category
-        {
-            Name = createCategoryDto.Name,
-            Description = createCategoryDto.Description,
-            ParentCategoryId = createCategoryDto.ParentCategoryId,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-
+        var category = _mapper.Map<Category>(createCategoryDto);
         var createdCategory = await _categoryRepository.CreateAsync(category);
-        return MapToDto(createdCategory);
+        return _mapper.Map<CategoryDto>(createdCategory);
     }
 
     public async Task<CategoryDto?> UpdateCategoryAsync(int id, UpdateCategoryDto updateCategoryDto)
@@ -89,7 +88,7 @@ public class CategoryService : ICategoryService
         existingCategory.UpdatedAt = DateTime.UtcNow;
 
         var updatedCategory = await _categoryRepository.UpdateAsync(existingCategory);
-        return updatedCategory != null ? MapToDto(updatedCategory) : null;
+        return updatedCategory != null ? _mapper.Map<CategoryDto>(updatedCategory) : null;
     }
 
     public async Task<bool> DeleteCategoryAsync(int id)
@@ -131,20 +130,5 @@ public class CategoryService : ICategoryService
         return false;
     }
 
-    private static CategoryDto MapToDto(Category category)
-    {
-        return new CategoryDto
-        {
-            Id = category.Id,
-            Name = category.Name,
-            Description = category.Description,
-            CreatedAt = category.CreatedAt,
-            UpdatedAt = category.UpdatedAt,
-            IsActive = category.IsActive,
-            ParentCategoryId = category.ParentCategoryId,
-            ParentCategoryName = category.ParentCategory?.Name,
-            ArticleCount = category.Articles?.Count ?? 0,
-            SubCategoryCount = category.SubCategories?.Count ?? 0
-        };
-    }
+
 }
