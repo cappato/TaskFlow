@@ -30,24 +30,20 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo.
-echo Starting API Server (TaskFlow.Server)...
-start "TaskFlow API" cmd /k "cd src\TaskFlow.Server && dotnet run"
+echo Starting PimFlow Hosted Server...
+start "PimFlow Hosted" cmd /k "cd src\PimFlow.Server && dotnet run"
 
-echo Waiting for API to start...
-timeout /t 5 /nobreak > nul
-
-echo.
-echo Starting Blazor Client (TaskFlow.Client)...
-start "TaskFlow Client" cmd /k "cd src\TaskFlow.Client && dotnet run"
+echo Waiting for server to start...
+timeout /t 8 /nobreak > nul
 
 echo.
 echo ========================================
-echo TaskFlow Development Environment Started!
+echo PimFlow Hosted Development Environment Started!
 echo ========================================
 echo.
-echo API Server: http://localhost:5001
+echo Application: http://localhost:5001
 echo Swagger UI: http://localhost:5001/swagger
-echo Blazor Client: http://localhost:5002
+echo (Client served from same port - Hosted Architecture)
 echo.
 echo Press any key to stop all services...
 pause > nul
