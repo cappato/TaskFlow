@@ -3,14 +3,14 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TaskFlow.Server.Data;
+using PimFlow.Server.Data;
 
 #nullable disable
 
-namespace TaskFlow.Server.Migrations
+namespace PimFlow.Server.Migrations
 {
-    [DbContext(typeof(TaskFlowDbContext))]
-    partial class TaskFlowDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(PimFlowDbContext))]
+    partial class PimFlowDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {

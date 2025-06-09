@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace TaskFlow.Server.Migrations
+namespace PimFlow.Server.Migrations
 {
     /// <inheritdoc />
     public partial class ChangeEnumsToString : Migration

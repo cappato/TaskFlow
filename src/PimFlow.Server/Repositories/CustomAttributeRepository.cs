@@ -1,15 +1,15 @@
 using Microsoft.EntityFrameworkCore;
-using TaskFlow.Server.Data;
-using TaskFlow.Domain.Entities;
-using TaskFlow.Domain.Interfaces;
+using PimFlow.Server.Data;
+using PimFlow.Domain.Entities;
+using PimFlow.Domain.Interfaces;
 
-namespace TaskFlow.Server.Repositories;
+namespace PimFlow.Server.Repositories;
 
 public class CustomAttributeRepository : ICustomAttributeRepository
 {
-    private readonly TaskFlowDbContext _context;
+    private readonly PimFlowDbContext _context;
 
-    public CustomAttributeRepository(TaskFlowDbContext context)
+    public CustomAttributeRepository(PimFlowDbContext context)
     {
         _context = context;
     }

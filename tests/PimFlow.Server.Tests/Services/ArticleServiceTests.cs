@@ -1,13 +1,13 @@
 using Moq;
-using TaskFlow.Domain.Entities;
-using TaskFlow.Domain.Interfaces;
-using TaskFlow.Domain.Enums;
-using TaskFlow.Server.Services;
-using TaskFlow.Shared.DTOs;
+using PimFlow.Domain.Entities;
+using PimFlow.Domain.Interfaces;
+using PimFlow.Domain.Enums;
+using PimFlow.Server.Services;
+using PimFlow.Shared.DTOs;
 using FluentAssertions;
 using Xunit;
 
-namespace TaskFlow.Server.Tests.Services;
+namespace PimFlow.Server.Tests.Services;
 
 public class ArticleServiceTests
 {

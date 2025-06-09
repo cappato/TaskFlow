@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using TaskFlow.Server.Controllers;
-using TaskFlow.Server.Services;
-using TaskFlow.Shared.DTOs;
-using TaskFlow.Domain.Enums;
+using PimFlow.Server.Controllers;
+using PimFlow.Server.Services;
+using PimFlow.Shared.DTOs;
+using PimFlow.Domain.Enums;
 using FluentAssertions;
 using Xunit;
 
-namespace TaskFlow.Server.Tests.Controllers;
+namespace PimFlow.Server.Tests.Controllers;
 
 public class ArticlesControllerTests
 {

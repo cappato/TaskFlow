@@ -1,8 +1,8 @@
-using TaskFlow.Domain.Entities;
-using TaskFlow.Domain.Interfaces;
-using TaskFlow.Shared.DTOs;
+using PimFlow.Domain.Entities;
+using PimFlow.Domain.Interfaces;
+using PimFlow.Shared.DTOs;
 
-namespace TaskFlow.Server.Services;
+namespace PimFlow.Server.Services;
 
 public class CategoryService : ICategoryService
 {

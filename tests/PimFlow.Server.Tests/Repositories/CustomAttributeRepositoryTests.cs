@@ -1,25 +1,25 @@
 using Microsoft.EntityFrameworkCore;
-using TaskFlow.Server.Data;
-using TaskFlow.Domain.Entities;
-using TaskFlow.Domain.Enums;
-using TaskFlow.Server.Repositories;
+using PimFlow.Server.Data;
+using PimFlow.Domain.Entities;
+using PimFlow.Domain.Enums;
+using PimFlow.Server.Repositories;
 using FluentAssertions;
 using Xunit;
 
-namespace TaskFlow.Server.Tests.Repositories;
+namespace PimFlow.Server.Tests.Repositories;
 
 public class CustomAttributeRepositoryTests : IDisposable
 {
-    private readonly TaskFlowDbContext _context;
+    private readonly PimFlowDbContext _context;
     private readonly CustomAttributeRepository _repository;
 
     public CustomAttributeRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<TaskFlowDbContext>()
+        var options = new DbContextOptionsBuilder<PimFlowDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
-        _context = new TaskFlowDbContext(options);
+        _context = new PimFlowDbContext(options);
         _repository = new CustomAttributeRepository(_context);
 
         // Seed test data

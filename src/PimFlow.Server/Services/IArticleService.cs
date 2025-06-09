@@ -1,7 +1,7 @@
-using TaskFlow.Shared.DTOs;
-using TaskFlow.Domain.Enums;
+using PimFlow.Shared.DTOs;
+using PimFlow.Domain.Enums;
 
-namespace TaskFlow.Server.Services;
+namespace PimFlow.Server.Services;
 
 public interface IArticleService
 {

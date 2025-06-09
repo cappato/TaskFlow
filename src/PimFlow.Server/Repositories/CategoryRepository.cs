@@ -1,15 +1,15 @@
 using Microsoft.EntityFrameworkCore;
-using TaskFlow.Server.Data;
-using TaskFlow.Domain.Entities;
-using TaskFlow.Domain.Interfaces;
+using PimFlow.Server.Data;
+using PimFlow.Domain.Entities;
+using PimFlow.Domain.Interfaces;
 
-namespace TaskFlow.Server.Repositories;
+namespace PimFlow.Server.Repositories;
 
 public class CategoryRepository : ICategoryRepository
 {
-    private readonly TaskFlowDbContext _context;
+    private readonly PimFlowDbContext _context;
 
-    public CategoryRepository(TaskFlowDbContext context)
+    public CategoryRepository(PimFlowDbContext context)
     {
         _context = context;
     }

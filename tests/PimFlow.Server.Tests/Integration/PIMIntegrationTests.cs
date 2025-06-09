@@ -1,18 +1,18 @@
 using Microsoft.EntityFrameworkCore;
-using TaskFlow.Server.Data;
-using TaskFlow.Domain.Entities;
-using TaskFlow.Domain.Enums;
-using TaskFlow.Server.Repositories;
-using TaskFlow.Server.Services;
-using TaskFlow.Shared.DTOs;
+using PimFlow.Server.Data;
+using PimFlow.Domain.Entities;
+using PimFlow.Domain.Enums;
+using PimFlow.Server.Repositories;
+using PimFlow.Server.Services;
+using PimFlow.Shared.DTOs;
 using FluentAssertions;
 using Xunit;
 
-namespace TaskFlow.Server.Tests.Integration;
+namespace PimFlow.Server.Tests.Integration;
 
 public class PIMIntegrationTests : IDisposable
 {
-    private readonly TaskFlowDbContext _context;
+    private readonly PimFlowDbContext _context;
     private readonly ArticleRepository _articleRepository;
     private readonly CustomAttributeRepository _attributeRepository;
     private readonly ArticleAttributeValueRepository _attributeValueRepository;
@@ -21,11 +21,11 @@ public class PIMIntegrationTests : IDisposable
 
     public PIMIntegrationTests()
     {
-        var options = new DbContextOptionsBuilder<TaskFlowDbContext>()
+        var options = new DbContextOptionsBuilder<PimFlowDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
-        _context = new TaskFlowDbContext(options);
+        _context = new PimFlowDbContext(options);
         _articleRepository = new ArticleRepository(_context);
         _attributeRepository = new CustomAttributeRepository(_context);
         _attributeValueRepository = new ArticleAttributeValueRepository(_context);

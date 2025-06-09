@@ -1,8 +1,8 @@
 using System.Net.Http.Json;
-using TaskFlow.Shared.DTOs;
-using TaskFlow.Shared.Enums;
+using PimFlow.Shared.DTOs;
+using PimFlow.Shared.Enums;
 
-namespace TaskFlow.Client.Services;
+namespace PimFlow.Client.Services;
 
 public class ArticleApiService : IArticleApiService
 {

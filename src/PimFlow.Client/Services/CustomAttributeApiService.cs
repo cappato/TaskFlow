@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
-using TaskFlow.Shared.DTOs;
+using PimFlow.Shared.DTOs;
 
-namespace TaskFlow.Client.Services;
+namespace PimFlow.Client.Services;
 
 public class CustomAttributeApiService : ICustomAttributeApiService
 {

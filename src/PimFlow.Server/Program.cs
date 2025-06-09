@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using TaskFlow.Server.Data;
-using TaskFlow.Server.Repositories;
-using TaskFlow.Server.Services;
-using TaskFlow.Domain.Interfaces;
+using PimFlow.Server.Data;
+using PimFlow.Server.Repositories;
+using PimFlow.Server.Services;
+using PimFlow.Domain.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +24,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Add Entity Framework
-builder.Services.AddDbContext<TaskFlowDbContext>(options =>
+builder.Services.AddDbContext<PimFlowDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add repositories
@@ -83,7 +83,7 @@ app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = Dat
 // Apply database migrations
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<TaskFlowDbContext>();
+    var context = scope.ServiceProvider.GetRequiredService<PimFlowDbContext>();
     context.Database.Migrate();
 }
 

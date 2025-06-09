@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using TaskFlow.Domain.Entities;
-using TaskFlow.Domain.Enums;
+using PimFlow.Domain.Entities;
+using PimFlow.Domain.Enums;
 
-namespace TaskFlow.Server.Data;
+namespace PimFlow.Server.Data;
 
-public class TaskFlowDbContext : DbContext
+public class PimFlowDbContext : DbContext
 {
-    public TaskFlowDbContext(DbContextOptions<TaskFlowDbContext> options) : base(options)
+    public PimFlowDbContext(DbContextOptions<PimFlowDbContext> options) : base(options)
     {
     }
 

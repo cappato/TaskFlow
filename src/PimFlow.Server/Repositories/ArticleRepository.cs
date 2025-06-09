@@ -1,16 +1,16 @@
 using Microsoft.EntityFrameworkCore;
-using TaskFlow.Server.Data;
-using TaskFlow.Domain.Entities;
-using TaskFlow.Domain.Enums;
-using TaskFlow.Domain.Interfaces;
+using PimFlow.Server.Data;
+using PimFlow.Domain.Entities;
+using PimFlow.Domain.Enums;
+using PimFlow.Domain.Interfaces;
 
-namespace TaskFlow.Server.Repositories;
+namespace PimFlow.Server.Repositories;
 
 public class ArticleRepository : IArticleRepository
 {
-    private readonly TaskFlowDbContext _context;
+    private readonly PimFlowDbContext _context;
 
-    public ArticleRepository(TaskFlowDbContext context)
+    public ArticleRepository(PimFlowDbContext context)
     {
         _context = context;
     }

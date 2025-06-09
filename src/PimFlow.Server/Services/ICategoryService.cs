@@ -1,6 +1,6 @@
-using TaskFlow.Shared.DTOs;
+using PimFlow.Shared.DTOs;
 
-namespace TaskFlow.Server.Services;
+namespace PimFlow.Server.Services;
 
 public interface ICategoryService
 {

@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TaskFlow.Server.Data;
+using PimFlow.Server.Data;
 
 #nullable disable
 
-namespace TaskFlow.Server.Migrations
+namespace PimFlow.Server.Migrations
 {
-    [DbContext(typeof(TaskFlowDbContext))]
+    [DbContext(typeof(PimFlowDbContext))]
     [Migration("20250608233655_ChangeEnumsToString")]
     partial class ChangeEnumsToString
     {

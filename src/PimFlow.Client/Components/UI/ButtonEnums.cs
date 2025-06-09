@@ -1,4 +1,4 @@
-namespace TaskFlow.Client.Components.UI;
+namespace PimFlow.Client.Components.UI;
 
 public enum ButtonVariant
 {
