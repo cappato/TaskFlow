@@ -1,130 +1,43 @@
-using PimFlow.Domain.Entities;
-using PimFlow.Domain.Interfaces;
 using PimFlow.Shared.DTOs;
-using PimFlow.Shared.Mappers;
 
 namespace PimFlow.Server.Services;
 
 /// <summary>
-/// CustomAttribute service implementing segregated interfaces
-/// Follows Interface Segregation Principle by implementing specific interfaces
+/// Facade service that coordinates CustomAttribute operations using CQRS pattern
+/// Follows Single Responsibility Principle by delegating to specialized services
+/// Follows Interface Segregation Principle by implementing segregated interfaces
+/// Maintains backward compatibility while improving architecture
 /// </summary>
 public class CustomAttributeService : ICustomAttributeService, ICustomAttributeReader, ICustomAttributeWriter
 {
-    private readonly ICustomAttributeRepository _customAttributeRepository;
+    private readonly ICustomAttributeQueryService _queryService;
+    private readonly ICustomAttributeCommandService _commandService;
 
-    public CustomAttributeService(ICustomAttributeRepository customAttributeRepository)
+    public CustomAttributeService(
+        ICustomAttributeQueryService queryService,
+        ICustomAttributeCommandService commandService)
     {
-        _customAttributeRepository = customAttributeRepository;
+        _queryService = queryService;
+        _commandService = commandService;
     }
 
+    // Query operations - delegated to specialized query service
     public async Task<IEnumerable<CustomAttributeDto>> GetAllAttributesAsync()
-    {
-        var attributes = await _customAttributeRepository.GetAllAsync();
-        return attributes.Select(MapToDto);
-    }
+        => await _queryService.GetAllAttributesAsync();
 
     public async Task<IEnumerable<CustomAttributeDto>> GetActiveAttributesAsync()
-    {
-        var attributes = await _customAttributeRepository.GetActiveAsync();
-        return attributes.Select(MapToDto);
-    }
+        => await _queryService.GetActiveAttributesAsync();
 
     public async Task<CustomAttributeDto?> GetAttributeByIdAsync(int id)
-    {
-        var attribute = await _customAttributeRepository.GetByIdAsync(id);
-        return attribute != null ? MapToDto(attribute) : null;
-    }
+        => await _queryService.GetAttributeByIdAsync(id);
 
+    // Command operations - delegated to specialized command service
     public async Task<CustomAttributeDto> CreateAttributeAsync(CreateCustomAttributeDto createAttributeDto)
-    {
-        // Validate name uniqueness
-        if (await _customAttributeRepository.ExistsByNameAsync(createAttributeDto.Name))
-        {
-            throw new InvalidOperationException($"Ya existe un atributo con nombre: {createAttributeDto.Name}");
-        }
-
-        var attribute = new CustomAttribute
-        {
-            Name = createAttributeDto.Name,
-            DisplayName = createAttributeDto.DisplayName,
-            Type = EnumMapper.ToDomain(createAttributeDto.Type),
-            IsRequired = createAttributeDto.IsRequired,
-            DefaultValue = createAttributeDto.DefaultValue,
-            ValidationRules = createAttributeDto.ValidationRules,
-            SortOrder = createAttributeDto.SortOrder,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        var createdAttribute = await _customAttributeRepository.CreateAsync(attribute);
-        return MapToDto(createdAttribute);
-    }
+        => await _commandService.CreateAttributeAsync(createAttributeDto);
 
     public async Task<CustomAttributeDto?> UpdateAttributeAsync(int id, UpdateCustomAttributeDto updateAttributeDto)
-    {
-        var existingAttribute = await _customAttributeRepository.GetByIdAsync(id);
-        if (existingAttribute == null)
-            return null;
-
-        // Update properties
-        if (!string.IsNullOrEmpty(updateAttributeDto.Name))
-        {
-            if (updateAttributeDto.Name != existingAttribute.Name &&
-                await _customAttributeRepository.ExistsByNameAsync(updateAttributeDto.Name))
-            {
-                throw new InvalidOperationException($"Ya existe un atributo con nombre: {updateAttributeDto.Name}");
-            }
-            existingAttribute.Name = updateAttributeDto.Name;
-        }
-
-        if (!string.IsNullOrEmpty(updateAttributeDto.DisplayName))
-            existingAttribute.DisplayName = updateAttributeDto.DisplayName;
-
-        if (updateAttributeDto.Type.HasValue)
-            existingAttribute.Type = EnumMapper.ToDomain(updateAttributeDto.Type.Value);
-
-        if (updateAttributeDto.IsRequired.HasValue)
-            existingAttribute.IsRequired = updateAttributeDto.IsRequired.Value;
-
-        if (updateAttributeDto.DefaultValue != null)
-            existingAttribute.DefaultValue = updateAttributeDto.DefaultValue;
-
-        if (updateAttributeDto.ValidationRules != null)
-            existingAttribute.ValidationRules = updateAttributeDto.ValidationRules;
-
-        if (updateAttributeDto.SortOrder.HasValue)
-            existingAttribute.SortOrder = updateAttributeDto.SortOrder.Value;
-
-        if (updateAttributeDto.IsActive.HasValue)
-            existingAttribute.IsActive = updateAttributeDto.IsActive.Value;
-
-        existingAttribute.UpdatedAt = DateTime.UtcNow;
-
-        var updatedAttribute = await _customAttributeRepository.UpdateAsync(existingAttribute);
-        return updatedAttribute != null ? MapToDto(updatedAttribute) : null;
-    }
+        => await _commandService.UpdateAttributeAsync(id, updateAttributeDto);
 
     public async Task<bool> DeleteAttributeAsync(int id)
-    {
-        return await _customAttributeRepository.DeleteAsync(id);
-    }
-
-    private static CustomAttributeDto MapToDto(CustomAttribute attribute)
-    {
-        return new CustomAttributeDto
-        {
-            Id = attribute.Id,
-            Name = attribute.Name,
-            DisplayName = attribute.DisplayName,
-            Type = EnumMapper.ToShared(attribute.Type),
-            IsRequired = attribute.IsRequired,
-            DefaultValue = attribute.DefaultValue,
-            ValidationRules = attribute.ValidationRules,
-            SortOrder = attribute.SortOrder,
-            IsActive = attribute.IsActive,
-            CreatedAt = attribute.CreatedAt,
-            UpdatedAt = attribute.UpdatedAt
-        };
-    }
+        => await _commandService.DeleteAttributeAsync(id);
 }

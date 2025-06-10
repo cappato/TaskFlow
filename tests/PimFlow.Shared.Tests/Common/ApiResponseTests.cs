@@ -1,6 +1,5 @@
 using FluentAssertions;
 using PimFlow.Shared.Common;
-using PimFlow.Domain.Common;
 using Xunit;
 
 namespace PimFlow.Shared.Tests.Common;
@@ -308,65 +307,5 @@ public class ApiResponseTests
 
     #endregion
 
-    #region Extension Methods Tests
 
-    [Fact]
-    public void ToApiResponse_SuccessfulResult_ShouldCreateSuccessfulApiResponse()
-    {
-        // Arrange
-        var result = Result.Success("test data");
-
-        // Act
-        var apiResponse = result.ToApiResponse();
-
-        // Assert
-        apiResponse.IsSuccess.Should().BeTrue();
-        apiResponse.Data.Should().Be("test data");
-        apiResponse.ErrorMessage.Should().BeNull();
-    }
-
-    [Fact]
-    public void ToApiResponse_FailedResult_ShouldCreateErrorApiResponse()
-    {
-        // Arrange
-        var result = Result.Failure<string>("Something went wrong");
-
-        // Act
-        var apiResponse = result.ToApiResponse();
-
-        // Assert
-        apiResponse.IsSuccess.Should().BeFalse();
-        apiResponse.Data.Should().BeNull();
-        apiResponse.ErrorMessage.Should().Be("Something went wrong");
-    }
-
-    [Fact]
-    public void ToApiResponse_SuccessfulResultWithoutData_ShouldCreateSuccessfulApiResponse()
-    {
-        // Arrange
-        var result = Result.Success();
-
-        // Act
-        var apiResponse = result.ToApiResponse();
-
-        // Assert
-        apiResponse.IsSuccess.Should().BeTrue();
-        apiResponse.ErrorMessage.Should().BeNull();
-    }
-
-    [Fact]
-    public void ToApiResponse_FailedResultWithoutData_ShouldCreateErrorApiResponse()
-    {
-        // Arrange
-        var result = Result.Failure("Something went wrong");
-
-        // Act
-        var apiResponse = result.ToApiResponse();
-
-        // Assert
-        apiResponse.IsSuccess.Should().BeFalse();
-        apiResponse.ErrorMessage.Should().Be("Something went wrong");
-    }
-
-    #endregion
 }

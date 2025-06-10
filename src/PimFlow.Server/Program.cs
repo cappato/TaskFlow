@@ -67,9 +67,11 @@ builder.Services.AddScoped<IArticleAttributeValueRepository, ArticleAttributeVal
 // Add services - CQRS pattern implementation
 // Query services (read operations)
 builder.Services.AddScoped<IArticleQueryService, ArticleQueryService>();
+builder.Services.AddScoped<ICustomAttributeQueryService, CustomAttributeQueryService>();
 
 // Command services (write operations)
 builder.Services.AddScoped<IArticleCommandService, ArticleCommandService>();
+builder.Services.AddScoped<ICustomAttributeCommandService, CustomAttributeCommandService>();
 
 // Validation services - Strategy Pattern (Open/Closed Principle)
 builder.Services.AddScoped<IValidationPipeline<CreateArticleDto>, ValidationPipeline<CreateArticleDto>>();

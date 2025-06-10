@@ -11,7 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PimFlow.Domain\PimFlow.Domain.csproj" />
+    <ProjectReference Include="..\PimFlow.Contracts\PimFlow.Contracts.csproj" />
   </ItemGroup>
+
+
 
 </Project>

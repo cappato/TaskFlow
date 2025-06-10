@@ -198,24 +198,24 @@ public class ApiResponse : ApiResponse<object>
 public static class ApiResponseExtensions
 {
     /// <summary>
-    /// Convierte un Result a ApiResponse
+    /// Convierte un IResult a ApiResponse
     /// </summary>
-    public static ApiResponse<T> ToApiResponse<T>(this PimFlow.Domain.Common.Result<T> result)
+    public static ApiResponse<T> ToApiResponse<T>(this PimFlow.Contracts.Common.IResult<T> result)
     {
         if (result.IsSuccess)
             return ApiResponse<T>.Success(result.Value);
-        
+
         return ApiResponse<T>.Error(result.Error);
     }
 
     /// <summary>
-    /// Convierte un Result a ApiResponse sin datos
+    /// Convierte un IResult a ApiResponse sin datos
     /// </summary>
-    public static ApiResponse ToApiResponse(this PimFlow.Domain.Common.Result result)
+    public static ApiResponse ToApiResponse(this PimFlow.Contracts.Common.IResult result)
     {
         if (result.IsSuccess)
             return ApiResponse.Success();
-        
+
         return ApiResponse.Error(result.Error);
     }
 }
