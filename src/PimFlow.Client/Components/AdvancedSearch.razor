@@ -1,0 +1,169 @@
+@using PimFlow.Shared.DTOs
+@using PimFlow.Client.Services
+@using PimFlow.Client.Components.UI
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            Búsqueda Avanzada
+        </h3>
+        <button @onclick="ToggleExpanded" class="text-gray-500 hover:text-gray-700">
+            <svg class="w-5 h-5 transform @(isExpanded ? "rotate-180" : "")" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </button>
+    </div>
+
+    @if (isExpanded)
+    {
+        <div class="space-y-4">
+            <!-- Búsqueda General -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Búsqueda General</label>
+                <div class="flex space-x-2">
+                    <input @bind="searchTerm" @onkeypress="OnSearchKeyPress"
+                           class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                           placeholder="Buscar por nombre, SKU, marca o descripción..." />
+                    <Button Variant="ButtonVariant.Primary" OnClick="SearchGeneral" Loading="isSearching">
+                        <Icon>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </Icon>
+                        <ChildContent>Buscar</ChildContent>
+                    </Button>
+                </div>
+            </div>
+
+            <!-- Filtros por Marca -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Marca</label>
+                <select @bind="selectedBrand" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="">Todas las marcas</option>
+                    <option value="Nike">Nike</option>
+                    <option value="Adidas">Adidas</option>
+                    <option value="Puma">Puma</option>
+                    <option value="Reebok">Reebok</option>
+                    <option value="Under Armour">Under Armour</option>
+                </select>
+            </div>
+
+            <!-- Filtros Rápidos por Atributos -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Filtros Rápidos</label>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <input @bind="colorFilter" placeholder="Color (ej: Azul)" class="text-sm rounded border-gray-300" />
+                    <input @bind="materialFilter" placeholder="Material" class="text-sm rounded border-gray-300" />
+                    <input @bind="generoFilter" placeholder="Género" class="text-sm rounded border-gray-300" />
+                    <input @bind="temporadaFilter" placeholder="Temporada" class="text-sm rounded border-gray-300" />
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+                <button @onclick="ClearFilters" class="text-sm text-gray-600 hover:text-gray-800">
+                    Limpiar filtros
+                </button>
+                <div class="space-x-2">
+                    <Button Variant="ButtonVariant.Secondary" OnClick="ApplyFilters" Loading="isSearching">
+                        <ChildContent>Aplicar Filtros</ChildContent>
+                    </Button>
+                    <Button Variant="ButtonVariant.Primary" OnClick="() => OnReset.InvokeAsync()" Loading="isSearching">
+                        <ChildContent>Ver Todos</ChildContent>
+                    </Button>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+                <button @onclick="ClearFilters" class="text-sm text-gray-600 hover:text-gray-800">
+                    Limpiar filtros
+                </button>
+                <div class="space-x-2">
+                    <Button Variant="ButtonVariant.Secondary" OnClick="ApplyFilters" Loading="isSearching">
+                        <ChildContent>Aplicar Filtros</ChildContent>
+                    </Button>
+                    <Button Variant="ButtonVariant.Primary" OnClick="() => OnReset.InvokeAsync()" Loading="isSearching">
+                        <ChildContent>Ver Todos</ChildContent>
+                    </Button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public IEnumerable<CustomAttributeDto>? AvailableAttributes { get; set; }
+    [Parameter] public EventCallback<SearchCriteria> OnSearch { get; set; }
+    [Parameter] public EventCallback OnReset { get; set; }
+    [Parameter] public bool IsSearching { get; set; } = false;
+
+    private bool isExpanded = false;
+    private bool isSearching => IsSearching;
+    private string searchTerm = "";
+    private string selectedBrand = "";
+    private string colorFilter = "";
+    private string materialFilter = "";
+    private string generoFilter = "";
+    private string temporadaFilter = "";
+
+    private void ToggleExpanded()
+    {
+        isExpanded = !isExpanded;
+    }
+
+    private async Task OnSearchKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SearchGeneral();
+        }
+    }
+
+    private async Task SearchGeneral()
+    {
+        await OnSearch.InvokeAsync(new SearchCriteria { SearchTerm = searchTerm });
+    }
+
+    private async Task ApplyFilters()
+    {
+        var criteria = new SearchCriteria
+        {
+            SearchTerm = searchTerm,
+            Brand = selectedBrand,
+            AttributeFilters = new Dictionary<string, string>()
+        };
+
+        if (!string.IsNullOrWhiteSpace(colorFilter))
+            criteria.AttributeFilters["color"] = colorFilter;
+        if (!string.IsNullOrWhiteSpace(materialFilter))
+            criteria.AttributeFilters["material"] = materialFilter;
+        if (!string.IsNullOrWhiteSpace(generoFilter))
+            criteria.AttributeFilters["genero"] = generoFilter;
+        if (!string.IsNullOrWhiteSpace(temporadaFilter))
+            criteria.AttributeFilters["temporada"] = temporadaFilter;
+
+        await OnSearch.InvokeAsync(criteria);
+    }
+
+    private void ClearFilters()
+    {
+        searchTerm = "";
+        selectedBrand = "";
+        colorFilter = "";
+        materialFilter = "";
+        generoFilter = "";
+        temporadaFilter = "";
+        StateHasChanged();
+    }
+
+    public class SearchCriteria
+    {
+        public string SearchTerm { get; set; } = "";
+        public string Brand { get; set; } = "";
+        public Dictionary<string, string> AttributeFilters { get; set; } = new();
+    }
+}

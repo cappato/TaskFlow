@@ -257,6 +257,9 @@ CConversionReportLog.txt
 *.db-shm
 *.db-wal
 
+# Exception: Allow sample database with example data
+!src/PimFlow.Server/App_Data/application-dev.db
+
 # Business Intelligence projects
 *.rdl.data
 *.bim.layout

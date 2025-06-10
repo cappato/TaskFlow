@@ -1,0 +1,456 @@
+@page "/articles"
+@layout ModernLayout
+@using PimFlow.Client.Components.UI
+@using PimFlow.Client.Components.Layout
+@using PimFlow.Client.Components
+@using PimFlow.Shared.DTOs
+@using PimFlow.Shared.DTOs.Pagination
+@using PimFlow.Shared.Enums
+@using PimFlow.Shared.Mappers
+@using PimFlow.Client.Services
+@using static PimFlow.Client.Components.AdvancedSearch
+
+<PageTitle>Artículos - PimFlow PIM</PageTitle>
+
+<!-- Header Section -->
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Artículos</h1>
+        <p class="mt-2 text-sm text-gray-700">Gestiona tu catálogo de productos deportivos</p>
+    </div>
+    <div class="mt-4 sm:mt-0">
+        <Button Variant="ButtonVariant.Primary" OnClick="ShowCreateModal">
+            <Icon>
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+            </Icon>
+            <ChildContent>Nuevo Artículo</ChildContent>
+        </Button>
+    </div>
+</div>
+
+<!-- Advanced Search Component -->
+<AdvancedSearch AvailableAttributes="availableAttributes"
+                OnSearch="HandleSearch"
+                OnReset="HandleReset"
+                IsSearching="isSearching" />
+
+@if (isLoading)
+{
+    <div class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <span class="ml-3 text-gray-600">@(isSearching ? "Buscando artículos..." : "Cargando artículos...")</span>
+    </div>
+}
+else if (pagedArticles != null && pagedArticles.Items.Any())
+{
+    <!-- Articles Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @foreach (var article in pagedArticles.Items)
+        {
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden">
+                <!-- Article Header -->
+                <div class="p-6 pb-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <h3 class="text-lg font-semibold text-gray-900 truncate">@article.Name</h3>
+                        <span class="@(article.IsActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800") inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                            @(article.IsActive ? "Activo" : "Inactivo")
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">SKU:</span> @article.SKU
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Tipo:</span> @article.Type.GetDisplayName()
+                        </p>
+                        @if (!string.IsNullOrEmpty(article.Brand))
+                        {
+                            <p class="text-sm text-gray-600">
+                                <span class="font-medium">Marca:</span> @article.Brand
+                            </p>
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(article.Description))
+                    {
+                        <p class="text-sm text-gray-500 mt-3 line-clamp-2">@article.Description</p>
+                    }
+
+                    <!-- Custom Attributes -->
+                    @if (article.CustomAttributes.Any())
+                    {
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Atributos</h4>
+                            <div class="space-y-1">
+                                @foreach (var attr in article.CustomAttributes.Take(3))
+                                {
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">@attr.Key:</span>
+                                        <span class="text-gray-900 font-medium">@attr.Value</span>
+                                    </div>
+                                }
+                                @if (article.CustomAttributes.Count > 3)
+                                {
+                                    <p class="text-xs text-gray-500">+@(article.CustomAttributes.Count - 3) más...</p>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Article Actions -->
+                <div class="px-6 py-3 bg-gray-50 border-t border-gray-100">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-500">
+                            Creado: @article.CreatedAt.ToString("dd/MM/yyyy")
+                        </span>
+                        <div class="flex space-x-2">
+                            <button @onclick="() => EditArticle(article)" 
+                                    class="text-blue-600 hover:text-blue-900 text-sm font-medium">
+                                Editar
+                            </button>
+                            <button @onclick="() => DeleteArticle(article.Id)" 
+                                    class="text-red-600 hover:text-red-900 text-sm font-medium">
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination Component -->
+    <PaginatorGeneric T="ArticleDto"
+                      PagedData="pagedArticles"
+                      OnPageChanged="HandlePageChanged"
+                      OnPageSizeChanged="HandlePageSizeChanged"
+                      ShowPageSizeSelector="true" />
+}
+else
+{
+    <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No hay artículos</h3>
+        <p class="mt-1 text-sm text-gray-500">Comienza creando tu primer artículo.</p>
+        <div class="mt-6">
+            <Button Variant="ButtonVariant.Primary" OnClick="ShowCreateModal">
+                <ChildContent>Crear Artículo</ChildContent>
+            </Button>
+        </div>
+    </div>
+}
+
+<!-- Modal for Create/Edit Article -->
+@if (showModal)
+{
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    @(editingArticle != null ? "Editar Artículo" : "Nuevo Artículo")
+                </h3>
+                
+                <div class="space-y-4 max-h-96 overflow-y-auto">
+                    <!-- Basic Fields -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">SKU *</label>
+                            <input type="text" @bind="articleForm.SKU" 
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nombre *</label>
+                            <input type="text" @bind="articleForm.Name" 
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Descripción</label>
+                        <textarea @bind="articleForm.Description" rows="3"
+                                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tipo</label>
+                            <select @bind="articleForm.Type" 
+                                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                @foreach (var type in EnumMapper.GetAllArticleTypesForUI())
+                                {
+                                    <option value="@type.Value">@type.DisplayName</option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Marca</label>
+                            <input type="text" @bind="articleForm.Brand" 
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Attributes -->
+                    @if (availableAttributes != null && availableAttributes.Any())
+                    {
+                        <div class="border-t pt-4">
+                            <h4 class="text-sm font-medium text-gray-900 mb-3">Atributos Personalizados</h4>
+                            <DynamicForm Attributes="availableAttributes" 
+                                         Values="articleForm.CustomAttributes" 
+                                         ValuesChanged="OnCustomAttributesChanged" />
+                        </div>
+                    }
+                </div>
+                
+                <div class="flex justify-end space-x-3 mt-6 pt-4 border-t">
+                    <Button Variant="ButtonVariant.Secondary" OnClick="HideModal">
+                        <ChildContent>Cancelar</ChildContent>
+                    </Button>
+                    <Button Variant="ButtonVariant.Primary" OnClick="SaveArticle" Loading="isSaving">
+                        <ChildContent>@(editingArticle != null ? "Actualizar" : "Crear")</ChildContent>
+                    </Button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private PagedResponse<ArticleDto>? pagedArticles;
+    private IEnumerable<CustomAttributeDto>? availableAttributes;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool isSearching = false;
+    private bool showModal = false;
+    private ArticleDto? editingArticle;
+    private ArticleFormModel articleForm = new();
+    private PagedRequest currentRequest = new() { PageNumber = 1, PageSize = 12 };
+    private SearchCriteria? currentSearchCriteria;
+
+    [Inject] public IArticleApiService ArticleService { get; set; } = default!;
+    [Inject] public ICustomAttributeApiService AttributeService { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        try
+        {
+            var articlesTask = ArticleService.GetArticlesPagedAsync(currentRequest);
+            var attributesTask = AttributeService.GetActiveAttributesAsync();
+
+            await Task.WhenAll(articlesTask, attributesTask);
+
+            pagedArticles = await articlesTask;
+            availableAttributes = await attributesTask;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ShowCreateModal()
+    {
+        editingArticle = null;
+        articleForm = new ArticleFormModel();
+        showModal = true;
+    }
+
+    private void EditArticle(ArticleDto article)
+    {
+        editingArticle = article;
+        articleForm = new ArticleFormModel
+        {
+            SKU = article.SKU,
+            Name = article.Name,
+            Description = article.Description,
+            Type = article.Type,
+            Brand = article.Brand,
+            CustomAttributes = new Dictionary<string, object>(article.CustomAttributes)
+        };
+        showModal = true;
+    }
+
+    private void HideModal()
+    {
+        showModal = false;
+        editingArticle = null;
+        articleForm = new ArticleFormModel();
+    }
+
+    private async Task SaveArticle()
+    {
+        isSaving = true;
+        try
+        {
+            if (editingArticle != null)
+            {
+                var updateDto = new UpdateArticleDto
+                {
+                    SKU = articleForm.SKU,
+                    Name = articleForm.Name,
+                    Description = articleForm.Description,
+                    Type = articleForm.Type,
+                    Brand = articleForm.Brand,
+                    CustomAttributes = articleForm.CustomAttributes
+                };
+                await ArticleService.UpdateArticleAsync(editingArticle.Id, updateDto);
+            }
+            else
+            {
+                var createDto = new CreateArticleDto
+                {
+                    SKU = articleForm.SKU,
+                    Name = articleForm.Name,
+                    Description = articleForm.Description,
+                    Type = articleForm.Type,
+                    Brand = articleForm.Brand,
+                    CustomAttributes = articleForm.CustomAttributes
+                };
+                await ArticleService.CreateArticleAsync(createDto);
+            }
+
+            HideModal();
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving article: {ex.Message}");
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task DeleteArticle(int id)
+    {
+        if (await ArticleService.DeleteArticleAsync(id))
+        {
+            await LoadData();
+        }
+    }
+
+    // Métodos de paginación
+    private async Task HandlePageChanged(int pageNumber)
+    {
+        currentRequest.PageNumber = pageNumber;
+        await LoadData();
+    }
+
+    private async Task HandlePageSizeChanged(int pageSize)
+    {
+        currentRequest.PageSize = pageSize;
+        currentRequest.PageNumber = 1; // Reset to first page
+        await LoadData();
+    }
+
+    private Task OnCustomAttributesChanged(Dictionary<string, object> values)
+    {
+        articleForm.CustomAttributes = values;
+        return Task.CompletedTask;
+    }
+
+    // Métodos de búsqueda avanzada
+    private async Task HandleSearch(SearchCriteria criteria)
+    {
+        isSearching = true;
+        currentSearchCriteria = criteria;
+        currentRequest.PageNumber = 1; // Reset to first page when searching
+
+        try
+        {
+            // Configurar el término de búsqueda en el request
+            if (!string.IsNullOrWhiteSpace(criteria.SearchTerm))
+            {
+                currentRequest.SearchTerm = criteria.SearchTerm;
+            }
+            else
+            {
+                currentRequest.SearchTerm = null;
+            }
+
+            // Para búsquedas específicas (marca, atributos), usar métodos específicos
+            if (!string.IsNullOrWhiteSpace(criteria.Brand))
+            {
+                var brandResults = await ArticleService.GetArticlesByBrandAsync(criteria.Brand);
+                pagedArticles = PagedResponse<ArticleDto>.Create(brandResults, currentRequest.PageNumber, currentRequest.PageSize);
+            }
+            else if (criteria.AttributeFilters.Any())
+            {
+                var firstFilter = criteria.AttributeFilters.First();
+                var attributeResults = await ArticleService.GetArticlesByAttributeAsync(firstFilter.Key, firstFilter.Value);
+
+                // Si hay múltiples filtros, aplicar filtros adicionales localmente
+                if (criteria.AttributeFilters.Count > 1)
+                {
+                    foreach (var filter in criteria.AttributeFilters.Skip(1))
+                    {
+                        attributeResults = attributeResults.Where(a =>
+                            a.CustomAttributes.ContainsKey(filter.Key) &&
+                            a.CustomAttributes[filter.Key].ToString()?.Contains(filter.Value, StringComparison.OrdinalIgnoreCase) == true);
+                    }
+                }
+
+                pagedArticles = PagedResponse<ArticleDto>.Create(attributeResults, currentRequest.PageNumber, currentRequest.PageSize);
+            }
+            else
+            {
+                // Búsqueda general paginada
+                pagedArticles = await ArticleService.GetArticlesPagedAsync(currentRequest);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error searching articles: {ex.Message}");
+            pagedArticles = PagedResponse<ArticleDto>.Empty(currentRequest.PageNumber, currentRequest.PageSize);
+        }
+        finally
+        {
+            isSearching = false;
+        }
+    }
+
+    private async Task HandleReset()
+    {
+        isSearching = true;
+        currentSearchCriteria = null;
+        currentRequest.SearchTerm = null;
+        currentRequest.PageNumber = 1;
+
+        try
+        {
+            await LoadData();
+        }
+        finally
+        {
+            isSearching = false;
+        }
+    }
+
+    public class ArticleFormModel
+    {
+        public string SKU { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public PimFlow.Shared.Enums.ArticleType Type { get; set; } = PimFlow.Shared.Enums.ArticleType.Footwear;
+        public string Brand { get; set; } = string.Empty;
+        public Dictionary<string, object> CustomAttributes { get; set; } = new();
+    }
+}

@@ -1,0 +1,163 @@
+@using PimFlow.Shared.DTOs
+@using PimFlow.Shared.Enums
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Tasks -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Total Tareas</p>
+                <p class="text-2xl font-semibold text-gray-900">@TotalTasks</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Tasks -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Pendientes</p>
+                <p class="text-2xl font-semibold text-gray-900">@PendingTasks</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- In Progress Tasks -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">En Progreso</p>
+                <p class="text-2xl font-semibold text-gray-900">@InProgressTasks</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Tasks -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Completadas</p>
+                <p class="text-2xl font-semibold text-gray-900">@CompletedTasks</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress and Priority Charts -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Completion Rate -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Tasa de Finalización</h3>
+        <div class="mb-4">
+            <div class="flex justify-between text-sm text-gray-600 mb-2">
+                <span>Progreso</span>
+                <span>@CompletionPercentage.ToString("F1")%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div class="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500 ease-out" 
+                     style="width: @CompletionPercentage%"></div>
+            </div>
+        </div>
+        <p class="text-sm text-gray-500">@CompletedTasks de @TotalTasks tareas completadas</p>
+    </div>
+
+    <!-- Priority Distribution -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Distribución por Prioridad</h3>
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
+                    <span class="text-sm text-gray-600">Crítica</span>
+                </div>
+                <span class="text-sm font-medium text-gray-900">@CriticalTasks</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-3 h-3 bg-orange-500 rounded-full mr-3"></div>
+                    <span class="text-sm text-gray-600">Alta</span>
+                </div>
+                <span class="text-sm font-medium text-gray-900">@HighTasks</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
+                    <span class="text-sm text-gray-600">Media</span>
+                </div>
+                <span class="text-sm font-medium text-gray-900">@MediumTasks</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-3 h-3 bg-gray-400 rounded-full mr-3"></div>
+                    <span class="text-sm text-gray-600">Baja</span>
+                </div>
+                <span class="text-sm font-medium text-gray-900">@LowTasks</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (OverdueTasks > 0)
+{
+    <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-yellow-800">Atención Requerida</h3>
+                <div class="mt-2 text-sm text-yellow-700">
+                    <p>Tienes <strong>@OverdueTasks</strong> tarea@(OverdueTasks > 1 ? "s" : "") vencida@(OverdueTasks > 1 ? "s" : ""). 
+                       <a href="/tasks" class="font-medium underline hover:text-yellow-600">Revísalas ahora</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public IEnumerable<TaskDto>? Tasks { get; set; }
+
+    private int TotalTasks => Tasks?.Count() ?? 0;
+    private int PendingTasks => Tasks?.Count(t => t.Status == TaskState.Pending) ?? 0;
+    private int InProgressTasks => Tasks?.Count(t => t.Status == TaskState.InProgress) ?? 0;
+    private int CompletedTasks => Tasks?.Count(t => t.Status == TaskState.Completed) ?? 0;
+    private int CriticalTasks => Tasks?.Count(t => t.Priority == Priority.Critical) ?? 0;
+    private int HighTasks => Tasks?.Count(t => t.Priority == Priority.High) ?? 0;
+    private int MediumTasks => Tasks?.Count(t => t.Priority == Priority.Medium) ?? 0;
+    private int LowTasks => Tasks?.Count(t => t.Priority == Priority.Low) ?? 0;
+    private int OverdueTasks => Tasks?.Count(t => t.DueDate.HasValue && t.DueDate.Value < DateTime.Now && t.Status != TaskState.Completed) ?? 0;
+    
+    private double CompletionPercentage => TotalTasks > 0 ? (double)CompletedTasks / TotalTasks * 100 : 0;
+}

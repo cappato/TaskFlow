@@ -1,35 +1,39 @@
 version: '3.8'
 
 services:
-  sqlserver:
+  database:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: taskflow-sqlserver
+    container_name: application-database
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=TaskFlow123!
+      - SA_PASSWORD=Application123!
       - MSSQL_PID=Express
     ports:
       - "1433:1433"
     volumes:
-      - sqlserver_data:/var/opt/mssql
+      - database_data:/var/opt/mssql
     networks:
-      - taskflow-network
+      - application-network
 
-  taskflow-api:
+  api:
     build:
       context: .
-      dockerfile: src/TaskFlow.Server/Dockerfile
-    container_name: taskflow-api
+      dockerfile: src/${APPLICATION_NAME:-PimFlow}.Server/Dockerfile
+    container_name: application-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=TaskFlowDb;User Id=sa;Password=TaskFlow123!;TrustServerCertificate=true
+      - Database__Provider=SqlServer
+      - Database__ConnectionString=Server=database;Database=ApplicationDb;User Id=sa;Password=Application123!;TrustServerCertificate=true
+      - Application__Name=${APPLICATION_NAME:-PimFlow}
+      - Application__Version=1.0.0
+      - Features__EnableSwagger=true
     ports:
       - "7000:80"
       - "7001:443"
     depends_on:
-      - sqlserver
+      - database
     networks:
-      - taskflow-network
+      - application-network
 
   taskflow-client:
     build:
@@ -45,8 +49,8 @@ services:
       - taskflow-network
 
 volumes:
-  sqlserver_data:
+  database_data:
 
 networks:
-  taskflow-network:
+  application-network:
     driver: bridge

@@ -1,0 +1,154 @@
+@typeparam T
+@using PimFlow.Shared.DTOs.Pagination
+
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
+    <!-- Información de paginación -->
+    <div class="text-sm text-gray-700">
+        @if (PagedData != null)
+        {
+            <span>@PagedData.PaginationInfo</span>
+        }
+    </div>
+
+    <!-- Controles de paginación -->
+    @if (PagedData != null && PagedData.TotalPages > 1)
+    {
+        <div class="flex items-center space-x-2">
+            <!-- Botón Primera Página -->
+            <button @onclick="() => GoToPage(PagedData.FirstPage)"
+                    disabled="@(!PagedData.HasPreviousPage)"
+                    class="@GetButtonClass(!PagedData.HasPreviousPage)"
+                    title="Primera página">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                </svg>
+            </button>
+
+            <!-- Botón Página Anterior -->
+            <button @onclick="() => GoToPage(PagedData.PreviousPage ?? 1)"
+                    disabled="@(!PagedData.HasPreviousPage)"
+                    class="@GetButtonClass(!PagedData.HasPreviousPage)"
+                    title="Página anterior">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+
+            <!-- Números de página -->
+            @foreach (var pageNumber in GetVisiblePages())
+            {
+                <button @onclick="() => GoToPage(pageNumber)"
+                        class="@GetPageButtonClass(pageNumber)"
+                        title="Página @pageNumber">
+                    @pageNumber
+                </button>
+            }
+
+            <!-- Botón Página Siguiente -->
+            <button @onclick="() => GoToPage(PagedData.NextPage ?? PagedData.LastPage)"
+                    disabled="@(!PagedData.HasNextPage)"
+                    class="@GetButtonClass(!PagedData.HasNextPage)"
+                    title="Página siguiente">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+
+            <!-- Botón Última Página -->
+            <button @onclick="() => GoToPage(PagedData.LastPage)"
+                    disabled="@(!PagedData.HasNextPage)"
+                    class="@GetButtonClass(!PagedData.HasNextPage)"
+                    title="Última página">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                </svg>
+            </button>
+        </div>
+    }
+
+    <!-- Selector de tamaño de página -->
+    @if (ShowPageSizeSelector && PagedData != null)
+    {
+        <div class="flex items-center space-x-2">
+            <label class="text-sm text-gray-700">Elementos por página:</label>
+            <select @onchange="OnPageSizeChangedInternal" 
+                    value="@PagedData.PageSize"
+                    class="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public PagedResponse<T>? PagedData { get; set; }
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+    [Parameter] public EventCallback<int> OnPageSizeChanged { get; set; }
+    [Parameter] public bool ShowPageSizeSelector { get; set; } = true;
+    [Parameter] public int MaxVisiblePages { get; set; } = 5;
+
+    private async Task GoToPage(int pageNumber)
+    {
+        if (PagedData != null && pageNumber != PagedData.PageNumber && pageNumber >= 1 && pageNumber <= PagedData.TotalPages)
+        {
+            await OnPageChanged.InvokeAsync(pageNumber);
+        }
+    }
+
+    private async Task OnPageSizeChangedInternal(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var newPageSize))
+        {
+            await OnPageSizeChanged.InvokeAsync(newPageSize);
+        }
+    }
+
+    private IEnumerable<int> GetVisiblePages()
+    {
+        if (PagedData == null || PagedData.TotalPages <= 1)
+            return Enumerable.Empty<int>();
+
+        var totalPages = PagedData.TotalPages;
+        var currentPage = PagedData.PageNumber;
+        var maxVisible = Math.Min(MaxVisiblePages, totalPages);
+
+        var startPage = Math.Max(1, currentPage - maxVisible / 2);
+        var endPage = Math.Min(totalPages, startPage + maxVisible - 1);
+
+        // Ajustar el inicio si estamos cerca del final
+        if (endPage - startPage + 1 < maxVisible)
+        {
+            startPage = Math.Max(1, endPage - maxVisible + 1);
+        }
+
+        return Enumerable.Range(startPage, endPage - startPage + 1);
+    }
+
+    private string GetButtonClass(bool disabled)
+    {
+        var baseClass = "px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200";
+        
+        if (disabled)
+        {
+            return $"{baseClass} text-gray-400 bg-gray-100 cursor-not-allowed";
+        }
+        
+        return $"{baseClass} text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500";
+    }
+
+    private string GetPageButtonClass(int pageNumber)
+    {
+        var baseClass = "px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200";
+        
+        if (PagedData != null && pageNumber == PagedData.PageNumber)
+        {
+            return $"{baseClass} text-white bg-blue-600 border border-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500";
+        }
+        
+        return $"{baseClass} text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500";
+    }
+}
