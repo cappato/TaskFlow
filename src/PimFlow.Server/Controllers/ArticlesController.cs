@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
+using PimFlow.Shared.DTOs.Pagination;
 using PimFlow.Domain.Enums;
 using PimFlow.Server.Controllers.Base;
 using PimFlow.Shared.Common;
@@ -134,6 +135,33 @@ public class ArticlesController : BaseResourceController<ArticleDto, CreateArtic
                 term, articles?.Count() ?? 0);
             return articles ?? Enumerable.Empty<ArticleDto>();
         }, "SearchArticles");
+    }
+
+    [HttpGet("paged")]
+    public async Task<ActionResult<ApiResponse<PagedResponse<ArticleDto>>>> GetArticlesPaged(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? searchTerm = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortDirection = "asc")
+    {
+        return await ExecuteAsync(async () =>
+        {
+            var request = new PagedRequest
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                SearchTerm = searchTerm,
+                SortBy = sortBy,
+                SortDirection = sortDirection
+            };
+
+            var pagedResult = await Service.GetArticlesPagedAsync(request);
+            Logger.LogInformation("Retrieved page {PageNumber} of articles (size: {PageSize}, total: {TotalCount})",
+                pageNumber, pageSize, pagedResult.TotalCount);
+
+            return pagedResult;
+        }, "GetArticlesPaged");
     }
 
 }

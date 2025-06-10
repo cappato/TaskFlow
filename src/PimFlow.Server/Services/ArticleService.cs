@@ -1,5 +1,6 @@
 using PimFlow.Domain.Enums;
 using PimFlow.Shared.DTOs;
+using PimFlow.Shared.DTOs.Pagination;
 
 namespace PimFlow.Server.Services;
 
@@ -25,6 +26,9 @@ public class ArticleService : IArticleService, IArticleReader, IArticleFilter, I
     // Query operations - delegated to specialized query service
     public async Task<IEnumerable<ArticleDto>> GetAllArticlesAsync()
         => await _queryService.GetAllArticlesAsync();
+
+    public async Task<PagedResponse<ArticleDto>> GetArticlesPagedAsync(PagedRequest request)
+        => await _queryService.GetArticlesPagedAsync(request);
 
     public async Task<ArticleDto?> GetArticleByIdAsync(int id)
         => await _queryService.GetArticleByIdAsync(id);

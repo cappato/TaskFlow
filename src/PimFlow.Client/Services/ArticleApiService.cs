@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using PimFlow.Shared.DTOs;
+using PimFlow.Shared.DTOs.Pagination;
 using PimFlow.Shared.Enums;
 using PimFlow.Shared.Common;
 
@@ -26,6 +27,37 @@ public class ArticleApiService : IArticleApiService
         {
             Console.WriteLine($"Error getting articles: {ex.Message}");
             return Enumerable.Empty<ArticleDto>();
+        }
+    }
+
+    public async Task<PagedResponse<ArticleDto>> GetArticlesPagedAsync(PagedRequest request)
+    {
+        try
+        {
+            var queryParams = new List<string>();
+
+            queryParams.Add($"pageNumber={request.PageNumber}");
+            queryParams.Add($"pageSize={request.PageSize}");
+
+            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+                queryParams.Add($"searchTerm={Uri.EscapeDataString(request.SearchTerm)}");
+
+            if (!string.IsNullOrWhiteSpace(request.SortBy))
+                queryParams.Add($"sortBy={Uri.EscapeDataString(request.SortBy)}");
+
+            if (!string.IsNullOrWhiteSpace(request.SortDirection))
+                queryParams.Add($"sortDirection={Uri.EscapeDataString(request.SortDirection)}");
+
+            var queryString = string.Join("&", queryParams);
+            var url = $"{ApiEndpoint}/paged?{queryString}";
+
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<PagedResponse<ArticleDto>>>(url);
+            return response?.Data ?? PagedResponse<ArticleDto>.Empty(request.PageNumber, request.PageSize);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting paged articles: {ex.Message}");
+            return PagedResponse<ArticleDto>.Empty(request.PageNumber, request.PageSize);
         }
     }
 

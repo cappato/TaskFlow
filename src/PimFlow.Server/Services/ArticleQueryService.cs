@@ -2,6 +2,7 @@ using AutoMapper;
 using PimFlow.Domain.Interfaces;
 using PimFlow.Domain.Enums;
 using PimFlow.Shared.DTOs;
+using PimFlow.Shared.DTOs.Pagination;
 
 namespace PimFlow.Server.Services;
 
@@ -25,6 +26,49 @@ public class ArticleQueryService : IArticleQueryService
     {
         var articles = await _articleRepository.GetAllAsync();
         return _mapper.Map<IEnumerable<ArticleDto>>(articles);
+    }
+
+    public async Task<PagedResponse<ArticleDto>> GetArticlesPagedAsync(PagedRequest request)
+    {
+        var articles = await _articleRepository.GetAllAsync();
+
+        // Aplicar filtro de búsqueda si existe
+        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+        {
+            var searchTerm = request.SearchTerm.ToLower();
+            articles = articles.Where(a =>
+                a.Name.ToLower().Contains(searchTerm) ||
+                a.SKU.ToLower().Contains(searchTerm) ||
+                a.Brand.ToLower().Contains(searchTerm) ||
+                (a.Description?.ToLower().Contains(searchTerm) ?? false));
+        }
+
+        // Aplicar ordenamiento
+        if (!string.IsNullOrWhiteSpace(request.SortBy))
+        {
+            articles = request.SortBy.ToLower() switch
+            {
+                "name" => request.IsDescending ? articles.OrderByDescending(a => a.Name) : articles.OrderBy(a => a.Name),
+                "sku" => request.IsDescending ? articles.OrderByDescending(a => a.SKU) : articles.OrderBy(a => a.SKU),
+                "brand" => request.IsDescending ? articles.OrderByDescending(a => a.Brand) : articles.OrderBy(a => a.Brand),
+                "createdat" => request.IsDescending ? articles.OrderByDescending(a => a.CreatedAt) : articles.OrderBy(a => a.CreatedAt),
+                _ => articles.OrderBy(a => a.Name)
+            };
+        }
+        else
+        {
+            articles = articles.OrderBy(a => a.Name);
+        }
+
+        var totalCount = articles.Count();
+        var pagedArticles = articles
+            .Skip(request.Skip)
+            .Take(request.PageSize)
+            .ToList();
+
+        var articleDtos = _mapper.Map<IEnumerable<ArticleDto>>(pagedArticles);
+
+        return new PagedResponse<ArticleDto>(articleDtos, request.PageNumber, request.PageSize, totalCount);
     }
 
     public async Task<ArticleDto?> GetArticleByIdAsync(int id)

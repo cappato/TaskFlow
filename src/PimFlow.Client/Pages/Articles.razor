@@ -4,6 +4,7 @@
 @using PimFlow.Client.Components.Layout
 @using PimFlow.Client.Components
 @using PimFlow.Shared.DTOs
+@using PimFlow.Shared.DTOs.Pagination
 @using PimFlow.Shared.Enums
 @using PimFlow.Shared.Mappers
 @using PimFlow.Client.Services
@@ -42,11 +43,11 @@
         <span class="ml-3 text-gray-600">@(isSearching ? "Buscando artículos..." : "Cargando artículos...")</span>
     </div>
 }
-else if (articles != null && articles.Any())
+else if (pagedArticles != null && pagedArticles.Items.Any())
 {
     <!-- Articles Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @foreach (var article in articles)
+        @foreach (var article in pagedArticles.Items)
         {
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden">
                 <!-- Article Header -->
@@ -121,6 +122,13 @@ else if (articles != null && articles.Any())
             </div>
         }
     </div>
+
+    <!-- Pagination Component -->
+    <PaginatorGeneric T="ArticleDto"
+                      PagedData="pagedArticles"
+                      OnPageChanged="HandlePageChanged"
+                      OnPageSizeChanged="HandlePageSizeChanged"
+                      ShowPageSizeSelector="true" />
 }
 else
 {
@@ -215,8 +223,7 @@ else
 }
 
 @code {
-    private IEnumerable<ArticleDto>? articles;
-    private IEnumerable<ArticleDto>? allArticles; // Para mantener la lista completa
+    private PagedResponse<ArticleDto>? pagedArticles;
     private IEnumerable<CustomAttributeDto>? availableAttributes;
     private bool isLoading = true;
     private bool isSaving = false;
@@ -224,6 +231,8 @@ else
     private bool showModal = false;
     private ArticleDto? editingArticle;
     private ArticleFormModel articleForm = new();
+    private PagedRequest currentRequest = new() { PageNumber = 1, PageSize = 12 };
+    private SearchCriteria? currentSearchCriteria;
 
     [Inject] public IArticleApiService ArticleService { get; set; } = default!;
     [Inject] public ICustomAttributeApiService AttributeService { get; set; } = default!;
@@ -238,13 +247,12 @@ else
         isLoading = true;
         try
         {
-            var articlesTask = ArticleService.GetAllArticlesAsync();
+            var articlesTask = ArticleService.GetArticlesPagedAsync(currentRequest);
             var attributesTask = AttributeService.GetActiveAttributesAsync();
 
             await Task.WhenAll(articlesTask, attributesTask);
 
-            allArticles = await articlesTask;
-            articles = allArticles; // Mostrar todos inicialmente
+            pagedArticles = await articlesTask;
             availableAttributes = await attributesTask;
         }
         catch (Exception ex)
@@ -339,6 +347,20 @@ else
         }
     }
 
+    // Métodos de paginación
+    private async Task HandlePageChanged(int pageNumber)
+    {
+        currentRequest.PageNumber = pageNumber;
+        await LoadData();
+    }
+
+    private async Task HandlePageSizeChanged(int pageSize)
+    {
+        currentRequest.PageSize = pageSize;
+        currentRequest.PageNumber = 1; // Reset to first page
+        await LoadData();
+    }
+
     private Task OnCustomAttributesChanged(Dictionary<string, object> values)
     {
         articleForm.CustomAttributes = values;
@@ -349,45 +371,55 @@ else
     private async Task HandleSearch(SearchCriteria criteria)
     {
         isSearching = true;
+        currentSearchCriteria = criteria;
+        currentRequest.PageNumber = 1; // Reset to first page when searching
+
         try
         {
+            // Configurar el término de búsqueda en el request
             if (!string.IsNullOrWhiteSpace(criteria.SearchTerm))
             {
-                // Búsqueda general por término
-                articles = await ArticleService.SearchArticlesAsync(criteria.SearchTerm);
+                currentRequest.SearchTerm = criteria.SearchTerm;
             }
-            else if (!string.IsNullOrWhiteSpace(criteria.Brand))
+            else
             {
-                // Búsqueda por marca
-                articles = await ArticleService.GetArticlesByBrandAsync(criteria.Brand);
+                currentRequest.SearchTerm = null;
+            }
+
+            // Para búsquedas específicas (marca, atributos), usar métodos específicos
+            if (!string.IsNullOrWhiteSpace(criteria.Brand))
+            {
+                var brandResults = await ArticleService.GetArticlesByBrandAsync(criteria.Brand);
+                pagedArticles = PagedResponse<ArticleDto>.Create(brandResults, currentRequest.PageNumber, currentRequest.PageSize);
             }
             else if (criteria.AttributeFilters.Any())
             {
-                // Búsqueda por atributos personalizados
                 var firstFilter = criteria.AttributeFilters.First();
-                articles = await ArticleService.GetArticlesByAttributeAsync(firstFilter.Key, firstFilter.Value);
+                var attributeResults = await ArticleService.GetArticlesByAttributeAsync(firstFilter.Key, firstFilter.Value);
 
                 // Si hay múltiples filtros, aplicar filtros adicionales localmente
                 if (criteria.AttributeFilters.Count > 1)
                 {
                     foreach (var filter in criteria.AttributeFilters.Skip(1))
                     {
-                        articles = articles.Where(a =>
+                        attributeResults = attributeResults.Where(a =>
                             a.CustomAttributes.ContainsKey(filter.Key) &&
                             a.CustomAttributes[filter.Key].ToString()?.Contains(filter.Value, StringComparison.OrdinalIgnoreCase) == true);
                     }
                 }
+
+                pagedArticles = PagedResponse<ArticleDto>.Create(attributeResults, currentRequest.PageNumber, currentRequest.PageSize);
             }
             else
             {
-                // Si no hay criterios, mostrar todos
-                articles = allArticles;
+                // Búsqueda general paginada
+                pagedArticles = await ArticleService.GetArticlesPagedAsync(currentRequest);
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error searching articles: {ex.Message}");
-            articles = Enumerable.Empty<ArticleDto>();
+            pagedArticles = PagedResponse<ArticleDto>.Empty(currentRequest.PageNumber, currentRequest.PageSize);
         }
         finally
         {
@@ -395,18 +427,21 @@ else
         }
     }
 
-    private Task HandleReset()
+    private async Task HandleReset()
     {
         isSearching = true;
+        currentSearchCriteria = null;
+        currentRequest.SearchTerm = null;
+        currentRequest.PageNumber = 1;
+
         try
         {
-            articles = allArticles; // Restaurar todos los artículos
+            await LoadData();
         }
         finally
         {
             isSearching = false;
         }
-        return Task.CompletedTask;
     }
 
     public class ArticleFormModel

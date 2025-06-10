@@ -1,4 +1,5 @@
 using PimFlow.Shared.DTOs;
+using PimFlow.Shared.DTOs.Pagination;
 using PimFlow.Domain.Enums;
 
 namespace PimFlow.Server.Services;
@@ -14,6 +15,7 @@ namespace PimFlow.Server.Services;
 public interface IArticleReader
 {
     Task<IEnumerable<ArticleDto>> GetAllArticlesAsync();
+    Task<PagedResponse<ArticleDto>> GetArticlesPagedAsync(PagedRequest request);
     Task<ArticleDto?> GetArticleByIdAsync(int id);
     Task<ArticleDto?> GetArticleBySKUAsync(string sku);
     Task<IEnumerable<ArticleDto>> SearchArticlesAsync(string searchTerm);

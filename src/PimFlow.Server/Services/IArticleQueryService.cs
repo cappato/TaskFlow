@@ -1,5 +1,6 @@
 using PimFlow.Domain.Enums;
 using PimFlow.Shared.DTOs;
+using PimFlow.Shared.DTOs.Pagination;
 
 namespace PimFlow.Server.Services;
 
@@ -13,6 +14,11 @@ public interface IArticleQueryService
     /// Get all articles with their related data
     /// </summary>
     Task<IEnumerable<ArticleDto>> GetAllArticlesAsync();
+
+    /// <summary>
+    /// Get articles with pagination support
+    /// </summary>
+    Task<PagedResponse<ArticleDto>> GetArticlesPagedAsync(PagedRequest request);
 
     /// <summary>
     /// Get article by unique identifier

@@ -110,6 +110,7 @@ public class ISPCoreTests
 internal class MockArticleQueryService : IArticleQueryService
 {
     public Task<IEnumerable<PimFlow.Shared.DTOs.ArticleDto>> GetAllArticlesAsync() => Task.FromResult(Enumerable.Empty<PimFlow.Shared.DTOs.ArticleDto>());
+    public Task<PimFlow.Shared.DTOs.Pagination.PagedResponse<PimFlow.Shared.DTOs.ArticleDto>> GetArticlesPagedAsync(PimFlow.Shared.DTOs.Pagination.PagedRequest request) => Task.FromResult(PimFlow.Shared.DTOs.Pagination.PagedResponse<PimFlow.Shared.DTOs.ArticleDto>.Empty());
     public Task<PimFlow.Shared.DTOs.ArticleDto?> GetArticleByIdAsync(int id) => Task.FromResult<PimFlow.Shared.DTOs.ArticleDto?>(null);
     public Task<PimFlow.Shared.DTOs.ArticleDto?> GetArticleBySKUAsync(string sku) => Task.FromResult<PimFlow.Shared.DTOs.ArticleDto?>(null);
     public Task<IEnumerable<PimFlow.Shared.DTOs.ArticleDto>> GetArticlesByCategoryIdAsync(int categoryId) => Task.FromResult(Enumerable.Empty<PimFlow.Shared.DTOs.ArticleDto>());

@@ -113,21 +113,23 @@ internal class TestSpecification : Specification<Article>
 // Mocks para testing
 internal class MockArticleQueryService : IArticleQueryService
 {
-    public Task<IEnumerable<PimFlow.Shared.DTOs.ArticleDto>> GetAllArticlesAsync() => 
+    public Task<IEnumerable<PimFlow.Shared.DTOs.ArticleDto>> GetAllArticlesAsync() =>
         Task.FromResult(Enumerable.Empty<PimFlow.Shared.DTOs.ArticleDto>());
-    public Task<PimFlow.Shared.DTOs.ArticleDto?> GetArticleByIdAsync(int id) => 
+    public Task<PimFlow.Shared.DTOs.Pagination.PagedResponse<PimFlow.Shared.DTOs.ArticleDto>> GetArticlesPagedAsync(PimFlow.Shared.DTOs.Pagination.PagedRequest request) =>
+        Task.FromResult(PimFlow.Shared.DTOs.Pagination.PagedResponse<PimFlow.Shared.DTOs.ArticleDto>.Empty());
+    public Task<PimFlow.Shared.DTOs.ArticleDto?> GetArticleByIdAsync(int id) =>
         Task.FromResult<PimFlow.Shared.DTOs.ArticleDto?>(null);
-    public Task<PimFlow.Shared.DTOs.ArticleDto?> GetArticleBySKUAsync(string sku) => 
+    public Task<PimFlow.Shared.DTOs.ArticleDto?> GetArticleBySKUAsync(string sku) =>
         Task.FromResult<PimFlow.Shared.DTOs.ArticleDto?>(null);
-    public Task<IEnumerable<PimFlow.Shared.DTOs.ArticleDto>> GetArticlesByCategoryIdAsync(int categoryId) => 
+    public Task<IEnumerable<PimFlow.Shared.DTOs.ArticleDto>> GetArticlesByCategoryIdAsync(int categoryId) =>
         Task.FromResult(Enumerable.Empty<PimFlow.Shared.DTOs.ArticleDto>());
-    public Task<IEnumerable<PimFlow.Shared.DTOs.ArticleDto>> GetArticlesByTypeAsync(PimFlow.Domain.Enums.ArticleType type) => 
+    public Task<IEnumerable<PimFlow.Shared.DTOs.ArticleDto>> GetArticlesByTypeAsync(PimFlow.Domain.Enums.ArticleType type) =>
         Task.FromResult(Enumerable.Empty<PimFlow.Shared.DTOs.ArticleDto>());
-    public Task<IEnumerable<PimFlow.Shared.DTOs.ArticleDto>> GetArticlesByBrandAsync(string brand) => 
+    public Task<IEnumerable<PimFlow.Shared.DTOs.ArticleDto>> GetArticlesByBrandAsync(string brand) =>
         Task.FromResult(Enumerable.Empty<PimFlow.Shared.DTOs.ArticleDto>());
-    public Task<IEnumerable<PimFlow.Shared.DTOs.ArticleDto>> GetArticlesByAttributeAsync(string attributeName, string value) => 
+    public Task<IEnumerable<PimFlow.Shared.DTOs.ArticleDto>> GetArticlesByAttributeAsync(string attributeName, string value) =>
         Task.FromResult(Enumerable.Empty<PimFlow.Shared.DTOs.ArticleDto>());
-    public Task<IEnumerable<PimFlow.Shared.DTOs.ArticleDto>> SearchArticlesAsync(string searchTerm) => 
+    public Task<IEnumerable<PimFlow.Shared.DTOs.ArticleDto>> SearchArticlesAsync(string searchTerm) =>
         Task.FromResult(Enumerable.Empty<PimFlow.Shared.DTOs.ArticleDto>());
 }
 
