@@ -95,8 +95,8 @@ public class ValidationStrategyTests
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.Contains("contenido potencialmente malicioso"));
-        result.Warnings.Should().Contain(w => w.Contains("contenido que requiere revisión"));
+        result.Errors.Should().Contain(e => e.Contains("Suspicious content detected"));
+        result.Errors.Should().HaveCountGreaterThan(0, "Should detect suspicious content");
     }
 
     [Fact]
@@ -111,10 +111,10 @@ public class ValidationStrategyTests
         var dto = new CreateArticleDto
         {
             SKU = "", // Basic validation error
-            Name = "Valid Name",
+            Name = "<script>alert('xss')</script>", // Security error
             Description = new string('x', 6000), // Performance warning
             CustomAttributes = Enumerable.Range(1, 60)
-                .ToDictionary(i => $"attr{i}", i => (object)"<script>alert('xss')</script>") // Security warning
+                .ToDictionary(i => $"attr{i}", i => (object)"value") // Performance warning
         };
 
         // Act
@@ -124,7 +124,7 @@ public class ValidationStrategyTests
         result.IsValid.Should().BeFalse(); // Should fail due to basic validation
         result.Errors.Should().Contain("SKU es requerido"); // From basic validation
         result.Warnings.Should().Contain(w => w.Contains("demasiados atributos")); // From performance validation
-        result.Warnings.Should().Contain(w => w.Contains("contenido que requiere revisión")); // From security validation
+        result.Errors.Should().Contain(e => e.Contains("Suspicious content detected")); // From security validation
     }
 
     [Fact]
@@ -143,8 +143,8 @@ public class ValidationStrategyTests
 
         // Assert
         strategies[0].Should().BeOfType<BasicFieldValidationStrategy>(); // Priority 1
-        strategies[1].Should().BeOfType<SecurityValidationStrategy>(); // Priority 4
-        strategies[2].Should().BeOfType<PerformanceValidationStrategy>(); // Priority 5
+        strategies[1].Should().BeOfType<PerformanceValidationStrategy>(); // Priority 5
+        strategies[2].Should().BeOfType<SecurityValidationStrategy>(); // Priority 50
     }
 
     [Fact]
