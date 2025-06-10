@@ -42,34 +42,33 @@ tests/
 - ✅ Explicaciones, comentarios y documentación en español
 - ❌ No cambiar a inglés sin autorización explícita
 
-## 🚫 **Regla #2: Control de Versiones y Git Flow**
+## 🚫 **Regla #2: Control de Versiones y GitHub Flow**
 - ❌ **NUNCA hacer commits automáticamente**
 - ❌ **NUNCA hacer push sin autorización explícita**
-- ❌ **NUNCA commitear directamente a main**
-- ❌ **NUNCA commitear directamente a develop sin feature**
+- ❌ **NUNCA commitear directamente a main sin feature**
 - ✅ **SIEMPRE pedir confirmación** antes de cualquier operación git
-- ✅ **SIEMPRE usar Git Flow** para nuevas funcionalidades
+- ✅ **SIEMPRE usar GitHub Flow** para nuevas funcionalidades
 - ✅ Mostrar los cambios propuestos antes de commitear
 - ✅ Usar conventional commits cuando se autorice
 
-### Flujo Correcto Git Flow:
-1. **Para código nuevo**: Crear feature branch
+### Flujo Correcto GitHub Flow:
+1. **Para código nuevo**: Crear feature branch desde main
    ```bash
-   ./scripts/create-feature.sh nombre-funcionalidad
+   git checkout main
+   git pull origin main
+   git checkout -b feature/nombre-funcionalidad
    ```
 2. Hacer cambios en archivos
 3. Mostrar qué se cambió
 4. **PREGUNTAR** si se debe hacer commit
 5. **PREGUNTAR** si se debe hacer push
-6. **PREGUNTAR** si se debe finalizar feature
+6. **PREGUNTAR** si se debe mergear a main
 7. Solo proceder con autorización explícita
 
 ### Ramas Permitidas para Commits:
 - ✅ **feature/***: Para nuevas funcionalidades
-- ✅ **release/***: Para preparación de releases
 - ✅ **hotfix/***: Para correcciones urgentes
-- ❌ **main**: NUNCA commitear directamente
-- ⚠️ **develop**: Solo para merges de features
+- ⚠️ **main**: Solo para merges de features (nunca commits directos)
 
 ## 💡 **Regla #3: Código Nuevo**
 - ⚠️ **SIEMPRE confirmar antes** de generar código nuevo
@@ -168,21 +167,23 @@ curl -X GET "http://localhost:5001/api/categories"
 - ✅ Pedir ayuda si es necesario
 - ❌ No ocultar errores o problemas
 
-## 🌊 **Regla #10: Git Flow Obligatorio**
-- ✅ **SIEMPRE usar Git Flow** para cualquier código nuevo
-- ✅ **SIEMPRE trabajar en develop** como base de desarrollo
+## 🌊 **Regla #10: GitHub Flow Obligatorio**
+- ✅ **SIEMPRE usar GitHub Flow** para cualquier código nuevo
+- ✅ **SIEMPRE trabajar desde main** como base de desarrollo
 - ✅ **SIEMPRE crear features** para nuevas funcionalidades
-- ❌ **NUNCA saltarse el flujo** de Git Flow
-- ✅ **SIEMPRE finalizar features** correctamente
+- ❌ **NUNCA saltarse el flujo** de GitHub Flow
+- ✅ **SIEMPRE mergear features a main** correctamente
 
-### Comandos Git Flow Esenciales:
+### Comandos GitHub Flow Esenciales:
 ```bash
 # Verificar estado
-./scripts/git-flow-status.sh
+git status
+git branch --show-current
 
-# Nueva funcionalidad
-./scripts/create-feature.sh nombre-feature
-# Para finalizar: usar merge manual con --no-ff
+# Nueva funcionalidad desde main
+git checkout main
+git pull origin main
+git checkout -b feature/nombre-feature
 
 # Validar feature antes de merge
 ./scripts/validate-feature.sh
@@ -193,11 +194,11 @@ curl -X GET "http://localhost:5001/api/categories"
 
 ### Flujo Típico para Agentes:
 1. **Verificar rama actual**: `git branch --show-current`
-2. **Si no estás en feature**: `./scripts/create-feature.sh nombre-feature`
+2. **Si no estás en feature**: Crear desde main
 3. **Desarrollar**: Hacer cambios y commits
 4. **Validar**: `./scripts/validate-feature.sh`
 5. **Pre-merge check**: `./scripts/pre-merge-check.sh feature/nombre-feature`
-6. **Finalizar**: Merge manual con autorización
+6. **Finalizar**: Merge a main con autorización
 
 ## 🏗️ **Regla #11: Decisiones Arquitectónicas y Planificación**
 - ✅ **Una feature = un objetivo específico**
@@ -268,8 +269,9 @@ feature/hosted-and-refactoring-together
 
 ### Flujo Correcto de Feature Branches:
 ```bash
-# 1. Crear feature desde develop
-git checkout develop
+# 1. Crear feature desde main
+git checkout main
+git pull origin main
 git checkout -b feature/nueva-funcionalidad
 
 # 2. Desarrollar y commitear
@@ -279,12 +281,12 @@ git commit -m "feat: implementar nueva funcionalidad"
 # 3. Pushear feature branch (mantener historia)
 git push origin feature/nueva-funcionalidad
 
-# 4. Merge a develop con --no-ff
-git checkout develop
+# 4. Merge a main con --no-ff
+git checkout main
 git merge --no-ff feature/nueva-funcionalidad
 
-# 5. Push develop
-git push origin develop
+# 5. Push main
+git push origin main
 
 # 6. SOLO eliminar branch local (mantener remota)
 git branch -d feature/nueva-funcionalidad
@@ -346,7 +348,7 @@ git branch -d feature/nueva-funcionalidad
 1. 🌍 **Español siempre**
 2. 🚫 **Nunca commit/push sin autorización**
 3. 💡 **Siempre confirmar antes de código nuevo**
-4. 🌊 **Siempre usar Git Flow (nunca main directo)**
+4. 🌊 **Siempre usar GitHub Flow (features desde main)**
 5. 🔧 **Siempre crear features para funcionalidades nuevas**
 6. 🏗️ **Una feature = un objetivo (planificación secuencial)**
 7. 🏗️ **Arquitectura Domain-Agnostic obligatoria**
@@ -354,7 +356,7 @@ git branch -d feature/nueva-funcionalidad
 9. 🧪 **OBLIGATORIO: Tests en cada paso y cierre de tarea**
 10. 🚀 **OBLIGATORIO: Verificar funcionamiento con aplicación levantada**
 
-**Flujo básico:** Confirmar → Crear feature → Desarrollar → **Tests** → Commitear → **Verificar** → Finalizar feature → Nueva feature
+**Flujo básico:** Confirmar → Crear feature desde main → Desarrollar → **Tests** → Commitear → **Verificar** → Mergear a main → Nueva feature
 
 **Planificación:** Una funcionalidad completa → **Tests + Verificación** → Siguiente funcionalidad (no mezclar objetivos)
 
@@ -461,7 +463,7 @@ git branch -d feature/nueva-funcionalidad
 3. **¿Confirmé con el usuario el nombre de la feature?**
 
 ### **Antes de Commitear:**
-1. **¿Estoy en feature/* branch?** (NUNCA en main/develop)
+1. **¿Estoy en feature/* branch?** (NUNCA en main directamente)
 2. **¿Uso conventional commits?**
 3. **¿Pedí autorización para el commit?**
 
@@ -469,7 +471,7 @@ git branch -d feature/nueva-funcionalidad
 1. **¿Todos los tests pasan?**
 2. **¿El código está limpio y completo?**
 3. **¿Pedí autorización para finalizar?**
-4. **¿Confirmé que se debe mergear a develop?**
+4. **¿Confirmé que se debe mergear a main?**
 
 **Recuerda:** Es mejor preguntar de más que asumir de menos.
 
