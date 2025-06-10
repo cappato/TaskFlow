@@ -1,15 +1,15 @@
-# PimFlow
+# #{APPLICATION_NAME}#
 
 <div align="center">
 
-![PimFlow Logo](https://via.placeholder.com/200x100/1b6ec2/ffffff?text=PimFlow)
+![#{APPLICATION_NAME}# Logo](https://via.placeholder.com/200x100/1b6ec2/ffffff?text=#{APPLICATION_NAME}#)
 
 **A modern Product Information Management (PIM) system built with Blazor WebAssembly and ASP.NET Core Web API**
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)
 [![Blazor](https://img.shields.io/badge/Blazor-WebAssembly-blue.svg)](https://blazor.net/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://github.com/cappato/PimFlow/workflows/.NET%20Build%20and%20Test/badge.svg)](https://github.com/cappato/PimFlow/actions)
+[![Build Status](https://github.com/cappato/#{APPLICATION_NAME}#/workflows/.NET%20Build%20and%20Test/badge.svg)](https://github.com/cappato/#{APPLICATION_NAME}#/actions)
 
 [Quick Start](#getting-started) • [Documentation](#documentation) • [Contributing](#contributing) • [License](#license)
 
@@ -80,7 +80,7 @@
 ## Project Structure
 
 ```
-PimFlow/
+#{APPLICATION_NAME}#/
 ├── src/
 │   ├── PimFlow.Domain/              # 🏛️ Domain Layer (Clean Architecture)
 │   │   ├── Entities/                # Domain entities (Article, Category, etc.)
@@ -128,7 +128,7 @@ PimFlow/
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/cappato/PimFlow.git
+   git clone https://github.com/cappato/#{APPLICATION_NAME}#.git
    cd PimFlow
    ```
 
@@ -379,9 +379,9 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## Support
 
-- **Bug Reports**: [Create an issue](https://github.com/cappato/PimFlow/issues/new?template=bug_report.md)
-- **Feature Requests**: [Create an issue](https://github.com/cappato/PimFlow/issues/new?template=feature_request.md)
-- **Discussions**: [GitHub Discussions](https://github.com/cappato/PimFlow/discussions)
+- **Bug Reports**: [Create an issue](https://github.com/cappato/#{APPLICATION_NAME}#/issues/new?template=bug_report.md)
+- **Feature Requests**: [Create an issue](https://github.com/cappato/#{APPLICATION_NAME}#/issues/new?template=feature_request.md)
+- **Discussions**: [GitHub Discussions](https://github.com/cappato/#{APPLICATION_NAME}#/discussions)
 
 ## License
 
@@ -400,7 +400,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **If you found this project helpful, please give it a star!**
 
-Made with care by the PimFlow team
+Made with care by the #{APPLICATION_NAME}# team
 
 </div>
 

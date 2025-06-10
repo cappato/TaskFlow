@@ -18,13 +18,13 @@ services:
   api:
     build:
       context: .
-      dockerfile: src/PimFlow.Server/Dockerfile
+      dockerfile: src/${APPLICATION_NAME:-PimFlow}.Server/Dockerfile
     container_name: application-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Database__Provider=SqlServer
       - Database__ConnectionString=Server=database;Database=ApplicationDb;User Id=sa;Password=Application123!;TrustServerCertificate=true
-      - Application__Name=PimFlow
+      - Application__Name=${APPLICATION_NAME:-PimFlow}
       - Application__Version=1.0.0
       - Features__EnableSwagger=true
     ports:
