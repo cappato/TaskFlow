@@ -179,12 +179,9 @@ public static class CategoryMapper
     /// </summary>
     public static bool ValidateForMapping(CreateCategoryViewModel viewModel, out List<string> errors)
     {
-        errors = new List<string>();
-
-        if (string.IsNullOrWhiteSpace(viewModel.Name))
-            errors.Add("Nombre es requerido");
-
-        return !errors.Any();
+        var validation = PimFlow.Contracts.Validation.SharedValidationRules.Mapping.ValidateCreateCategory(viewModel.Name);
+        errors = validation.Errors;
+        return validation.IsValid;
     }
 
     /// <summary>
@@ -192,18 +189,16 @@ public static class CategoryMapper
     /// </summary>
     public static bool ValidateForMapping(UpdateCategoryViewModel viewModel, out List<string> errors)
     {
-        errors = new List<string>();
+        var validation = PimFlow.Contracts.Validation.SharedValidationRules.Mapping.ValidateUpdateCategory(
+            viewModel.Id, viewModel.Name, viewModel.ParentCategoryId);
 
-        if (viewModel.Id <= 0)
-            errors.Add("ID de categoría inválido");
+        errors = validation.Errors.ToList();
 
-        if (string.IsNullOrWhiteSpace(viewModel.Name))
-            errors.Add("Nombre es requerido");
-
+        // Validación específica de referencia circular (requiere contexto del ViewModel)
         if (viewModel.WouldCreateCircularReference(viewModel.ParentCategoryId))
             errors.Add("La categoría padre seleccionada crearía una referencia circular");
 
-        return !errors.Any();
+        return validation.IsValid && !viewModel.WouldCreateCircularReference(viewModel.ParentCategoryId);
     }
 
     /// <summary>

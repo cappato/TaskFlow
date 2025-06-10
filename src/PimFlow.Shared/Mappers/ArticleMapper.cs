@@ -143,21 +143,11 @@ public static class ArticleMapper
     /// </summary>
     public static bool ValidateForMapping(CreateArticleViewModel viewModel, out List<string> errors)
     {
-        errors = new List<string>();
+        var validation = PimFlow.Contracts.Validation.SharedValidationRules.Mapping.ValidateCreateArticle(
+            viewModel.SKU, viewModel.Name, viewModel.Brand, viewModel.Type);
 
-        if (string.IsNullOrWhiteSpace(viewModel.SKU))
-            errors.Add("SKU es requerido");
-
-        if (string.IsNullOrWhiteSpace(viewModel.Name))
-            errors.Add("Nombre es requerido");
-
-        if (string.IsNullOrWhiteSpace(viewModel.Brand))
-            errors.Add("Marca es requerida");
-
-        if (!Enum.TryParse<ArticleType>(viewModel.Type, out _))
-            errors.Add("Tipo de artículo inválido");
-
-        return !errors.Any();
+        errors = validation.Errors;
+        return validation.IsValid;
     }
 
     /// <summary>
@@ -165,23 +155,10 @@ public static class ArticleMapper
     /// </summary>
     public static bool ValidateForMapping(UpdateArticleViewModel viewModel, out List<string> errors)
     {
-        errors = new List<string>();
+        var validation = PimFlow.Contracts.Validation.SharedValidationRules.Mapping.ValidateUpdateArticle(
+            viewModel.Id, viewModel.SKU, viewModel.Name, viewModel.Brand, viewModel.Type);
 
-        if (viewModel.Id <= 0)
-            errors.Add("ID de artículo inválido");
-
-        if (string.IsNullOrWhiteSpace(viewModel.SKU))
-            errors.Add("SKU es requerido");
-
-        if (string.IsNullOrWhiteSpace(viewModel.Name))
-            errors.Add("Nombre es requerido");
-
-        if (string.IsNullOrWhiteSpace(viewModel.Brand))
-            errors.Add("Marca es requerida");
-
-        if (!Enum.TryParse<ArticleType>(viewModel.Type, out _))
-            errors.Add("Tipo de artículo inválido");
-
-        return !errors.Any();
+        errors = validation.Errors;
+        return validation.IsValid;
     }
 }

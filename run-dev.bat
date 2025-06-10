@@ -1,5 +1,7 @@
 @echo off
-echo Starting TaskFlow Development Environment...
+REM Configuration
+set APP_NAME=PimFlow
+echo Starting %APP_NAME% Development Environment...
 
 echo.
 echo Checking .NET installation...
@@ -30,15 +32,15 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo.
-echo Starting PimFlow Hosted Server...
-start "PimFlow Hosted" cmd /k "cd src\PimFlow.Server && dotnet run"
+echo Starting %APP_NAME% Hosted Server...
+start "%APP_NAME% Hosted" cmd /k "cd src\%APP_NAME%.Server && dotnet run"
 
 echo Waiting for server to start...
 timeout /t 8 /nobreak > nul
 
 echo.
 echo ========================================
-echo PimFlow Hosted Development Environment Started!
+echo %APP_NAME% Hosted Development Environment Started!
 echo ========================================
 echo.
 echo Application: http://localhost:5001

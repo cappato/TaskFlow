@@ -1,14 +1,17 @@
+using PimFlow.Contracts.Configuration;
+
 namespace PimFlow.Server.Configuration;
 
 /// <summary>
 /// Application-wide configuration settings
+/// Uses centralized ApplicationInfo for default values
 /// </summary>
 public class ApplicationSettings
 {
     public const string SectionName = "Application";
-    
-    public string Name { get; set; } = "Application";
-    public string Version { get; set; } = "1.0.0";
+
+    public string Name { get; set; } = ApplicationInfo.Name;
+    public string Version { get; set; } = ApplicationInfo.Version;
     public string Environment { get; set; } = "Development";
 }
 

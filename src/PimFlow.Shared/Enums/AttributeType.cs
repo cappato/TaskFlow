@@ -154,30 +154,11 @@ public static class AttributeTypeExtensions
 
     /// <summary>
     /// Valida si un valor es compatible con el tipo de atributo
+    /// Usa validaciones centralizadas de SharedValidationRules
     /// </summary>
     public static bool IsValidValue(this AttributeType type, object? value)
     {
-        if (value == null)
-            return true;
-
-        var stringValue = value.ToString();
-        if (string.IsNullOrEmpty(stringValue))
-            return true;
-
-        return type switch
-        {
-            AttributeType.Text => true,
-            AttributeType.Number => decimal.TryParse(stringValue, out _),
-            AttributeType.Integer => int.TryParse(stringValue, out _),
-            AttributeType.Boolean => bool.TryParse(stringValue, out _),
-            AttributeType.Date => DateTime.TryParse(stringValue, out _),
-            AttributeType.DateTime => DateTime.TryParse(stringValue, out _),
-            AttributeType.Select => true, // Validación específica en el contexto
-            AttributeType.MultiSelect => true, // Validación específica en el contexto
-            AttributeType.Color => stringValue.StartsWith("#") && stringValue.Length == 7,
-            AttributeType.Url => Uri.TryCreate(stringValue, UriKind.Absolute, out _),
-            AttributeType.Email => stringValue.Contains("@") && stringValue.Contains("."),
-            _ => true
-        };
+        return PimFlow.Contracts.Validation.SharedValidationRules.AttributeType.IsValidValue(
+            type.ToString(), value);
     }
 }
