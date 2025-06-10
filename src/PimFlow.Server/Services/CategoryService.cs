@@ -63,10 +63,11 @@ public class CategoryService : ICategoryService, ICategoryReader, ICategoryHiera
         if (existingCategory == null)
             return null;
 
-        // Validate that we're not creating a circular reference
+        // Validate that we're not creating a circular reference using domain logic
         if (updateCategoryDto.ParentCategoryId.HasValue)
         {
-            if (await WouldCreateCircularReference(id, updateCategoryDto.ParentCategoryId.Value))
+            if (existingCategory.WouldCreateCircularReference(updateCategoryDto.ParentCategoryId.Value,
+                parentId => _categoryRepository.GetByIdAsync(parentId).Result))
             {
                 throw new InvalidOperationException("No se puede establecer esta categoría padre porque crearía una referencia circular.");
             }
@@ -93,42 +94,31 @@ public class CategoryService : ICategoryService, ICategoryReader, ICategoryHiera
 
     public async Task<bool> DeleteCategoryAsync(int id)
     {
-        // Check if category has subcategories or articles
+        // Get category with related data
         var category = await _categoryRepository.GetByIdAsync(id);
         if (category == null)
             return false;
 
-        if (category.SubCategories.Any())
+        // Use domain logic to check if deletion is allowed
+        var deletionCheck = category.CanBeDeleted();
+        if (deletionCheck.IsFailure)
         {
-            throw new InvalidOperationException("No se puede eliminar una categoría que tiene subcategorías.");
+            throw new InvalidOperationException(deletionCheck.Error);
         }
 
-        if (category.Articles.Any())
+        // Perform the deletion using domain logic
+        var markAsDeletedResult = category.MarkAsDeleted();
+        if (markAsDeletedResult.IsFailure)
         {
-            throw new InvalidOperationException("No se puede eliminar una categoría que tiene artículos asociados.");
+            throw new InvalidOperationException(markAsDeletedResult.Error);
         }
 
-        return await _categoryRepository.DeleteAsync(id);
+        // Persist the changes
+        var updatedCategory = await _categoryRepository.UpdateAsync(category);
+        return updatedCategory != null;
     }
 
-    private async Task<bool> WouldCreateCircularReference(int categoryId, int parentCategoryId)
-    {
-        // Check if the proposed parent is actually a descendant of this category
-        var parentCategory = await _categoryRepository.GetByIdAsync(parentCategoryId);
 
-        while (parentCategory != null)
-        {
-            if (parentCategory.Id == categoryId)
-                return true;
-
-            if (parentCategory.ParentCategoryId == null)
-                break;
-
-            parentCategory = await _categoryRepository.GetByIdAsync(parentCategory.ParentCategoryId.Value);
-        }
-
-        return false;
-    }
 
 
 }
