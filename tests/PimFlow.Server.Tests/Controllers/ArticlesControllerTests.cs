@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using PimFlow.Server.Controllers;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
 using PimFlow.Shared.Enums;
 using PimFlow.Shared.Mappers;
+using PimFlow.Shared.Common;
 using FluentAssertions;
 using Xunit;
 
@@ -13,16 +15,20 @@ namespace PimFlow.Server.Tests.Controllers;
 public class ArticlesControllerTests
 {
     private readonly Mock<IArticleService> _mockService;
+    private readonly Mock<ILogger<ArticlesController>> _mockLogger;
+    private readonly Mock<IDomainEventService> _mockDomainEventService;
     private readonly ArticlesController _controller;
 
     public ArticlesControllerTests()
     {
         _mockService = new Mock<IArticleService>();
-        _controller = new ArticlesController(_mockService.Object);
+        _mockLogger = new Mock<ILogger<ArticlesController>>();
+        _mockDomainEventService = new Mock<IDomainEventService>();
+        _controller = new ArticlesController(_mockService.Object, _mockLogger.Object, _mockDomainEventService.Object);
     }
 
     [Fact]
-    public async Task GetArticles_ShouldReturnOkWithArticles()
+    public async Task GetAll_ShouldReturnOkWithApiResponseAndArticles()
     {
         // Arrange
         var articles = new List<ArticleDto>
@@ -40,18 +46,20 @@ public class ArticlesControllerTests
             .ReturnsAsync(articles);
 
         // Act
-        var result = await _controller.GetArticles();
+        var result = await _controller.GetAll();
 
         // Assert
-        result.Should().BeOfType<ActionResult<IEnumerable<ArticleDto>>>();
+        result.Should().BeOfType<ActionResult<ApiResponse<IEnumerable<ArticleDto>>>>();
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
-        var returnedArticles = okResult.Value.Should().BeAssignableTo<IEnumerable<ArticleDto>>().Subject;
-        returnedArticles.Should().HaveCount(1);
-        returnedArticles.First().SKU.Should().Be("TEST-001");
+        var apiResponse = okResult.Value.Should().BeOfType<ApiResponse<IEnumerable<ArticleDto>>>().Subject;
+
+        apiResponse.IsSuccess.Should().BeTrue();
+        apiResponse.Data.Should().HaveCount(1);
+        apiResponse.Data!.First().SKU.Should().Be("TEST-001");
     }
 
     [Fact]
-    public async Task GetArticle_WithValidId_ShouldReturnOkWithArticle()
+    public async Task GetById_WithValidId_ShouldReturnOkWithApiResponseAndArticle()
     {
         // Arrange
         var article = new ArticleDto
@@ -65,32 +73,40 @@ public class ArticlesControllerTests
             .ReturnsAsync(article);
 
         // Act
-        var result = await _controller.GetArticle(1);
+        var result = await _controller.GetById(1);
 
         // Assert
-        result.Should().BeOfType<ActionResult<ArticleDto>>();
+        result.Should().BeOfType<ActionResult<ApiResponse<ArticleDto>>>();
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
-        var returnedArticle = okResult.Value.Should().BeOfType<ArticleDto>().Subject;
-        returnedArticle.Id.Should().Be(1);
-        returnedArticle.SKU.Should().Be("TEST-001");
+        var apiResponse = okResult.Value.Should().BeOfType<ApiResponse<ArticleDto>>().Subject;
+
+        apiResponse.IsSuccess.Should().BeTrue();
+        apiResponse.Data!.Id.Should().Be(1);
+        apiResponse.Data.SKU.Should().Be("TEST-001");
     }
 
     [Fact]
-    public async Task GetArticle_WithInvalidId_ShouldReturnNotFound()
+    public async Task GetById_WithInvalidId_ShouldReturnBadRequestWithApiResponse()
     {
         // Arrange
         _mockService.Setup(x => x.GetArticleByIdAsync(999))
             .ReturnsAsync((ArticleDto?)null);
 
         // Act
-        var result = await _controller.GetArticle(999);
+        var result = await _controller.GetById(999);
 
         // Assert
-        result.Result.Should().BeOfType<NotFoundResult>();
+        result.Should().BeOfType<ActionResult<ApiResponse<ArticleDto>>>();
+        var badRequestResult = result.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        var apiResponse = badRequestResult.Value.Should().BeOfType<ApiResponse<ArticleDto>>().Subject;
+
+        apiResponse.IsSuccess.Should().BeFalse();
+        apiResponse.ErrorMessage.Should().Be("ArticleDto no encontrado");
+        apiResponse.ErrorCode.Should().Be("INVALID_OPERATION");
     }
 
     [Fact]
-    public async Task GetArticleBySKU_WithValidSKU_ShouldReturnOkWithArticle()
+    public async Task GetArticleBySKU_WithValidSKU_ShouldReturnOkWithApiResponseAndArticle()
     {
         // Arrange
         var article = new ArticleDto
@@ -107,14 +123,16 @@ public class ArticlesControllerTests
         var result = await _controller.GetArticleBySKU("TEST-001");
 
         // Assert
-        result.Should().BeOfType<ActionResult<ArticleDto>>();
+        result.Should().BeOfType<ActionResult<ApiResponse<ArticleDto>>>();
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
-        var returnedArticle = okResult.Value.Should().BeOfType<ArticleDto>().Subject;
-        returnedArticle.SKU.Should().Be("TEST-001");
+        var apiResponse = okResult.Value.Should().BeOfType<ApiResponse<ArticleDto>>().Subject;
+
+        apiResponse.IsSuccess.Should().BeTrue();
+        apiResponse.Data!.SKU.Should().Be("TEST-001");
     }
 
     [Fact]
-    public async Task GetArticlesByAttribute_WithValidParameters_ShouldReturnOkWithArticles()
+    public async Task GetArticlesByAttribute_WithValidParameters_ShouldReturnOkWithApiResponseAndArticles()
     {
         // Arrange
         var articles = new List<ArticleDto>
@@ -129,24 +147,31 @@ public class ArticlesControllerTests
         var result = await _controller.GetArticlesByAttribute("color", "red");
 
         // Assert
-        result.Should().BeOfType<ActionResult<IEnumerable<ArticleDto>>>();
+        result.Should().BeOfType<ActionResult<ApiResponse<IEnumerable<ArticleDto>>>>();
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
-        var returnedArticles = okResult.Value.Should().BeAssignableTo<IEnumerable<ArticleDto>>().Subject;
-        returnedArticles.Should().HaveCount(1);
+        var apiResponse = okResult.Value.Should().BeOfType<ApiResponse<IEnumerable<ArticleDto>>>().Subject;
+
+        apiResponse.IsSuccess.Should().BeTrue();
+        apiResponse.Data.Should().HaveCount(1);
     }
 
     [Fact]
-    public async Task GetArticlesByAttribute_WithMissingParameters_ShouldReturnBadRequest()
+    public async Task GetArticlesByAttribute_WithMissingParameters_ShouldReturnBadRequestWithApiResponse()
     {
         // Act
         var result = await _controller.GetArticlesByAttribute("", "red");
 
         // Assert
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
+        result.Should().BeOfType<ActionResult<ApiResponse<IEnumerable<ArticleDto>>>>();
+        var badRequestResult = result.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        var apiResponse = badRequestResult.Value.Should().BeOfType<ApiResponse<IEnumerable<ArticleDto>>>().Subject;
+
+        apiResponse.IsSuccess.Should().BeFalse();
+        apiResponse.ErrorMessage.Should().Be("Errores de validación");
     }
 
     [Fact]
-    public async Task CreateArticle_WithValidData_ShouldReturnCreatedAtAction()
+    public async Task Create_WithValidData_ShouldReturnOkWithApiResponseAndArticle()
     {
         // Arrange
         var createDto = new CreateArticleDto
@@ -168,20 +193,20 @@ public class ArticlesControllerTests
             .ReturnsAsync(createdArticle);
 
         // Act
-        var result = await _controller.CreateArticle(createDto);
+        var result = await _controller.Create(createDto);
 
         // Assert
-        result.Should().BeOfType<ActionResult<ArticleDto>>();
-        var createdResult = result.Result.Should().BeOfType<CreatedAtActionResult>().Subject;
-        createdResult.ActionName.Should().Be(nameof(ArticlesController.GetArticle));
-        createdResult.RouteValues!["id"].Should().Be(1);
+        result.Should().BeOfType<ActionResult<ApiResponse<ArticleDto>>>();
+        var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
+        var apiResponse = okResult.Value.Should().BeOfType<ApiResponse<ArticleDto>>().Subject;
 
-        var returnedArticle = createdResult.Value.Should().BeOfType<ArticleDto>().Subject;
-        returnedArticle.SKU.Should().Be("NEW-001");
+        apiResponse.IsSuccess.Should().BeTrue();
+        apiResponse.Data!.SKU.Should().Be("NEW-001");
+        apiResponse.Data.Id.Should().Be(1);
     }
 
     [Fact]
-    public async Task CreateArticle_WithDuplicateSKU_ShouldReturnBadRequest()
+    public async Task Create_WithDuplicateSKU_ShouldReturnBadRequestWithApiResponse()
     {
         // Arrange
         var createDto = new CreateArticleDto
@@ -194,16 +219,20 @@ public class ArticlesControllerTests
             .ThrowsAsync(new InvalidOperationException("Ya existe un artículo con SKU: EXISTING-001"));
 
         // Act
-        var result = await _controller.CreateArticle(createDto);
+        var result = await _controller.Create(createDto);
 
         // Assert
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
-        var badRequestResult = result.Result.As<BadRequestObjectResult>();
-        badRequestResult.Value.Should().Be("Ya existe un artículo con SKU: EXISTING-001");
+        result.Should().BeOfType<ActionResult<ApiResponse<ArticleDto>>>();
+        var badRequestResult = result.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        var apiResponse = badRequestResult.Value.Should().BeOfType<ApiResponse<ArticleDto>>().Subject;
+
+        apiResponse.IsSuccess.Should().BeFalse();
+        apiResponse.ErrorMessage.Should().Be("Ya existe un artículo con SKU: EXISTING-001");
+        apiResponse.ErrorCode.Should().Be("INVALID_OPERATION");
     }
 
     [Fact]
-    public async Task UpdateArticle_WithValidData_ShouldReturnOkWithUpdatedArticle()
+    public async Task Update_WithValidData_ShouldReturnOkWithApiResponseAndUpdatedArticle()
     {
         // Arrange
         var updateDto = new UpdateArticleDto
@@ -224,18 +253,20 @@ public class ArticlesControllerTests
             .ReturnsAsync(updatedArticle);
 
         // Act
-        var result = await _controller.UpdateArticle(1, updateDto);
+        var result = await _controller.Update(1, updateDto);
 
         // Assert
-        result.Should().BeOfType<ActionResult<ArticleDto>>();
+        result.Should().BeOfType<ActionResult<ApiResponse<ArticleDto>>>();
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
-        var returnedArticle = okResult.Value.Should().BeOfType<ArticleDto>().Subject;
-        returnedArticle.Name.Should().Be("Updated Article");
-        returnedArticle.Brand.Should().Be("Updated Brand");
+        var apiResponse = okResult.Value.Should().BeOfType<ApiResponse<ArticleDto>>().Subject;
+
+        apiResponse.IsSuccess.Should().BeTrue();
+        apiResponse.Data!.Name.Should().Be("Updated Article");
+        apiResponse.Data.Brand.Should().Be("Updated Brand");
     }
 
     [Fact]
-    public async Task UpdateArticle_WithInvalidId_ShouldReturnNotFound()
+    public async Task Update_WithInvalidId_ShouldReturnBadRequestWithApiResponse()
     {
         // Arrange
         var updateDto = new UpdateArticleDto { Name = "Updated Article" };
@@ -244,42 +275,58 @@ public class ArticlesControllerTests
             .ReturnsAsync((ArticleDto?)null);
 
         // Act
-        var result = await _controller.UpdateArticle(999, updateDto);
+        var result = await _controller.Update(999, updateDto);
 
         // Assert
-        result.Result.Should().BeOfType<NotFoundResult>();
+        result.Should().BeOfType<ActionResult<ApiResponse<ArticleDto>>>();
+        var badRequestResult = result.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        var apiResponse = badRequestResult.Value.Should().BeOfType<ApiResponse<ArticleDto>>().Subject;
+
+        apiResponse.IsSuccess.Should().BeFalse();
+        apiResponse.ErrorMessage.Should().Be("ArticleDto no encontrado");
+        apiResponse.ErrorCode.Should().Be("INVALID_OPERATION");
     }
 
     [Fact]
-    public async Task DeleteArticle_WithValidId_ShouldReturnNoContent()
+    public async Task Delete_WithValidId_ShouldReturnOkWithApiResponse()
     {
         // Arrange
         _mockService.Setup(x => x.DeleteArticleAsync(1))
             .ReturnsAsync(true);
 
         // Act
-        var result = await _controller.DeleteArticle(1);
+        var result = await _controller.Delete(1);
 
         // Assert
-        result.Should().BeOfType<NoContentResult>();
+        result.Should().BeOfType<ActionResult<ApiResponse>>();
+        var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
+        var apiResponse = okResult.Value.Should().BeOfType<ApiResponse>().Subject;
+
+        apiResponse.IsSuccess.Should().BeTrue();
     }
 
     [Fact]
-    public async Task DeleteArticle_WithInvalidId_ShouldReturnNotFound()
+    public async Task Delete_WithInvalidId_ShouldReturnBadRequestWithApiResponse()
     {
         // Arrange
         _mockService.Setup(x => x.DeleteArticleAsync(999))
             .ReturnsAsync(false);
 
         // Act
-        var result = await _controller.DeleteArticle(999);
+        var result = await _controller.Delete(999);
 
         // Assert
-        result.Should().BeOfType<NotFoundResult>();
+        result.Should().BeOfType<ActionResult<ApiResponse>>();
+        var badRequestResult = result.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        var apiResponse = badRequestResult.Value.Should().BeOfType<ApiResponse>().Subject;
+
+        apiResponse.IsSuccess.Should().BeFalse();
+        apiResponse.ErrorMessage.Should().Be("ArticleDto no encontrado");
+        apiResponse.ErrorCode.Should().Be("INVALID_OPERATION");
     }
 
     [Fact]
-    public async Task SearchArticles_WithValidTerm_ShouldReturnOkWithArticles()
+    public async Task SearchArticles_WithValidTerm_ShouldReturnOkWithApiResponseAndArticles()
     {
         // Arrange
         var articles = new List<ArticleDto>
@@ -294,20 +341,27 @@ public class ArticlesControllerTests
         var result = await _controller.SearchArticles("Nike");
 
         // Assert
-        result.Should().BeOfType<ActionResult<IEnumerable<ArticleDto>>>();
+        result.Should().BeOfType<ActionResult<ApiResponse<IEnumerable<ArticleDto>>>>();
         var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
-        var returnedArticles = okResult.Value.Should().BeAssignableTo<IEnumerable<ArticleDto>>().Subject;
-        returnedArticles.Should().HaveCount(1);
-        returnedArticles.First().Name.Should().Contain("Nike");
+        var apiResponse = okResult.Value.Should().BeOfType<ApiResponse<IEnumerable<ArticleDto>>>().Subject;
+
+        apiResponse.IsSuccess.Should().BeTrue();
+        apiResponse.Data.Should().HaveCount(1);
+        apiResponse.Data!.First().Name.Should().Contain("Nike");
     }
 
     [Fact]
-    public async Task SearchArticles_WithEmptyTerm_ShouldReturnBadRequest()
+    public async Task SearchArticles_WithEmptyTerm_ShouldReturnBadRequestWithApiResponse()
     {
         // Act
         var result = await _controller.SearchArticles("");
 
         // Assert
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
+        result.Should().BeOfType<ActionResult<ApiResponse<IEnumerable<ArticleDto>>>>();
+        var badRequestResult = result.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        var apiResponse = badRequestResult.Value.Should().BeOfType<ApiResponse<IEnumerable<ArticleDto>>>().Subject;
+
+        apiResponse.IsSuccess.Should().BeFalse();
+        apiResponse.ErrorMessage.Should().Be("Errores de validación");
     }
 }
