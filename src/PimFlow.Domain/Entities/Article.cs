@@ -1,10 +1,11 @@
 using PimFlow.Domain.Enums;
 using PimFlow.Domain.ValueObjects;
 using PimFlow.Domain.Common;
+using PimFlow.Domain.Events;
 
 namespace PimFlow.Domain.Entities;
 
-public class Article
+public class Article : AggregateRoot
 {
     public int Id { get; set; }
 
@@ -103,5 +104,96 @@ public class Article
             return Result.Failure<Article>(brandResult.Error);
 
         return Result.Success(article);
+    }
+
+    /// <summary>
+    /// Marca el artículo como eliminado (soft delete) y publica evento
+    /// </summary>
+    public Result MarkAsDeleted(string reason = "Manual deletion")
+    {
+        if (!IsActive)
+            return Result.Failure("El artículo ya está eliminado");
+
+        IsActive = false;
+        UpdatedAt = DateTime.UtcNow;
+
+        // Publicar evento de dominio
+        AddDomainEvent(new ArticleDeletedEvent(Id, SKU, Name, reason));
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Cambia la categoría del artículo y publica evento
+    /// </summary>
+    public Result ChangeCategoryTo(int? newCategoryId)
+    {
+        var previousCategoryId = CategoryId;
+
+        if (previousCategoryId == newCategoryId)
+            return Result.Success(); // No hay cambio
+
+        CategoryId = newCategoryId;
+        UpdatedAt = DateTime.UtcNow;
+
+        // Publicar evento de dominio
+        AddDomainEvent(new ArticleCategoryChangedEvent(Id, SKU, previousCategoryId, newCategoryId));
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Actualiza el artículo y publica evento con campos modificados
+    /// </summary>
+    public Result UpdateWith(string? name = null, string? description = null, string? brand = null,
+                           ArticleType? type = null, List<string>? modifiedFields = null)
+    {
+        var fieldsChanged = modifiedFields ?? new List<string>();
+
+        if (!string.IsNullOrEmpty(name) && name != Name)
+        {
+            var nameResult = SetName(name);
+            if (nameResult.IsFailure)
+                return nameResult;
+            fieldsChanged.Add("Name");
+        }
+
+        if (!string.IsNullOrEmpty(description) && description != Description)
+        {
+            Description = description;
+            fieldsChanged.Add("Description");
+        }
+
+        if (!string.IsNullOrEmpty(brand) && brand != Brand)
+        {
+            var brandResult = SetBrand(brand);
+            if (brandResult.IsFailure)
+                return brandResult;
+            fieldsChanged.Add("Brand");
+        }
+
+        if (type.HasValue && type.Value != Type)
+        {
+            Type = type.Value;
+            fieldsChanged.Add("Type");
+        }
+
+        if (fieldsChanged.Any())
+        {
+            UpdatedAt = DateTime.UtcNow;
+
+            // Publicar evento de dominio
+            AddDomainEvent(new ArticleUpdatedEvent(Id, SKU, Name, fieldsChanged));
+        }
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Método interno para publicar evento de creación (llamado después de persistir)
+    /// </summary>
+    internal void PublishCreatedEvent()
+    {
+        AddDomainEvent(new ArticleCreatedEvent(Id, SKU, Name, Type, Brand, CategoryId));
     }
 }
