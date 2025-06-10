@@ -8,6 +8,9 @@ using PimFlow.Server.Mapping;
 using PimFlow.Server.Validation;
 using PimFlow.Server.Validation.Article;
 using PimFlow.Shared.DTOs;
+using PimFlow.Domain.Events;
+using PimFlow.Server.Events;
+using PimFlow.Server.Events.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -105,6 +108,23 @@ builder.Services.AddScoped<IArticleValidationService>(provider =>
 
     return new ArticleValidationService(createPipeline, updatePipeline);
 });
+
+// Domain Events Infrastructure
+builder.Services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+builder.Services.AddScoped<IDomainEventService, DomainEventService>();
+
+// Domain Event Handlers - Article Events
+builder.Services.AddScoped<IDomainEventHandler<ArticleCreatedEvent>, ArticleCreatedEventHandler>();
+builder.Services.AddScoped<IDomainEventHandler<ArticleUpdatedEvent>, ArticleUpdatedEventHandler>();
+builder.Services.AddScoped<IDomainEventHandler<ArticleDeletedEvent>, ArticleDeletedEventHandler>();
+builder.Services.AddScoped<IDomainEventHandler<ArticleCategoryChangedEvent>, ArticleCategoryChangedEventHandler>();
+
+// Domain Event Handlers - Category Events
+builder.Services.AddScoped<IDomainEventHandler<CategoryCreatedEvent>, CategoryCreatedEventHandler>();
+builder.Services.AddScoped<IDomainEventHandler<CategoryUpdatedEvent>, CategoryUpdatedEventHandler>();
+builder.Services.AddScoped<IDomainEventHandler<CategoryDeletedEvent>, CategoryDeletedEventHandler>();
+builder.Services.AddScoped<IDomainEventHandler<CategoryHierarchyChangedEvent>, CategoryHierarchyChangedEventHandler>();
+builder.Services.AddScoped<IDomainEventHandler<ArticleAddedToCategoryEvent>, ArticleAddedToCategoryEventHandler>();
 
 // Facade services (backward compatibility)
 builder.Services.AddScoped<IArticleService, ArticleService>();

@@ -1,9 +1,10 @@
 using PimFlow.Domain.ValueObjects;
 using PimFlow.Domain.Common;
+using PimFlow.Domain.Events;
 
 namespace PimFlow.Domain.Entities;
 
-public class Category
+public class Category : AggregateRoot
 {
     public int Id { get; set; }
 
@@ -58,9 +59,9 @@ public class Category
     }
 
     /// <summary>
-    /// Marca la categoría como eliminada (soft delete)
+    /// Marca la categoría como eliminada (soft delete) y publica evento
     /// </summary>
-    public Result MarkAsDeleted()
+    public Result MarkAsDeleted(string reason = "Manual deletion")
     {
         var canDelete = CanBeDeleted();
         if (canDelete.IsFailure)
@@ -68,6 +69,10 @@ public class Category
 
         IsActive = false;
         UpdatedAt = DateTime.UtcNow;
+
+        // Publicar evento de dominio
+        AddDomainEvent(new CategoryDeletedEvent(Id, Name, canDelete.Value.Summary, reason));
+
         return Result.Success();
     }
 
@@ -113,5 +118,78 @@ public class Category
             return Result.Failure<Category>(nameResult.Error);
 
         return Result.Success(category);
+    }
+
+    /// <summary>
+    /// Cambia la categoría padre y publica evento
+    /// </summary>
+    public Result ChangeParentTo(int? newParentId, Func<int, Category?> getCategoryById)
+    {
+        // Verificar referencias circulares
+        if (newParentId.HasValue && WouldCreateCircularReference(newParentId.Value, getCategoryById))
+        {
+            return Result.Failure("No se puede establecer esta categoría padre porque crearía una referencia circular");
+        }
+
+        var previousParentId = ParentCategoryId;
+
+        if (previousParentId == newParentId)
+            return Result.Success(); // No hay cambio
+
+        ParentCategoryId = newParentId;
+        UpdatedAt = DateTime.UtcNow;
+
+        // Publicar evento de dominio
+        AddDomainEvent(new CategoryHierarchyChangedEvent(Id, Name, previousParentId, newParentId));
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Actualiza la categoría y publica evento con campos modificados
+    /// </summary>
+    public Result UpdateWith(string? name = null, string? description = null, List<string>? modifiedFields = null)
+    {
+        var fieldsChanged = modifiedFields ?? new List<string>();
+
+        if (!string.IsNullOrEmpty(name) && name != Name)
+        {
+            var nameResult = SetName(name);
+            if (nameResult.IsFailure)
+                return nameResult;
+            fieldsChanged.Add("Name");
+        }
+
+        if (!string.IsNullOrEmpty(description) && description != Description)
+        {
+            Description = description;
+            fieldsChanged.Add("Description");
+        }
+
+        if (fieldsChanged.Any())
+        {
+            UpdatedAt = DateTime.UtcNow;
+
+            // Publicar evento de dominio
+            AddDomainEvent(new CategoryUpdatedEvent(Id, Name, fieldsChanged));
+        }
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Método interno para publicar evento de creación (llamado después de persistir)
+    /// </summary>
+    internal void PublishCreatedEvent()
+    {
+        AddDomainEvent(new CategoryCreatedEvent(Id, Name, Description, ParentCategoryId));
+    }
+
+    /// <summary>
+    /// Método para notificar cuando se agrega un artículo a esta categoría
+    /// </summary>
+    internal void NotifyArticleAdded(int articleId, string articleSKU, string articleName)
+    {
+        AddDomainEvent(new ArticleAddedToCategoryEvent(Id, Name, articleId, articleSKU, articleName));
     }
 }

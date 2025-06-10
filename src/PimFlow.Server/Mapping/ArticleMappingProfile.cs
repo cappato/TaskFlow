@@ -34,7 +34,9 @@ public class ArticleMappingProfile : Profile
             .ForMember(dest => dest.Category, opt => opt.Ignore())
             .ForMember(dest => dest.Supplier, opt => opt.Ignore())
             .ForMember(dest => dest.AttributeValues, opt => opt.Ignore())
-            .ForMember(dest => dest.Variants, opt => opt.Ignore());
+            .ForMember(dest => dest.Variants, opt => opt.Ignore())
+            .ForMember(dest => dest.DomainEvents, opt => opt.Ignore())
+            .ForMember(dest => dest.HasDomainEvents, opt => opt.Ignore());
 
         // UpdateArticleDto -> Article Entity (para actualizar propiedades)
         CreateMap<UpdateArticleDto, Article>()
@@ -45,7 +47,9 @@ public class ArticleMappingProfile : Profile
             .ForMember(dest => dest.Category, opt => opt.Ignore())
             .ForMember(dest => dest.Supplier, opt => opt.Ignore())
             .ForMember(dest => dest.AttributeValues, opt => opt.Ignore())
-            .ForMember(dest => dest.Variants, opt => opt.Ignore());
+            .ForMember(dest => dest.Variants, opt => opt.Ignore())
+            .ForMember(dest => dest.DomainEvents, opt => opt.Ignore())
+            .ForMember(dest => dest.HasDomainEvents, opt => opt.Ignore());
     }
 
     /// <summary>
@@ -84,7 +88,9 @@ public class CategoryMappingProfile : Profile
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => true))
             .ForMember(dest => dest.ParentCategory, opt => opt.Ignore())
             .ForMember(dest => dest.SubCategories, opt => opt.Ignore())
-            .ForMember(dest => dest.Articles, opt => opt.Ignore());
+            .ForMember(dest => dest.Articles, opt => opt.Ignore())
+            .ForMember(dest => dest.DomainEvents, opt => opt.Ignore())
+            .ForMember(dest => dest.HasDomainEvents, opt => opt.Ignore());
 
         // UpdateCategoryDto -> Category Entity
         CreateMap<UpdateCategoryDto, Category>()
@@ -93,7 +99,9 @@ public class CategoryMappingProfile : Profile
             .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForMember(dest => dest.ParentCategory, opt => opt.Ignore())
             .ForMember(dest => dest.SubCategories, opt => opt.Ignore())
-            .ForMember(dest => dest.Articles, opt => opt.Ignore());
+            .ForMember(dest => dest.Articles, opt => opt.Ignore())
+            .ForMember(dest => dest.DomainEvents, opt => opt.Ignore())
+            .ForMember(dest => dest.HasDomainEvents, opt => opt.Ignore());
     }
 }
 

@@ -181,6 +181,17 @@ public class CategoryServiceTests
         _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Category>()))
             .ReturnsAsync(category);
 
+        // Setup mapper mock
+        var expectedDto = new CategoryDto
+        {
+            Id = categoryId,
+            Name = "Updated Category",
+            Description = "Updated Description",
+            ParentCategoryId = parentId
+        };
+        _mockMapper.Setup(m => m.Map<CategoryDto>(It.IsAny<Category>()))
+            .Returns(expectedDto);
+
         // Act
         var result = await _service.UpdateCategoryAsync(categoryId, updateDto);
 
@@ -201,7 +212,7 @@ public class CategoryServiceTests
 
     private static Article CreateTestArticle(string name)
     {
-        var result = Article.Create("TEST-SKU", name, "Test Brand", Domain.Enums.ArticleType.Footwear);
+        var result = Article.Create("TEST-SKU", name, "Test Brand", PimFlow.Domain.Enums.ArticleType.Footwear, "Test Description");
         result.IsSuccess.Should().BeTrue();
         return result.Value;
     }
