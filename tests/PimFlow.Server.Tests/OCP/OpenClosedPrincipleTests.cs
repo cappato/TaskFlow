@@ -19,7 +19,7 @@ public class OpenClosedPrincipleTests
     {
         // Arrange - Create a new validation strategy without modifying existing code
         var customStrategy = new CustomTestValidationStrategy();
-        var existingStrategies = new List<IArticleValidationStrategy>
+        var existingStrategies = new List<IArticleCreateValidationStrategy>
         {
             new BasicFieldValidationStrategy(),
             new BusinessRulesValidationStrategy(null!, null!),
@@ -40,7 +40,7 @@ public class OpenClosedPrincipleTests
         var results = new List<ValidationResult>();
         foreach (var strategy in existingStrategies)
         {
-            var result = strategy.ValidateAsync(testArticle, CancellationToken.None).Result;
+            var result = strategy.ValidateAsync(testArticle).Result;
             results.Add(result);
         }
 
@@ -126,16 +126,16 @@ public class OpenClosedPrincipleTests
 }
 
 // Custom test implementations to demonstrate OCP
-internal class CustomTestValidationStrategy : IArticleValidationStrategy
+internal class CustomTestValidationStrategy : IArticleCreateValidationStrategy
 {
     public string Name => "CustomTestValidation";
     public int Priority => 100;
     public ValidationCategory Category => ValidationCategory.Business;
 
-    public Task<ValidationResult> ValidateAsync(CreateArticleDto entity, CancellationToken cancellationToken)
+    public Task<ValidationResult> ValidateAsync(CreateArticleDto item)
     {
         // Custom validation logic - extension without modification
-        var result = ValidationResult.Success("CustomTestValidation");
+        var result = ValidationResult.Success();
         return Task.FromResult(result);
     }
 }

@@ -59,9 +59,9 @@ public class LSPComplianceTests
         // Arrange - Create test specifications
         var specifications = new List<ISpecification<object>>
         {
-            new TestSpecification("Always True", true),
-            new TestSpecification("Always False", false),
-            new TestSpecification("Complex Logic", true)
+            new LSPTestSpecification("Always True", true),
+            new LSPTestSpecification("Always False", false),
+            new LSPTestSpecification("Complex Logic", true)
         };
 
         var testEntity = new { Name = "Test Entity" };
@@ -227,11 +227,11 @@ public class LSPComplianceTests
 }
 
 // Test implementations for LSP validation
-internal class TestSpecification : ISpecification<object>
+internal class LSPTestSpecification : ISpecification<object>
 {
     private readonly bool _result;
-    
-    public TestSpecification(string name, bool result)
+
+    public LSPTestSpecification(string name, bool result)
     {
         ErrorMessage = $"Test specification: {name}";
         _result = result;
