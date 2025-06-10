@@ -40,6 +40,62 @@ public class Category
     }
 
     /// <summary>
+    /// Verifica si la categoría puede ser eliminada
+    /// Reglas de negocio: No se puede eliminar si tiene subcategorías activas o artículos activos
+    /// </summary>
+    public Result<DeletionInfo> CanBeDeleted()
+    {
+        var activeSubCategories = SubCategories.Count(sc => sc.IsActive);
+        var activeArticles = Articles.Count(a => a.IsActive);
+
+        if (activeSubCategories > 0)
+            return Result.Failure<DeletionInfo>($"No se puede eliminar una categoría que tiene {activeSubCategories} subcategorías activas");
+
+        if (activeArticles > 0)
+            return Result.Failure<DeletionInfo>($"No se puede eliminar una categoría que tiene {activeArticles} artículos activos");
+
+        return Result.Success(new DeletionInfo(activeSubCategories, activeArticles));
+    }
+
+    /// <summary>
+    /// Marca la categoría como eliminada (soft delete)
+    /// </summary>
+    public Result MarkAsDeleted()
+    {
+        var canDelete = CanBeDeleted();
+        if (canDelete.IsFailure)
+            return Result.Failure(canDelete.Error);
+
+        IsActive = false;
+        UpdatedAt = DateTime.UtcNow;
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Verifica si establecer un padre específico crearía una referencia circular
+    /// </summary>
+    public bool WouldCreateCircularReference(int proposedParentId, Func<int, Category?> getCategoryById)
+    {
+        if (proposedParentId == Id)
+            return true;
+
+        var parentCategory = getCategoryById(proposedParentId);
+
+        while (parentCategory != null)
+        {
+            if (parentCategory.Id == Id)
+                return true;
+
+            if (parentCategory.ParentCategoryId == null)
+                break;
+
+            parentCategory = getCategoryById(parentCategory.ParentCategoryId.Value);
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Factory method para crear una categoría válida
     /// </summary>
     public static Result<Category> Create(string name, string description = "", int? parentCategoryId = null)
