@@ -56,7 +56,7 @@ else if (articles != null && articles.Any())
                             <span class="font-medium">SKU:</span> @article.SKU
                         </p>
                         <p class="text-sm text-gray-600">
-                            <span class="font-medium">Tipo:</span> @EnumMapper.GetArticleTypeDisplayName(EnumMapper.ToDomain(article.Type))
+                            <span class="font-medium">Tipo:</span> @article.Type.GetDisplayName()
                         </p>
                         @if (!string.IsNullOrEmpty(article.Brand))
                         {

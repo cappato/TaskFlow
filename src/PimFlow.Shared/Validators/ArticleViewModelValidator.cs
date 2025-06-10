@@ -1,6 +1,7 @@
 using FluentValidation;
 using PimFlow.Shared.ViewModels;
 using PimFlow.Shared.Enums;
+using PimFlow.Contracts.Validation;
 
 namespace PimFlow.Shared.Validators;
 
@@ -15,16 +16,14 @@ public class CreateArticleViewModelValidator : AbstractValidator<CreateArticleVi
         RuleFor(x => x.SKU)
             .NotEmpty()
             .WithMessage("SKU es requerido")
-            .Length(3, 50)
-            .WithMessage("SKU debe tener entre 3 y 50 caracteres")
-            .Matches(@"^[A-Z0-9-]+$")
-            .WithMessage("SKU solo puede contener letras mayúsculas, números y guiones");
+            .Must(SharedValidationRules.Sku.IsValid)
+            .WithMessage(SharedValidationRules.Sku.GetValidationMessage());
 
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("Nombre es requerido")
-            .Length(2, 200)
-            .WithMessage("Nombre debe tener entre 2 y 200 caracteres");
+            .Must(SharedValidationRules.ProductName.IsValid)
+            .WithMessage(SharedValidationRules.ProductName.GetValidationMessage());
 
         RuleFor(x => x.Description)
             .MaximumLength(1000)
@@ -39,8 +38,8 @@ public class CreateArticleViewModelValidator : AbstractValidator<CreateArticleVi
         RuleFor(x => x.Brand)
             .NotEmpty()
             .WithMessage("Marca es requerida")
-            .Length(2, 100)
-            .WithMessage("Marca debe tener entre 2 y 100 caracteres");
+            .Must(SharedValidationRules.Brand.IsValid)
+            .WithMessage(SharedValidationRules.Brand.GetValidationMessage());
 
         RuleFor(x => x.CategoryId)
             .GreaterThan(0)
@@ -77,16 +76,14 @@ public class UpdateArticleViewModelValidator : AbstractValidator<UpdateArticleVi
         RuleFor(x => x.SKU)
             .NotEmpty()
             .WithMessage("SKU es requerido")
-            .Length(3, 50)
-            .WithMessage("SKU debe tener entre 3 y 50 caracteres")
-            .Matches(@"^[A-Z0-9-]+$")
-            .WithMessage("SKU solo puede contener letras mayúsculas, números y guiones");
+            .Must(SharedValidationRules.Sku.IsValid)
+            .WithMessage(SharedValidationRules.Sku.GetValidationMessage());
 
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage("Nombre es requerido")
-            .Length(2, 200)
-            .WithMessage("Nombre debe tener entre 2 y 200 caracteres");
+            .Must(SharedValidationRules.ProductName.IsValid)
+            .WithMessage(SharedValidationRules.ProductName.GetValidationMessage());
 
         RuleFor(x => x.Description)
             .MaximumLength(1000)
@@ -101,8 +98,8 @@ public class UpdateArticleViewModelValidator : AbstractValidator<UpdateArticleVi
         RuleFor(x => x.Brand)
             .NotEmpty()
             .WithMessage("Marca es requerida")
-            .Length(2, 100)
-            .WithMessage("Marca debe tener entre 2 y 100 caracteres");
+            .Must(SharedValidationRules.Brand.IsValid)
+            .WithMessage(SharedValidationRules.Brand.GetValidationMessage());
 
         RuleFor(x => x.CategoryId)
             .GreaterThan(0)
@@ -127,43 +124,50 @@ public class UpdateArticleViewModelValidator : AbstractValidator<UpdateArticleVi
 
 /// <summary>
 /// Extensiones para validadores de artículos
+/// Nota: Estas extensiones proporcionan conversión a ApiResponse sin duplicar lógica de validación
 /// </summary>
 public static class ArticleValidatorExtensions
 {
     /// <summary>
+    /// Convierte resultado de FluentValidation a ApiResponse
+    /// Centraliza la lógica de conversión sin duplicar validaciones
+    /// </summary>
+    public static PimFlow.Shared.Common.ApiResponse ToApiResponse(this FluentValidation.Results.ValidationResult result)
+    {
+        if (result.IsValid)
+            return PimFlow.Shared.Common.ApiResponse.Success();
+
+        var errors = result.Errors.Select(e => e.ErrorMessage).ToList();
+        return PimFlow.Shared.Common.ApiResponse.ValidationError(errors);
+    }
+
+    /// <summary>
     /// Valida un CreateArticleViewModel y retorna ApiResponse
+    /// Usa el método centralizado de conversión
     /// </summary>
     public static async Task<PimFlow.Shared.Common.ApiResponse> ValidateAsync(
-        this CreateArticleViewModelValidator validator, 
+        this CreateArticleViewModelValidator validator,
         CreateArticleViewModel model)
     {
         var result = await validator.ValidateAsync(model);
-        
-        if (result.IsValid)
-            return PimFlow.Shared.Common.ApiResponse.Success();
-        
-        var errors = result.Errors.Select(e => e.ErrorMessage).ToList();
-        return PimFlow.Shared.Common.ApiResponse.ValidationError(errors);
+        return result.ToApiResponse();
     }
 
     /// <summary>
     /// Valida un UpdateArticleViewModel y retorna ApiResponse
+    /// Usa el método centralizado de conversión
     /// </summary>
     public static async Task<PimFlow.Shared.Common.ApiResponse> ValidateAsync(
-        this UpdateArticleViewModelValidator validator, 
+        this UpdateArticleViewModelValidator validator,
         UpdateArticleViewModel model)
     {
         var result = await validator.ValidateAsync(model);
-        
-        if (result.IsValid)
-            return PimFlow.Shared.Common.ApiResponse.Success();
-        
-        var errors = result.Errors.Select(e => e.ErrorMessage).ToList();
-        return PimFlow.Shared.Common.ApiResponse.ValidationError(errors);
+        return result.ToApiResponse();
     }
 
     /// <summary>
     /// Valida solo campos específicos de un modelo
+    /// Usa el método centralizado de conversión
     /// </summary>
     public static async Task<PimFlow.Shared.Common.ApiResponse> ValidatePropertyAsync<T>(
         this AbstractValidator<T> validator,
@@ -174,11 +178,7 @@ public static class ArticleValidatorExtensions
         {
             options.IncludeProperties(propertyNames);
         });
-        
-        if (result.IsValid)
-            return PimFlow.Shared.Common.ApiResponse.Success();
-        
-        var errors = result.Errors.Select(e => e.ErrorMessage).ToList();
-        return PimFlow.Shared.Common.ApiResponse.ValidationError(errors);
+
+        return result.ToApiResponse();
     }
 }

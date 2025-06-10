@@ -2,7 +2,7 @@ using AutoMapper;
 using PimFlow.Domain.Entities;
 using PimFlow.Domain.Interfaces;
 using PimFlow.Shared.DTOs;
-using PimFlow.Shared.Mappers;
+using PimFlow.Server.Mappers;
 
 namespace PimFlow.Server.Services;
 
@@ -99,7 +99,7 @@ public class ArticleCommandService : IArticleCommandService
             existingArticle.Description = updateArticleDto.Description;
 
         if (updateArticleDto.Type.HasValue)
-            existingArticle.Type = EnumMapper.ToDomain(updateArticleDto.Type.Value);
+            existingArticle.Type = DomainEnumMapper.ToDomain(updateArticleDto.Type.Value);
 
         if (!string.IsNullOrEmpty(updateArticleDto.Brand))
             existingArticle.Brand = updateArticleDto.Brand;

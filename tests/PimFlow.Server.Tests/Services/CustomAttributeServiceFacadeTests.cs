@@ -1,22 +1,22 @@
 using Moq;
-using PimFlow.Domain.Entities;
-using PimFlow.Domain.Interfaces;
-using PimFlow.Domain.Enums;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
-using PimFlow.Server.Mappers;
 using FluentAssertions;
 using Xunit;
 
 namespace PimFlow.Server.Tests.Services;
 
-public class CustomAttributeServiceTests
+/// <summary>
+/// Tests for CustomAttributeService facade that delegates to CQRS services
+/// Focuses on testing delegation behavior rather than business logic
+/// </summary>
+public class CustomAttributeServiceFacadeTests
 {
     private readonly Mock<ICustomAttributeQueryService> _mockQueryService;
     private readonly Mock<ICustomAttributeCommandService> _mockCommandService;
     private readonly CustomAttributeService _service;
 
-    public CustomAttributeServiceTests()
+    public CustomAttributeServiceFacadeTests()
     {
         _mockQueryService = new Mock<ICustomAttributeQueryService>();
         _mockCommandService = new Mock<ICustomAttributeCommandService>();

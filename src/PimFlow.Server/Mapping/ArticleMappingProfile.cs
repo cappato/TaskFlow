@@ -1,7 +1,7 @@
 using AutoMapper;
 using PimFlow.Domain.Entities;
 using PimFlow.Shared.DTOs;
-using PimFlow.Shared.Mappers;
+using PimFlow.Server.Mappers;
 
 namespace PimFlow.Server.Mapping;
 
@@ -15,7 +15,7 @@ public class ArticleMappingProfile : Profile
     {
         // Article Entity -> ArticleDto
         CreateMap<Article, ArticleDto>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => EnumMapper.ToShared(src.Type)))
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => DomainEnumMapper.ToShared(src.Type)))
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
             .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : null))
             .ForMember(dest => dest.CustomAttributes, opt => opt.MapFrom(src => MapCustomAttributes(src.AttributeValues)))
@@ -26,7 +26,7 @@ public class ArticleMappingProfile : Profile
 
         // CreateArticleDto -> Article Entity
         CreateMap<CreateArticleDto, Article>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => EnumMapper.ToDomain(src.Type)))
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => DomainEnumMapper.ToDomain(src.Type)))
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
@@ -38,7 +38,7 @@ public class ArticleMappingProfile : Profile
 
         // UpdateArticleDto -> Article Entity (para actualizar propiedades)
         CreateMap<UpdateArticleDto, Article>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.HasValue ? EnumMapper.ToDomain(src.Type.Value) : Domain.Enums.ArticleType.Footwear))
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.HasValue ? DomainEnumMapper.ToDomain(src.Type.Value) : Domain.Enums.ArticleType.Footwear))
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
@@ -106,11 +106,11 @@ public class CustomAttributeMappingProfile : Profile
     {
         // CustomAttribute Entity -> CustomAttributeDto
         CreateMap<CustomAttribute, CustomAttributeDto>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => EnumMapper.ToShared(src.Type)));
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => DomainEnumMapper.ToShared(src.Type)));
 
         // CreateCustomAttributeDto -> CustomAttribute Entity
         CreateMap<CreateCustomAttributeDto, CustomAttribute>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => EnumMapper.ToDomain(src.Type)))
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => DomainEnumMapper.ToDomain(src.Type)))
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
@@ -119,7 +119,7 @@ public class CustomAttributeMappingProfile : Profile
 
         // UpdateCustomAttributeDto -> CustomAttribute Entity
         CreateMap<UpdateCustomAttributeDto, CustomAttribute>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.HasValue ? EnumMapper.ToDomain(src.Type.Value) : Domain.Enums.AttributeType.Text))
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.HasValue ? DomainEnumMapper.ToDomain(src.Type.Value) : Domain.Enums.AttributeType.Text))
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))

@@ -1,4 +1,5 @@
 using PimFlow.Shared.DTOs;
+using PimFlow.Contracts.Validation;
 
 namespace PimFlow.Server.Validation.Article;
 
@@ -16,34 +17,43 @@ public class BasicFieldValidationStrategy : IArticleCreateValidationStrategy
     {
         var errors = new List<string>();
 
-        // Required field validations
-        if (string.IsNullOrWhiteSpace(item.SKU))
-            errors.Add("SKU es requerido");
+        // Required field validations using centralized validators
+        var skuValidation = SharedValidationRules.Text.ValidateRequired(item.SKU, "SKU");
+        if (!skuValidation.IsValid)
+            errors.Add(skuValidation.ErrorMessage!);
 
-        if (string.IsNullOrWhiteSpace(item.Name))
-            errors.Add("Nombre es requerido");
+        var nameValidation = SharedValidationRules.Text.ValidateRequired(item.Name, "Nombre");
+        if (!nameValidation.IsValid)
+            errors.Add(nameValidation.ErrorMessage!);
 
-        // Format validations
+        // Format validations using centralized validators
         if (!string.IsNullOrWhiteSpace(item.SKU))
         {
-            if (item.SKU.Length < 3)
-                errors.Add("SKU debe tener al menos 3 caracteres");
-                
-            if (item.SKU.Length > 50)
-                errors.Add("SKU no puede exceder 50 caracteres");
-                
-            if (!IsValidSKUFormat(item.SKU))
-                errors.Add("SKU contiene caracteres no válidos");
+            var skuFormatValidation = SharedValidationRules.Sku.Validate(item.SKU);
+            if (!skuFormatValidation.IsValid)
+                errors.Add(skuFormatValidation.ErrorMessage!);
         }
 
-        if (!string.IsNullOrWhiteSpace(item.Name) && item.Name.Length > 200)
-            errors.Add("Nombre no puede exceder 200 caracteres");
+        if (!string.IsNullOrWhiteSpace(item.Name))
+        {
+            var nameFormatValidation = SharedValidationRules.ProductName.Validate(item.Name);
+            if (!nameFormatValidation.IsValid)
+                errors.Add(nameFormatValidation.ErrorMessage!);
+        }
 
-        if (!string.IsNullOrWhiteSpace(item.Description) && item.Description.Length > 1000)
-            errors.Add("Descripción no puede exceder 1000 caracteres");
+        if (!string.IsNullOrWhiteSpace(item.Description))
+        {
+            var descValidation = SharedValidationRules.Text.ValidateLength(item.Description, 0, 1000, "Descripción");
+            if (!descValidation.IsValid)
+                errors.Add(descValidation.ErrorMessage!);
+        }
 
-        if (!string.IsNullOrWhiteSpace(item.Brand) && item.Brand.Length > 100)
-            errors.Add("Marca no puede exceder 100 caracteres");
+        if (!string.IsNullOrWhiteSpace(item.Brand))
+        {
+            var brandValidation = SharedValidationRules.Brand.Validate(item.Brand);
+            if (!brandValidation.IsValid)
+                errors.Add(brandValidation.ErrorMessage!);
+        }
 
         var result = errors.Any() 
             ? ValidationResult.Failure(errors.ToArray()) 
@@ -52,11 +62,7 @@ public class BasicFieldValidationStrategy : IArticleCreateValidationStrategy
         return Task.FromResult(result);
     }
 
-    private static bool IsValidSKUFormat(string sku)
-    {
-        // SKU should contain only alphanumeric characters, hyphens, and underscores
-        return sku.All(c => char.IsLetterOrDigit(c) || c == '-' || c == '_');
-    }
+
 }
 
 /// <summary>

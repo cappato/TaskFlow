@@ -9,7 +9,7 @@ using PimFlow.Server.Services;
 using PimFlow.Server.Validation;
 using PimFlow.Server.Validation.Article;
 using PimFlow.Shared.DTOs;
-using PimFlow.Shared.Mappers;
+using PimFlow.Server.Mappers;
 using FluentAssertions;
 using Xunit;
 
@@ -61,7 +61,10 @@ public class PIMIntegrationTests : IDisposable
         var commandService = new ArticleCommandService(_articleRepository, _attributeValueRepository, validationService, _mapper);
 
         _articleService = new ArticleService(queryService, commandService);
-        _attributeService = new CustomAttributeService(_attributeRepository);
+
+        var attributeQueryService = new CustomAttributeQueryService(_attributeRepository);
+        var attributeCommandService = new CustomAttributeCommandService(_attributeRepository);
+        _attributeService = new CustomAttributeService(attributeQueryService, attributeCommandService);
 
         // Seed basic data
         SeedTestData();
@@ -100,7 +103,7 @@ public class PIMIntegrationTests : IDisposable
         {
             Name = "color",
             DisplayName = "Color",
-            Type = EnumMapper.ToShared(AttributeType.Text),
+            Type = DomainEnumMapper.ToShared(AttributeType.Text),
             IsRequired = true,
             SortOrder = 1
         };
@@ -109,7 +112,7 @@ public class PIMIntegrationTests : IDisposable
         {
             Name = "size",
             DisplayName = "Talle",
-            Type = EnumMapper.ToShared(AttributeType.Text),
+            Type = DomainEnumMapper.ToShared(AttributeType.Text),
             IsRequired = true,
             SortOrder = 2
         };
@@ -118,7 +121,7 @@ public class PIMIntegrationTests : IDisposable
         {
             Name = "waterproof",
             DisplayName = "Resistente al Agua",
-            Type = EnumMapper.ToShared(AttributeType.Boolean),
+            Type = DomainEnumMapper.ToShared(AttributeType.Boolean),
             IsRequired = false,
             SortOrder = 3
         };
@@ -140,7 +143,7 @@ public class PIMIntegrationTests : IDisposable
             SKU = "NIKE-AIR-001",
             Name = "Nike Air Max 90",
             Description = "Zapatillas deportivas clásicas",
-            Type = EnumMapper.ToShared(ArticleType.Footwear),
+            Type = DomainEnumMapper.ToShared(ArticleType.Footwear),
             Brand = "Nike",
             CategoryId = 1,
             SupplierId = 1,
@@ -174,7 +177,7 @@ public class PIMIntegrationTests : IDisposable
             SKU = "ADIDAS-UB-001",
             Name = "Adidas Ultraboost 22",
             Description = "Zapatillas de running",
-            Type = EnumMapper.ToShared(ArticleType.Footwear),
+            Type = DomainEnumMapper.ToShared(ArticleType.Footwear),
             Brand = "Adidas",
             CategoryId = 1,
             SupplierId = 1,
@@ -231,7 +234,7 @@ public class PIMIntegrationTests : IDisposable
         {
             Name = "material",
             DisplayName = "Material",
-            Type = EnumMapper.ToShared(AttributeType.Text),
+            Type = DomainEnumMapper.ToShared(AttributeType.Text),
             IsRequired = false,
             SortOrder = 1
         };
@@ -245,14 +248,14 @@ public class PIMIntegrationTests : IDisposable
         {
             DisplayName = "Material del Producto",
             IsRequired = true,
-            Type = EnumMapper.ToShared(AttributeType.Select)
+            Type = DomainEnumMapper.ToShared(AttributeType.Select)
         };
 
         var updated = await _attributeService.UpdateAttributeAsync(created.Id, updateDto);
         updated.Should().NotBeNull();
         updated!.DisplayName.Should().Be("Material del Producto");
         updated.IsRequired.Should().BeTrue();
-        updated.Type.Should().Be(EnumMapper.ToShared(AttributeType.Select));
+        updated.Type.Should().Be(DomainEnumMapper.ToShared(AttributeType.Select));
 
         // Verify it appears in active attributes
         var activeAttributes = await _attributeService.GetActiveAttributesAsync();
@@ -324,7 +327,7 @@ public class PIMIntegrationTests : IDisposable
             Name = "Zapatillas de Running",
             Description = "Perfectas para correr en asfalto",
             Brand = "TestBrand",
-            Type = EnumMapper.ToShared(ArticleType.Footwear),
+            Type = DomainEnumMapper.ToShared(ArticleType.Footwear),
             CategoryId = 1 // Required by new validation
         };
 

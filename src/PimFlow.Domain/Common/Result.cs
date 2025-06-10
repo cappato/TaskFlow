@@ -1,10 +1,12 @@
+using PimFlow.Contracts.Common;
+
 namespace PimFlow.Domain.Common;
 
 /// <summary>
 /// Representa el resultado de una operación que puede fallar
 /// Implementa el patrón Result para manejo de errores sin excepciones
 /// </summary>
-public class Result
+public class Result : IResult
 {
     public bool IsSuccess { get; }
     public bool IsFailure => !IsSuccess;
@@ -59,7 +61,7 @@ public class Result
 /// Representa el resultado de una operación que puede fallar y retorna un valor
 /// </summary>
 /// <typeparam name="T">Tipo del valor retornado</typeparam>
-public class Result<T> : Result
+public class Result<T> : Result, IResult<T>
 {
     public T Value { get; }
 
