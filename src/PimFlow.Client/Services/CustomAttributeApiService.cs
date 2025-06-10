@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using PimFlow.Shared.DTOs;
+using PimFlow.Shared.Common;
 
 namespace PimFlow.Client.Services;
 
@@ -17,8 +18,8 @@ public class CustomAttributeApiService : ICustomAttributeApiService
     {
         try
         {
-            var attributes = await _httpClient.GetFromJsonAsync<IEnumerable<CustomAttributeDto>>(ApiEndpoint);
-            return attributes ?? Enumerable.Empty<CustomAttributeDto>();
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<IEnumerable<CustomAttributeDto>>>(ApiEndpoint);
+            return response?.Data ?? Enumerable.Empty<CustomAttributeDto>();
         }
         catch (Exception ex)
         {
@@ -31,8 +32,8 @@ public class CustomAttributeApiService : ICustomAttributeApiService
     {
         try
         {
-            var attributes = await _httpClient.GetFromJsonAsync<IEnumerable<CustomAttributeDto>>($"{ApiEndpoint}/active");
-            return attributes ?? Enumerable.Empty<CustomAttributeDto>();
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<IEnumerable<CustomAttributeDto>>>($"{ApiEndpoint}/active");
+            return response?.Data ?? Enumerable.Empty<CustomAttributeDto>();
         }
         catch (Exception ex)
         {

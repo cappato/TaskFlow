@@ -146,6 +146,9 @@ builder.Services.AddScoped<ICategoryWriter>(provider => provider.GetRequiredServ
 builder.Services.AddScoped<ICustomAttributeReader>(provider => provider.GetRequiredService<CustomAttributeService>());
 builder.Services.AddScoped<ICustomAttributeWriter>(provider => provider.GetRequiredService<CustomAttributeService>());
 
+// Database initialization service
+builder.Services.AddScoped<DatabaseInitializationService>();
+
 // CORS no longer needed in Hosted architecture - Client served from same origin
 
 var app = builder.Build();
@@ -192,11 +195,11 @@ app.MapGet("/health", () => Results.Ok(new {
     timestamp = DateTime.UtcNow
 }));
 
-// Apply database migrations
+// Apply database migrations and initialize sample data
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<PimFlowDbContext>();
-    context.Database.Migrate();
+    var initService = scope.ServiceProvider.GetRequiredService<DatabaseInitializationService>();
+    await initService.InitializeAsync();
 }
 
 app.Run();

@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using PimFlow.Shared.DTOs;
 using PimFlow.Shared.Enums;
+using PimFlow.Shared.Common;
 
 namespace PimFlow.Client.Services;
 
@@ -18,8 +19,8 @@ public class ArticleApiService : IArticleApiService
     {
         try
         {
-            var articles = await _httpClient.GetFromJsonAsync<IEnumerable<ArticleDto>>(ApiEndpoint);
-            return articles ?? Enumerable.Empty<ArticleDto>();
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<IEnumerable<ArticleDto>>>(ApiEndpoint);
+            return response?.Data ?? Enumerable.Empty<ArticleDto>();
         }
         catch (Exception ex)
         {
@@ -32,7 +33,8 @@ public class ArticleApiService : IArticleApiService
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<ArticleDto>($"{ApiEndpoint}/{id}");
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<ArticleDto>>($"{ApiEndpoint}/{id}");
+            return response?.Data;
         }
         catch (Exception ex)
         {
@@ -45,9 +47,9 @@ public class ArticleApiService : IArticleApiService
     {
         try
         {
-            var articles = await _httpClient.GetFromJsonAsync<IEnumerable<ArticleDto>>(
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<IEnumerable<ArticleDto>>>(
                 $"{ApiEndpoint}/attribute?attributeName={attributeName}&value={value}");
-            return articles ?? Enumerable.Empty<ArticleDto>();
+            return response?.Data ?? Enumerable.Empty<ArticleDto>();
         }
         catch (Exception ex)
         {
@@ -62,9 +64,9 @@ public class ArticleApiService : IArticleApiService
         {
             var response = await _httpClient.PostAsJsonAsync(ApiEndpoint, createArticleDto);
             response.EnsureSuccessStatusCode();
-            
-            var article = await response.Content.ReadFromJsonAsync<ArticleDto>();
-            return article ?? throw new InvalidOperationException("Failed to create article");
+
+            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<ArticleDto>>();
+            return apiResponse?.Data ?? throw new InvalidOperationException("Failed to create article");
         }
         catch (Exception ex)
         {
@@ -79,8 +81,9 @@ public class ArticleApiService : IArticleApiService
         {
             var response = await _httpClient.PutAsJsonAsync($"{ApiEndpoint}/{id}", updateArticleDto);
             response.EnsureSuccessStatusCode();
-            
-            return await response.Content.ReadFromJsonAsync<ArticleDto>();
+
+            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<ArticleDto>>();
+            return apiResponse?.Data;
         }
         catch (Exception ex)
         {
@@ -94,12 +97,47 @@ public class ArticleApiService : IArticleApiService
         try
         {
             var response = await _httpClient.DeleteAsync($"{ApiEndpoint}/{id}");
-            return response.IsSuccessStatusCode;
+            if (response.IsSuccessStatusCode)
+            {
+                var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse>();
+                return apiResponse?.IsSuccess ?? false;
+            }
+            return false;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error deleting article: {ex.Message}");
             return false;
+        }
+    }
+
+    public async Task<IEnumerable<ArticleDto>> GetArticlesByBrandAsync(string brand)
+    {
+        try
+        {
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<IEnumerable<ArticleDto>>>(
+                $"{ApiEndpoint}/brand/{Uri.EscapeDataString(brand)}");
+            return response?.Data ?? Enumerable.Empty<ArticleDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting articles by brand: {ex.Message}");
+            return Enumerable.Empty<ArticleDto>();
+        }
+    }
+
+    public async Task<IEnumerable<ArticleDto>> SearchArticlesAsync(string searchTerm)
+    {
+        try
+        {
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<IEnumerable<ArticleDto>>>(
+                $"{ApiEndpoint}/search?term={Uri.EscapeDataString(searchTerm)}");
+            return response?.Data ?? Enumerable.Empty<ArticleDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error searching articles: {ex.Message}");
+            return Enumerable.Empty<ArticleDto>();
         }
     }
 }

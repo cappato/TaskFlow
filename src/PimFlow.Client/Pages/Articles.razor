@@ -7,6 +7,7 @@
 @using PimFlow.Shared.Enums
 @using PimFlow.Shared.Mappers
 @using PimFlow.Client.Services
+@using static PimFlow.Client.Components.AdvancedSearch
 
 <PageTitle>Artículos - PimFlow PIM</PageTitle>
 
@@ -28,11 +29,17 @@
     </div>
 </div>
 
+<!-- Advanced Search Component -->
+<AdvancedSearch AvailableAttributes="availableAttributes"
+                OnSearch="HandleSearch"
+                OnReset="HandleReset"
+                IsSearching="isSearching" />
+
 @if (isLoading)
 {
     <div class="flex justify-center items-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <span class="ml-3 text-gray-600">Cargando artículos...</span>
+        <span class="ml-3 text-gray-600">@(isSearching ? "Buscando artículos..." : "Cargando artículos...")</span>
     </div>
 }
 else if (articles != null && articles.Any())
@@ -209,9 +216,11 @@ else
 
 @code {
     private IEnumerable<ArticleDto>? articles;
+    private IEnumerable<ArticleDto>? allArticles; // Para mantener la lista completa
     private IEnumerable<CustomAttributeDto>? availableAttributes;
     private bool isLoading = true;
     private bool isSaving = false;
+    private bool isSearching = false;
     private bool showModal = false;
     private ArticleDto? editingArticle;
     private ArticleFormModel articleForm = new();
@@ -231,10 +240,11 @@ else
         {
             var articlesTask = ArticleService.GetAllArticlesAsync();
             var attributesTask = AttributeService.GetActiveAttributesAsync();
-            
+
             await Task.WhenAll(articlesTask, attributesTask);
-            
-            articles = await articlesTask;
+
+            allArticles = await articlesTask;
+            articles = allArticles; // Mostrar todos inicialmente
             availableAttributes = await attributesTask;
         }
         catch (Exception ex)
@@ -332,6 +342,70 @@ else
     private Task OnCustomAttributesChanged(Dictionary<string, object> values)
     {
         articleForm.CustomAttributes = values;
+        return Task.CompletedTask;
+    }
+
+    // Métodos de búsqueda avanzada
+    private async Task HandleSearch(SearchCriteria criteria)
+    {
+        isSearching = true;
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(criteria.SearchTerm))
+            {
+                // Búsqueda general por término
+                articles = await ArticleService.SearchArticlesAsync(criteria.SearchTerm);
+            }
+            else if (!string.IsNullOrWhiteSpace(criteria.Brand))
+            {
+                // Búsqueda por marca
+                articles = await ArticleService.GetArticlesByBrandAsync(criteria.Brand);
+            }
+            else if (criteria.AttributeFilters.Any())
+            {
+                // Búsqueda por atributos personalizados
+                var firstFilter = criteria.AttributeFilters.First();
+                articles = await ArticleService.GetArticlesByAttributeAsync(firstFilter.Key, firstFilter.Value);
+
+                // Si hay múltiples filtros, aplicar filtros adicionales localmente
+                if (criteria.AttributeFilters.Count > 1)
+                {
+                    foreach (var filter in criteria.AttributeFilters.Skip(1))
+                    {
+                        articles = articles.Where(a =>
+                            a.CustomAttributes.ContainsKey(filter.Key) &&
+                            a.CustomAttributes[filter.Key].ToString()?.Contains(filter.Value, StringComparison.OrdinalIgnoreCase) == true);
+                    }
+                }
+            }
+            else
+            {
+                // Si no hay criterios, mostrar todos
+                articles = allArticles;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error searching articles: {ex.Message}");
+            articles = Enumerable.Empty<ArticleDto>();
+        }
+        finally
+        {
+            isSearching = false;
+        }
+    }
+
+    private Task HandleReset()
+    {
+        isSearching = true;
+        try
+        {
+            articles = allArticles; // Restaurar todos los artículos
+        }
+        finally
+        {
+            isSearching = false;
+        }
         return Task.CompletedTask;
     }
 

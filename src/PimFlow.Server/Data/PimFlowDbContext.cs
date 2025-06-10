@@ -159,13 +159,14 @@ public class PimFlowDbContext : DbContext
 
         // Seed Custom Attributes
         modelBuilder.Entity<CustomAttribute>().HasData(
-            new CustomAttribute { Id = 1, Name = "talle", DisplayName = "Talle", Type = AttributeType.Select, IsRequired = true, CreatedAt = now, SortOrder = 1 },
-            new CustomAttribute { Id = 2, Name = "color", DisplayName = "Color", Type = AttributeType.Color, IsRequired = true, CreatedAt = now, SortOrder = 2 },
-            new CustomAttribute { Id = 3, Name = "material", DisplayName = "Material", Type = AttributeType.Text, IsRequired = false, CreatedAt = now, SortOrder = 3 },
-            new CustomAttribute { Id = 4, Name = "temporada", DisplayName = "Temporada", Type = AttributeType.Select, IsRequired = false, CreatedAt = now, SortOrder = 4 },
-            new CustomAttribute { Id = 5, Name = "genero", DisplayName = "Género", Type = AttributeType.Select, IsRequired = true, CreatedAt = now, SortOrder = 5 },
-            new CustomAttribute { Id = 6, Name = "resistencia_agua", DisplayName = "Resistente al Agua", Type = AttributeType.Boolean, IsRequired = false, CreatedAt = now, SortOrder = 6 },
-            new CustomAttribute { Id = 7, Name = "tipo_suela", DisplayName = "Tipo de Suela", Type = AttributeType.Text, IsRequired = false, CreatedAt = now, SortOrder = 7 }
+            new CustomAttribute { Id = 1, Name = "color", DisplayName = "Color", Type = AttributeType.Text, IsRequired = false, IsActive = true, CreatedAt = now, SortOrder = 1 },
+            new CustomAttribute { Id = 2, Name = "material", DisplayName = "Material", Type = AttributeType.Text, IsRequired = false, IsActive = true, CreatedAt = now, SortOrder = 2 },
+            new CustomAttribute { Id = 3, Name = "temporada", DisplayName = "Temporada", Type = AttributeType.Text, IsRequired = false, IsActive = true, CreatedAt = now, SortOrder = 3 },
+            new CustomAttribute { Id = 4, Name = "genero", DisplayName = "Género", Type = AttributeType.Text, IsRequired = false, IsActive = true, CreatedAt = now, SortOrder = 4 },
+            new CustomAttribute { Id = 5, Name = "resistencia_agua", DisplayName = "Resistencia al Agua", Type = AttributeType.Text, IsRequired = false, IsActive = true, CreatedAt = now, SortOrder = 5 },
+            new CustomAttribute { Id = 6, Name = "tipo_suela", DisplayName = "Tipo de Suela", Type = AttributeType.Text, IsRequired = false, IsActive = true, CreatedAt = now, SortOrder = 6 }
         );
+
+
     }
 }

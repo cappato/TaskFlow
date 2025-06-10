@@ -71,7 +71,7 @@ namespace PimFlow.Server.Migrations
 
                     b.HasIndex("SupplierId");
 
-                    b.ToTable("Articles");
+                    b.ToTable("Articles", (string)null);
                 });
 
             modelBuilder.Entity("TaskFlow.Domain.Entities.ArticleAttributeValue", b =>
@@ -104,7 +104,7 @@ namespace PimFlow.Server.Migrations
 
                     b.HasIndex("CustomAttributeId", "Value");
 
-                    b.ToTable("ArticleAttributeValues");
+                    b.ToTable("ArticleAttributeValues", (string)null);
                 });
 
             modelBuilder.Entity("TaskFlow.Domain.Entities.ArticleVariant", b =>
@@ -157,7 +157,7 @@ namespace PimFlow.Server.Migrations
                     b.HasIndex("SKU")
                         .IsUnique();
 
-                    b.ToTable("ArticleVariants");
+                    b.ToTable("ArticleVariants", (string)null);
                 });
 
             modelBuilder.Entity("TaskFlow.Domain.Entities.Category", b =>
@@ -192,7 +192,7 @@ namespace PimFlow.Server.Migrations
 
                     b.HasIndex("ParentCategoryId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
 
                     b.HasData(
                         new
@@ -286,7 +286,7 @@ namespace PimFlow.Server.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("CustomAttributes");
+                    b.ToTable("CustomAttributes", (string)null);
 
                     b.HasData(
                         new
@@ -395,7 +395,7 @@ namespace PimFlow.Server.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new
