@@ -7,6 +7,7 @@ using PimFlow.Server.Services;
 using PimFlow.Shared.Common;
 using PimFlow.Contracts.Common;
 using PimFlow.Domain.Common;
+using PimFlow.Domain.Events;
 using Xunit;
 
 namespace PimFlow.Server.Tests.Controllers.Base;
@@ -367,9 +368,9 @@ public class TestController : BaseApiController
 /// </summary>
 public class TestAggregateRoot : AggregateRoot
 {
-    public void AddDomainEvent(IDomainEvent domainEvent)
+    public new void AddDomainEvent(IDomainEvent domainEvent)
     {
-        AddDomainEventInternal(domainEvent);
+        base.AddDomainEvent(domainEvent);
     }
 }
 
