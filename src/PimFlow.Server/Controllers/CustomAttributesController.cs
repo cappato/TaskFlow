@@ -48,7 +48,7 @@ public class CustomAttributesController : BaseResourceController<CustomAttribute
         {
             var attributes = await Service.GetActiveAttributesAsync();
             Logger.LogInformation("Retrieved {AttributeCount} active custom attributes", attributes?.Count() ?? 0);
-            return attributes;
+            return attributes ?? Enumerable.Empty<CustomAttributeDto>();
         }, "GetActiveCustomAttributes");
     }
 

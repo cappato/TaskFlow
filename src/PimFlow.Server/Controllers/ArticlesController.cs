@@ -66,7 +66,7 @@ public class ArticlesController : BaseResourceController<ArticleDto, CreateArtic
             var articles = await Service.GetArticlesByCategoryIdAsync(categoryId);
             Logger.LogInformation("Retrieved {ArticleCount} articles for category {CategoryId}",
                 articles?.Count() ?? 0, categoryId);
-            return articles;
+            return articles ?? Enumerable.Empty<ArticleDto>();
         }, "GetArticlesByCategory");
     }
 
@@ -78,7 +78,7 @@ public class ArticlesController : BaseResourceController<ArticleDto, CreateArtic
             var articles = await Service.GetArticlesByTypeAsync(type);
             Logger.LogInformation("Retrieved {ArticleCount} articles for type {Type}",
                 articles?.Count() ?? 0, type);
-            return articles;
+            return articles ?? Enumerable.Empty<ArticleDto>();
         }, "GetArticlesByType");
     }
 
@@ -94,7 +94,7 @@ public class ArticlesController : BaseResourceController<ArticleDto, CreateArtic
             var articles = await Service.GetArticlesByBrandAsync(brand);
             Logger.LogInformation("Retrieved {ArticleCount} articles for brand {Brand}",
                 articles?.Count() ?? 0, brand);
-            return articles;
+            return articles ?? Enumerable.Empty<ArticleDto>();
         }, "GetArticlesByBrand");
     }
 
@@ -116,7 +116,7 @@ public class ArticlesController : BaseResourceController<ArticleDto, CreateArtic
             var articles = await Service.GetArticlesByAttributeAsync(attributeName, value);
             Logger.LogInformation("Retrieved {ArticleCount} articles for attribute {AttributeName}={Value}",
                 articles?.Count() ?? 0, attributeName, value);
-            return articles;
+            return articles ?? Enumerable.Empty<ArticleDto>();
         }, "GetArticlesByAttribute");
     }
 
@@ -132,7 +132,7 @@ public class ArticlesController : BaseResourceController<ArticleDto, CreateArtic
             var articles = await Service.SearchArticlesAsync(term);
             Logger.LogInformation("Search for '{SearchTerm}' returned {ArticleCount} articles",
                 term, articles?.Count() ?? 0);
-            return articles;
+            return articles ?? Enumerable.Empty<ArticleDto>();
         }, "SearchArticles");
     }
 

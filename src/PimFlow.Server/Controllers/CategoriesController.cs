@@ -48,7 +48,7 @@ public class CategoriesController : BaseResourceController<CategoryDto, CreateCa
         {
             var categories = await Service.GetActiveCategoriesAsync();
             Logger.LogInformation("Retrieved {CategoryCount} active categories", categories?.Count() ?? 0);
-            return categories;
+            return categories ?? Enumerable.Empty<CategoryDto>();
         }, "GetActiveCategories");
     }
 
@@ -59,7 +59,7 @@ public class CategoriesController : BaseResourceController<CategoryDto, CreateCa
         {
             var categories = await Service.GetRootCategoriesAsync();
             Logger.LogInformation("Retrieved {CategoryCount} root categories", categories?.Count() ?? 0);
-            return categories;
+            return categories ?? Enumerable.Empty<CategoryDto>();
         }, "GetRootCategories");
     }
 
@@ -71,7 +71,7 @@ public class CategoriesController : BaseResourceController<CategoryDto, CreateCa
             var categories = await Service.GetSubCategoriesAsync(id);
             Logger.LogInformation("Retrieved {CategoryCount} subcategories for category {CategoryId}",
                 categories?.Count() ?? 0, id);
-            return categories;
+            return categories ?? Enumerable.Empty<CategoryDto>();
         }, "GetSubCategories");
     }
 

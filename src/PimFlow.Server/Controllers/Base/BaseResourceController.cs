@@ -38,9 +38,9 @@ public abstract class BaseResourceController<TDto, TCreateDto, TUpdateDto, TServ
         return await ExecuteAsync(async () =>
         {
             var items = await GetAllItemsAsync();
-            Logger.LogInformation("Retrieved {ItemCount} {ResourceType} items", 
+            Logger.LogInformation("Retrieved {ItemCount} {ResourceType} items",
                 items?.Count() ?? 0, typeof(TDto).Name);
-            return items;
+            return items ?? Enumerable.Empty<TDto>();
         }, $"GetAll{typeof(TDto).Name}");
     }
 
