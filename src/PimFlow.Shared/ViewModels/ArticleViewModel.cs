@@ -48,11 +48,9 @@ public class ArticleViewModel
     public string CreatedAtFormatted => CreatedAt.ToString("dd/MM/yyyy");
     public string UpdatedAtFormatted => UpdatedAt?.ToString("dd/MM/yyyy") ?? "-";
 
-    // Validación personalizada para UI
-    public bool IsValidForDisplay => 
-        !string.IsNullOrWhiteSpace(SKU) && 
-        !string.IsNullOrWhiteSpace(Name) && 
-        !string.IsNullOrWhiteSpace(Brand);
+    // Validación personalizada para UI usando validaciones centralizadas
+    public bool IsValidForDisplay =>
+        PimFlow.Contracts.Validation.SharedValidationRules.Display.IsArticleValidForDisplay(SKU, Name, Brand);
 
     // Métodos de utilidad para UI
     public string GetAttributeDisplayValue(string attributeName)

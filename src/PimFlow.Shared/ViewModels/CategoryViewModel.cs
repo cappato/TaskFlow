@@ -35,8 +35,9 @@ public class CategoryViewModel
     public string UpdatedAtFormatted => UpdatedAt?.ToString("dd/MM/yyyy") ?? "-";
     public string HierarchyPath { get; set; } = string.Empty;
 
-    // Validación para UI
-    public bool IsValidForDisplay => !string.IsNullOrWhiteSpace(Name);
+    // Validación para UI usando validaciones centralizadas
+    public bool IsValidForDisplay =>
+        PimFlow.Contracts.Validation.SharedValidationRules.Display.IsCategoryValidForDisplay(Name);
     public bool HasSubCategories => SubCategories.Any();
     public bool HasArticles => ArticleCount > 0;
     public bool CanBeDeleted => !HasSubCategories && !HasArticles;
@@ -92,7 +93,7 @@ public class CreateCategoryViewModel
 
     public bool IsFormValid()
     {
-        return !string.IsNullOrWhiteSpace(Name);
+        return PimFlow.Contracts.Validation.SharedValidationRules.Display.IsCategoryValidForDisplay(Name);
     }
 
     public void SetParentCategory(CategoryViewModel? parent)
