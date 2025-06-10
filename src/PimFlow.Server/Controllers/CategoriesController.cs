@@ -1,102 +1,78 @@
 using Microsoft.AspNetCore.Mvc;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
+using PimFlow.Server.Controllers.Base;
+using PimFlow.Shared.Common;
 
 namespace PimFlow.Server.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public class CategoriesController : ControllerBase
+public class CategoriesController : BaseResourceController<CategoryDto, CreateCategoryDto, UpdateCategoryDto, ICategoryService>
 {
-    private readonly ICategoryService _categoryService;
-
-    public CategoriesController(ICategoryService categoryService)
+    public CategoriesController(ICategoryService categoryService, ILogger<CategoriesController> logger, IDomainEventService? domainEventService = null)
+        : base(categoryService, logger, domainEventService)
     {
-        _categoryService = categoryService;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories()
+    // Implementación de métodos abstractos del BaseResourceController
+    protected override async Task<IEnumerable<CategoryDto>> GetAllItemsAsync()
     {
-        var categories = await _categoryService.GetAllCategoriesAsync();
-        return Ok(categories);
+        return await Service.GetAllCategoriesAsync();
     }
+
+    protected override async Task<CategoryDto?> GetItemByIdAsync(int id)
+    {
+        return await Service.GetCategoryByIdAsync(id);
+    }
+
+    protected override async Task<CategoryDto> CreateItemAsync(CreateCategoryDto createDto)
+    {
+        return await Service.CreateCategoryAsync(createDto);
+    }
+
+    protected override async Task<CategoryDto?> UpdateItemAsync(int id, UpdateCategoryDto updateDto)
+    {
+        return await Service.UpdateCategoryAsync(id, updateDto);
+    }
+
+    protected override async Task<bool> DeleteItemAsync(int id)
+    {
+        return await Service.DeleteCategoryAsync(id);
+    }
+
+    // Endpoints específicos de Categories (no cubiertos por BaseResourceController)
 
     [HttpGet("active")]
-    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetActiveCategories()
+    public async Task<ActionResult<ApiResponse<IEnumerable<CategoryDto>>>> GetActiveCategories()
     {
-        var categories = await _categoryService.GetActiveCategoriesAsync();
-        return Ok(categories);
+        return await ExecuteAsync(async () =>
+        {
+            var categories = await Service.GetActiveCategoriesAsync();
+            Logger.LogInformation("Retrieved {CategoryCount} active categories", categories?.Count() ?? 0);
+            return categories;
+        }, "GetActiveCategories");
     }
 
     [HttpGet("root")]
-    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetRootCategories()
+    public async Task<ActionResult<ApiResponse<IEnumerable<CategoryDto>>>> GetRootCategories()
     {
-        var categories = await _categoryService.GetRootCategoriesAsync();
-        return Ok(categories);
+        return await ExecuteAsync(async () =>
+        {
+            var categories = await Service.GetRootCategoriesAsync();
+            Logger.LogInformation("Retrieved {CategoryCount} root categories", categories?.Count() ?? 0);
+            return categories;
+        }, "GetRootCategories");
     }
 
     [HttpGet("{id}/subcategories")]
-    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetSubCategories(int id)
+    public async Task<ActionResult<ApiResponse<IEnumerable<CategoryDto>>>> GetSubCategories(int id)
     {
-        var categories = await _categoryService.GetSubCategoriesAsync(id);
-        return Ok(categories);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<CategoryDto>> GetCategory(int id)
-    {
-        var category = await _categoryService.GetCategoryByIdAsync(id);
-        if (category == null)
-            return NotFound();
-
-        return Ok(category);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<CategoryDto>> CreateCategory(CreateCategoryDto createCategoryDto)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        var category = await _categoryService.CreateCategoryAsync(createCategoryDto);
-        return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, category);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<ActionResult<CategoryDto>> UpdateCategory(int id, UpdateCategoryDto updateCategoryDto)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        try
+        return await ExecuteAsync(async () =>
         {
-            var category = await _categoryService.UpdateCategoryAsync(id, updateCategoryDto);
-            if (category == null)
-                return NotFound();
-
-            return Ok(category);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+            var categories = await Service.GetSubCategoriesAsync(id);
+            Logger.LogInformation("Retrieved {CategoryCount} subcategories for category {CategoryId}",
+                categories?.Count() ?? 0, id);
+            return categories;
+        }, "GetSubCategories");
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteCategory(int id)
-    {
-        try
-        {
-            var result = await _categoryService.DeleteCategoryAsync(id);
-            if (!result)
-                return NotFound();
-
-            return NoContent();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
 }
