@@ -1,88 +1,55 @@
 using Microsoft.AspNetCore.Mvc;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
+using PimFlow.Server.Controllers.Base;
+using PimFlow.Shared.Common;
 
 namespace PimFlow.Server.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public class CustomAttributesController : ControllerBase
+public class CustomAttributesController : BaseResourceController<CustomAttributeDto, CreateCustomAttributeDto, UpdateCustomAttributeDto, ICustomAttributeService>
 {
-    private readonly ICustomAttributeService _customAttributeService;
-
-    public CustomAttributesController(ICustomAttributeService customAttributeService)
+    public CustomAttributesController(ICustomAttributeService customAttributeService, ILogger<CustomAttributesController> logger, IDomainEventService? domainEventService = null)
+        : base(customAttributeService, logger, domainEventService)
     {
-        _customAttributeService = customAttributeService;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<CustomAttributeDto>>> GetAttributes()
+    // Implementación de métodos abstractos del BaseResourceController
+    protected override async Task<IEnumerable<CustomAttributeDto>> GetAllItemsAsync()
     {
-        var attributes = await _customAttributeService.GetAllAttributesAsync();
-        return Ok(attributes);
+        return await Service.GetAllAttributesAsync();
     }
+
+    protected override async Task<CustomAttributeDto?> GetItemByIdAsync(int id)
+    {
+        return await Service.GetAttributeByIdAsync(id);
+    }
+
+    protected override async Task<CustomAttributeDto> CreateItemAsync(CreateCustomAttributeDto createDto)
+    {
+        return await Service.CreateAttributeAsync(createDto);
+    }
+
+    protected override async Task<CustomAttributeDto?> UpdateItemAsync(int id, UpdateCustomAttributeDto updateDto)
+    {
+        return await Service.UpdateAttributeAsync(id, updateDto);
+    }
+
+    protected override async Task<bool> DeleteItemAsync(int id)
+    {
+        return await Service.DeleteAttributeAsync(id);
+    }
+
+    // Endpoints específicos de CustomAttributes (no cubiertos por BaseResourceController)
 
     [HttpGet("active")]
-    public async Task<ActionResult<IEnumerable<CustomAttributeDto>>> GetActiveAttributes()
+    public async Task<ActionResult<ApiResponse<IEnumerable<CustomAttributeDto>>>> GetActiveAttributes()
     {
-        var attributes = await _customAttributeService.GetActiveAttributesAsync();
-        return Ok(attributes);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<CustomAttributeDto>> GetAttribute(int id)
-    {
-        var attribute = await _customAttributeService.GetAttributeByIdAsync(id);
-        if (attribute == null)
-            return NotFound();
-
-        return Ok(attribute);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<CustomAttributeDto>> CreateAttribute(CreateCustomAttributeDto createAttributeDto)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        try
+        return await ExecuteAsync(async () =>
         {
-            var attribute = await _customAttributeService.CreateAttributeAsync(createAttributeDto);
-            return CreatedAtAction(nameof(GetAttribute), new { id = attribute.Id }, attribute);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+            var attributes = await Service.GetActiveAttributesAsync();
+            Logger.LogInformation("Retrieved {AttributeCount} active custom attributes", attributes?.Count() ?? 0);
+            return attributes;
+        }, "GetActiveCustomAttributes");
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult<CustomAttributeDto>> UpdateAttribute(int id, UpdateCustomAttributeDto updateAttributeDto)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        try
-        {
-            var attribute = await _customAttributeService.UpdateAttributeAsync(id, updateAttributeDto);
-            if (attribute == null)
-                return NotFound();
-
-            return Ok(attribute);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAttribute(int id)
-    {
-        var result = await _customAttributeService.DeleteAttributeAsync(id);
-        if (!result)
-            return NotFound();
-
-        return NoContent();
-    }
 }
