@@ -40,7 +40,7 @@ public class ArticlesPaginationControllerTests
         var actionResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
         var apiResponse = actionResult.Value.Should().BeOfType<ApiResponse<PagedResponse<ArticleDto>>>().Subject;
         
-        apiResponse.Success.Should().BeTrue();
+        apiResponse.IsSuccess.Should().BeTrue();
         apiResponse.Data.Should().NotBeNull();
         apiResponse.Data.PageNumber.Should().Be(1);
         apiResponse.Data.PageSize.Should().Be(10);
@@ -157,8 +157,8 @@ public class ArticlesPaginationControllerTests
         actionResult.StatusCode.Should().Be(500);
         
         var apiResponse = actionResult.Value.Should().BeOfType<ApiResponse<PagedResponse<ArticleDto>>>().Subject;
-        apiResponse.Success.Should().BeFalse();
-        apiResponse.Message.Should().Contain("error");
+        apiResponse.IsSuccess.Should().BeFalse();
+        apiResponse.ErrorMessage.Should().Contain("error");
     }
 
     [Fact]
@@ -177,7 +177,7 @@ public class ArticlesPaginationControllerTests
         var actionResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
         var apiResponse = actionResult.Value.Should().BeOfType<ApiResponse<PagedResponse<ArticleDto>>>().Subject;
         
-        apiResponse.Success.Should().BeTrue();
+        apiResponse.IsSuccess.Should().BeTrue();
         apiResponse.Data.Should().NotBeNull();
         apiResponse.Data.Items.Should().BeEmpty();
         apiResponse.Data.TotalCount.Should().Be(0);

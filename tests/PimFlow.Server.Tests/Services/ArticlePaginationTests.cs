@@ -15,15 +15,13 @@ public class ArticlePaginationTests
 {
     private readonly Mock<IArticleRepository> _mockRepository;
     private readonly Mock<IMapper> _mockMapper;
-    private readonly Mock<ILogger<ArticleQueryService>> _mockLogger;
     private readonly ArticleQueryService _service;
 
     public ArticlePaginationTests()
     {
         _mockRepository = new Mock<IArticleRepository>();
         _mockMapper = new Mock<IMapper>();
-        _mockLogger = new Mock<ILogger<ArticleQueryService>>();
-        _service = new ArticleQueryService(_mockRepository.Object, _mockMapper.Object, _mockLogger.Object);
+        _service = new ArticleQueryService(_mockRepository.Object, _mockMapper.Object);
     }
 
     [Fact]
