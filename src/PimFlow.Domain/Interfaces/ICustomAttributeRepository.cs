@@ -1,15 +1,15 @@
-using PimFlow.Domain.Entities;
+using CustomAttributeEntity = PimFlow.Domain.CustomAttribute.CustomAttribute;
 
 namespace PimFlow.Domain.Interfaces;
 
 public interface ICustomAttributeRepository
 {
-    Task<IEnumerable<CustomAttribute>> GetAllAsync();
-    Task<IEnumerable<CustomAttribute>> GetActiveAsync();
-    Task<CustomAttribute?> GetByIdAsync(int id);
-    Task<CustomAttribute?> GetByNameAsync(string name);
-    Task<CustomAttribute> CreateAsync(CustomAttribute attribute);
-    Task<CustomAttribute?> UpdateAsync(CustomAttribute attribute);
+    Task<IEnumerable<CustomAttributeEntity>> GetAllAsync();
+    Task<IEnumerable<CustomAttributeEntity>> GetActiveAsync();
+    Task<CustomAttributeEntity?> GetByIdAsync(int id);
+    Task<CustomAttributeEntity?> GetByNameAsync(string name);
+    Task<CustomAttributeEntity> CreateAsync(CustomAttributeEntity attribute);
+    Task<CustomAttributeEntity?> UpdateAsync(CustomAttributeEntity attribute);
     Task<bool> DeleteAsync(int id);
     Task<bool> ExistsByNameAsync(string name);
 }

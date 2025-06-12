@@ -1,4 +1,5 @@
-using PimFlow.Domain.ValueObjects;
+using PimFlow.Domain.Article.ValueObjects;
+using PimFlow.Domain.User.ValueObjects;
 using PimFlow.Contracts.Validation;
 
 namespace PimFlow.Domain.Validation;

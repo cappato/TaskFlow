@@ -1,16 +1,16 @@
-using PimFlow.Domain.Entities;
+using CategoryEntity = PimFlow.Domain.Category.Category;
 
 namespace PimFlow.Domain.Interfaces;
 
 public interface ICategoryRepository
 {
-    Task<IEnumerable<Category>> GetAllAsync();
-    Task<IEnumerable<Category>> GetActiveAsync();
-    Task<IEnumerable<Category>> GetRootCategoriesAsync();
-    Task<IEnumerable<Category>> GetSubCategoriesAsync(int parentId);
-    Task<Category?> GetByIdAsync(int id);
-    Task<Category> CreateAsync(Category category);
-    Task<Category?> UpdateAsync(Category category);
+    Task<IEnumerable<CategoryEntity>> GetAllAsync();
+    Task<IEnumerable<CategoryEntity>> GetActiveAsync();
+    Task<IEnumerable<CategoryEntity>> GetRootCategoriesAsync();
+    Task<IEnumerable<CategoryEntity>> GetSubCategoriesAsync(int parentId);
+    Task<CategoryEntity?> GetByIdAsync(int id);
+    Task<CategoryEntity> CreateAsync(CategoryEntity category);
+    Task<CategoryEntity?> UpdateAsync(CategoryEntity category);
     Task<bool> DeleteAsync(int id);
     Task<bool> ExistsAsync(int id);
 }

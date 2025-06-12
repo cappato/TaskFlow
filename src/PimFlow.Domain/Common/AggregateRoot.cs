@@ -1,4 +1,4 @@
-using PimFlow.Domain.Events;
+using PimFlow.Domain.Common;
 
 namespace PimFlow.Domain.Common;
 

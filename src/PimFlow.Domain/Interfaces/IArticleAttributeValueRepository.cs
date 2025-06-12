@@ -1,4 +1,4 @@
-using PimFlow.Domain.Entities;
+using PimFlow.Domain.CustomAttribute;
 
 namespace PimFlow.Domain.Interfaces;
 
