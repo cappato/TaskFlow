@@ -75,6 +75,7 @@ public static class SharedValidationRules
 {
     /// <summary>
     /// Validaciones básicas para SKU (implementación simplificada para Shared)
+    /// Debe coincidir con la validación del Domain SKU Value Object
     /// </summary>
     public static class Sku
     {
@@ -83,14 +84,17 @@ public static class SharedValidationRules
             if (string.IsNullOrWhiteSpace(value))
                 return false;
 
-            var normalized = value.Trim().ToUpperInvariant();
-            return normalized.Length >= 3 && 
-                   normalized.Length <= 50 && 
-                   normalized.All(c => char.IsLetterOrDigit(c) || c == '-');
+            var trimmed = value.Trim();
+            // Must match Domain SKU regex: ^[A-Z0-9]{3,50}$ (uppercase letters and numbers only, no hyphens)
+            // Check original value before normalization to ensure it's already uppercase
+            return trimmed.Length >= 3 &&
+                   trimmed.Length <= 50 &&
+                   trimmed.All(c => char.IsLetterOrDigit(c)) &&
+                   trimmed.All(c => !char.IsLower(c)); // Must not contain lowercase letters
         }
 
-        public static string GetValidationMessage() => 
-            "SKU debe contener solo letras mayúsculas, números y guiones, entre 3 y 50 caracteres";
+        public static string GetValidationMessage() =>
+            "SKU debe contener solo letras mayúsculas y números, entre 3 y 50 caracteres";
 
         public static (bool IsValid, string? ErrorMessage) Validate(string value)
         {
@@ -316,6 +320,13 @@ public static class SharedValidationRules
             var skuValidation = Text.ValidateRequired(sku, "SKU");
             if (!skuValidation.IsValid)
                 errors.Add(skuValidation.ErrorMessage!);
+            else
+            {
+                // Also validate SKU format if it's provided
+                var skuFormatValidation = Sku.Validate(sku);
+                if (!skuFormatValidation.IsValid)
+                    errors.Add(skuFormatValidation.ErrorMessage!);
+            }
 
             var nameValidation = Text.ValidateRequired(name, "Nombre");
             if (!nameValidation.IsValid)
@@ -358,9 +369,10 @@ public static class SharedValidationRules
     public static class ArticleType
     {
         // Lista de tipos válidos sin depender de Domain
+        // Debe coincidir con los valores del enum ArticleType
         private static readonly string[] ValidTypes =
         {
-            "Simple", "Variable", "Grouped", "External", "Virtual"
+            "Footwear", "Clothing", "Accessory"
         };
 
         /// <summary>
