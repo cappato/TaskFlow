@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
-using PimFlow.Domain.Enums;
+using PimFlow.Domain.Article.Enums;
 using Xunit;
 
 namespace PimFlow.Server.Tests.ISP;
@@ -15,7 +15,7 @@ namespace PimFlow.Server.Tests.ISP;
 public class ISPUsageExamplesTests
 {
     [Fact]
-    public void ReadOnlyService_ShouldOnlyDependOnReaderInterface()
+    public async Task ReadOnlyService_ShouldOnlyDependOnReaderInterface()
     {
         // Arrange - Service that only needs to read articles
         var mockReader = new Mock<IArticleReader>();
@@ -25,18 +25,18 @@ public class ISPUsageExamplesTests
         var displayService = new ArticleDisplayService(mockReader.Object);
 
         // Act
-        var result = displayService.GetArticlesForDisplay().Result;
+        var result = await displayService.GetArticlesForDisplay();
 
         // Assert - Service only has access to read operations
         result.Should().NotBeEmpty();
         mockReader.Verify(r => r.GetAllArticlesAsync(), Times.Once);
-        
+
         // Cannot access write methods - compile-time safety
         // displayService._articleReader.CreateArticleAsync(...); // ❌ Not available
     }
 
     [Fact]
-    public void FilterService_ShouldOnlyDependOnFilterInterface()
+    public async Task FilterService_ShouldOnlyDependOnFilterInterface()
     {
         // Arrange - Service that only needs filtering capabilities
         var mockFilter = new Mock<IArticleFilter>();
@@ -46,7 +46,7 @@ public class ISPUsageExamplesTests
         var filterService = new ArticleFilterService(mockFilter.Object);
 
         // Act
-        var count = filterService.CountArticlesByCategory(1).Result;
+        var count = await filterService.CountArticlesByCategory(1);
 
         // Assert - Service only has access to filter operations
         count.Should().Be(1);
@@ -54,7 +54,7 @@ public class ISPUsageExamplesTests
     }
 
     [Fact]
-    public void ImportService_ShouldOnlyDependOnWriterInterface()
+    public async Task ImportService_ShouldOnlyDependOnWriterInterface()
     {
         // Arrange - Service that only needs to create articles
         var mockWriter = new Mock<IArticleWriter>();
@@ -65,7 +65,7 @@ public class ISPUsageExamplesTests
         var importService = new ArticleImportService(mockWriter.Object);
 
         // Act
-        var result = importService.ImportSingleArticle(testDto).Result;
+        var result = await importService.ImportSingleArticle(testDto);
 
         // Assert - Service only has access to write operations
         result.Should().NotBeNull();
@@ -74,7 +74,7 @@ public class ISPUsageExamplesTests
     }
 
     [Fact]
-    public void CategoryNavigationService_ShouldOnlyDependOnHierarchyInterface()
+    public async Task CategoryNavigationService_ShouldOnlyDependOnHierarchyInterface()
     {
         // Arrange - Service that only needs hierarchy navigation
         var mockHierarchy = new Mock<ICategoryHierarchy>();
@@ -84,7 +84,7 @@ public class ISPUsageExamplesTests
         var navigationService = new CategoryNavigationService(mockHierarchy.Object);
 
         // Act
-        var menu = navigationService.GenerateNavigationMenu().Result;
+        var menu = await navigationService.GenerateNavigationMenu();
 
         // Assert - Service only has access to hierarchy operations
         menu.Should().NotBeEmpty();

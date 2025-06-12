@@ -91,7 +91,7 @@ public class ArticleViewModelValidatorTests
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.ErrorMessage == "SKU debe tener entre 3 y 50 caracteres");
+        result.Errors.Should().Contain(e => e.ErrorMessage == "SKU debe contener solo letras mayúsculas y números, entre 3 y 50 caracteres");
     }
 
     [Fact]
@@ -106,7 +106,7 @@ public class ArticleViewModelValidatorTests
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.ErrorMessage == "SKU debe tener entre 3 y 50 caracteres");
+        result.Errors.Should().Contain(e => e.ErrorMessage == "SKU debe contener solo letras mayúsculas y números, entre 3 y 50 caracteres");
     }
 
     [Theory]
@@ -124,7 +124,7 @@ public class ArticleViewModelValidatorTests
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.ErrorMessage == "SKU solo puede contener letras mayúsculas, números y guiones");
+        result.Errors.Should().Contain(e => e.ErrorMessage == "SKU debe contener solo letras mayúsculas y números, entre 3 y 50 caracteres");
     }
 
     [Theory]

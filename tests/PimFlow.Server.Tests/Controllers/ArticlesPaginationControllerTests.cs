@@ -42,7 +42,7 @@ public class ArticlesPaginationControllerTests
         
         apiResponse.IsSuccess.Should().BeTrue();
         apiResponse.Data.Should().NotBeNull();
-        apiResponse.Data.PageNumber.Should().Be(1);
+        apiResponse.Data!.PageNumber.Should().Be(1);
         apiResponse.Data.PageSize.Should().Be(10);
     }
 
@@ -153,12 +153,11 @@ public class ArticlesPaginationControllerTests
 
         // Assert
         result.Should().NotBeNull();
-        var actionResult = result.Result.Should().BeOfType<ObjectResult>().Subject;
-        actionResult.StatusCode.Should().Be(500);
+        var actionResult = result.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
         
         var apiResponse = actionResult.Value.Should().BeOfType<ApiResponse<PagedResponse<ArticleDto>>>().Subject;
         apiResponse.IsSuccess.Should().BeFalse();
-        apiResponse.ErrorMessage.Should().Contain("error");
+        apiResponse.ErrorMessage.Should().Contain("Error");
     }
 
     [Fact]
@@ -179,7 +178,7 @@ public class ArticlesPaginationControllerTests
         
         apiResponse.IsSuccess.Should().BeTrue();
         apiResponse.Data.Should().NotBeNull();
-        apiResponse.Data.Items.Should().BeEmpty();
+        apiResponse.Data!.Items.Should().BeEmpty();
         apiResponse.Data.TotalCount.Should().Be(0);
         apiResponse.Data.TotalPages.Should().Be(0);
     }

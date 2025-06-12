@@ -7,7 +7,6 @@ using PimFlow.Server.Services;
 using PimFlow.Shared.Common;
 using PimFlow.Contracts.Common;
 using PimFlow.Domain.Common;
-using PimFlow.Domain.Events;
 using Xunit;
 
 namespace PimFlow.Server.Tests.Controllers.Base;

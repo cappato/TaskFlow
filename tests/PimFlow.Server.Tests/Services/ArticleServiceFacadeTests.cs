@@ -1,7 +1,7 @@
 using Moq;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
-using PimFlow.Domain.Enums;
+using PimFlow.Domain.Article.Enums;
 using FluentAssertions;
 using Xunit;
 

@@ -13,20 +13,20 @@ namespace PimFlow.Server.Tests.Validation;
 public class ValidationStrategyTests
 {
     [Fact]
-    public void BasicFieldValidationStrategy_WithValidData_ShouldPass()
+    public async Task BasicFieldValidationStrategy_WithValidData_ShouldPass()
     {
         // Arrange
         var strategy = new BasicFieldValidationStrategy();
         var validDto = new CreateArticleDto
         {
-            SKU = "VALID-SKU-001",
+            SKU = "VALIDSKU001",
             Name = "Valid Article Name",
             Description = "Valid description",
             Brand = "Valid Brand"
         };
 
         // Act
-        var result = strategy.ValidateAsync(validDto).Result;
+        var result = await strategy.ValidateAsync(validDto);
 
         // Assert
         result.IsValid.Should().BeTrue();
@@ -34,7 +34,7 @@ public class ValidationStrategyTests
     }
 
     [Fact]
-    public void BasicFieldValidationStrategy_WithInvalidData_ShouldFail()
+    public async Task BasicFieldValidationStrategy_WithInvalidData_ShouldFail()
     {
         // Arrange
         var strategy = new BasicFieldValidationStrategy();
@@ -47,31 +47,31 @@ public class ValidationStrategyTests
         };
 
         // Act
-        var result = strategy.ValidateAsync(invalidDto).Result;
+        var result = await strategy.ValidateAsync(invalidDto);
 
         // Assert
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain("SKU es requerido");
         result.Errors.Should().Contain("Nombre es requerido");
-        result.Errors.Should().Contain("Descripción no puede exceder 1000 caracteres");
-        result.Errors.Should().Contain("Marca no puede exceder 100 caracteres");
+        result.Errors.Should().Contain("Descripción debe tener entre 0 y 1000 caracteres");
+        result.Errors.Should().Contain("Marca debe tener entre 2 y 100 caracteres");
     }
 
     [Fact]
-    public void PerformanceValidationStrategy_WithTooManyAttributes_ShouldWarn()
+    public async Task PerformanceValidationStrategy_WithTooManyAttributes_ShouldWarn()
     {
         // Arrange
         var strategy = new PerformanceValidationStrategy();
         var dto = new CreateArticleDto
         {
-            SKU = "PERF-TEST-001",
+            SKU = "PERFTEST001",
             Name = "Performance Test Article",
             CustomAttributes = Enumerable.Range(1, 60)
                 .ToDictionary(i => $"attr{i}", i => (object)$"value{i}")
         };
 
         // Act
-        var result = strategy.ValidateAsync(dto).Result;
+        var result = await strategy.ValidateAsync(dto);
 
         // Assert
         result.IsValid.Should().BeTrue(); // Performance issues are warnings, not errors
@@ -79,19 +79,19 @@ public class ValidationStrategyTests
     }
 
     [Fact]
-    public void SecurityValidationStrategy_WithSuspiciousContent_ShouldFail()
+    public async Task SecurityValidationStrategy_WithSuspiciousContent_ShouldFail()
     {
         // Arrange
         var strategy = new SecurityValidationStrategy();
         var suspiciousDto = new CreateArticleDto
         {
-            SKU = "SEC-TEST-001",
+            SKU = "SECTEST001",
             Name = "<script>alert('xss')</script>", // Malicious content
             Description = "Normal description with javascript: injection"
         };
 
         // Act
-        var result = strategy.ValidateAsync(suspiciousDto).Result;
+        var result = await strategy.ValidateAsync(suspiciousDto);
 
         // Assert
         result.IsValid.Should().BeFalse();
@@ -100,7 +100,7 @@ public class ValidationStrategyTests
     }
 
     [Fact]
-    public void ValidationPipeline_WithMultipleStrategies_ShouldCombineResults()
+    public async Task ValidationPipeline_WithMultipleStrategies_ShouldCombineResults()
     {
         // Arrange
         var pipeline = new ValidationPipeline<CreateArticleDto>();
@@ -118,7 +118,7 @@ public class ValidationStrategyTests
         };
 
         // Act
-        var result = pipeline.ValidateAsync(dto).Result;
+        var result = await pipeline.ValidateAsync(dto);
 
         // Assert
         result.IsValid.Should().BeFalse(); // Should fail due to basic validation

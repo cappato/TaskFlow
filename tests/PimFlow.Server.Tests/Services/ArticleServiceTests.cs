@@ -1,8 +1,8 @@
 using AutoMapper;
 using Moq;
-using PimFlow.Domain.Entities;
+using PimFlow.Domain.Article;
 using PimFlow.Domain.Interfaces;
-using PimFlow.Domain.Enums;
+using PimFlow.Domain.Article.Enums;
 using PimFlow.Server.Mapping;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;

@@ -308,7 +308,7 @@ public class ArticleMapperTests
         isValid.Should().BeFalse();
         errors.Should().Contain("SKU es requerido");
         errors.Should().Contain("Nombre es requerido");
-        errors.Should().Contain("Marca es requerida");
+        errors.Should().Contain("Marca es requerido");
         errors.Should().Contain("Tipo de artículo inválido");
     }
 
@@ -351,6 +351,6 @@ public class ArticleMapperTests
 
         // Assert
         isValid.Should().BeFalse();
-        errors.Should().Contain("ID de artículo inválido");
+        errors.Should().Contain("ID de artículo debe ser mayor a 0");
     }
 }

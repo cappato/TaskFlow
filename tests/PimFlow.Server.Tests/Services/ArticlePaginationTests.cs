@@ -2,7 +2,7 @@ using AutoMapper;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using PimFlow.Domain.Entities;
+using PimFlow.Domain.Article;
 using PimFlow.Domain.Interfaces;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
