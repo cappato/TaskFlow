@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using PimFlow.Server.Services;
 using PimFlow.Shared.DTOs;
 using PimFlow.Shared.DTOs.Pagination;
-using PimFlow.Domain.Enums;
+using PimFlow.Domain.Article.Enums;
 using PimFlow.Server.Controllers.Base;
 using PimFlow.Shared.Common;
 

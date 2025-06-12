@@ -1,7 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using PimFlow.Domain.Entities;
-using PimFlow.Domain.Enums;
+using PimFlow.Domain.Article;
+using PimFlow.Domain.Category;
+using PimFlow.Domain.User;
+using PimFlow.Domain.CustomAttribute;
+using PimFlow.Domain.Article.Enums;
+using PimFlow.Domain.CustomAttribute.Enums;
 using PimFlow.Server.Data;
+
 
 namespace PimFlow.Server.Services;
 

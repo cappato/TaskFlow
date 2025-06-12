@@ -1,7 +1,11 @@
 using AutoMapper;
-using PimFlow.Domain.Entities;
+using PimFlow.Domain.Article;
+using PimFlow.Domain.Category;
+using PimFlow.Domain.User;
+using PimFlow.Domain.CustomAttribute;
 using PimFlow.Shared.DTOs;
 using PimFlow.Server.Mappers;
+
 
 namespace PimFlow.Server.Mapping;
 
@@ -40,7 +44,7 @@ public class ArticleMappingProfile : Profile
 
         // UpdateArticleDto -> Article Entity (para actualizar propiedades)
         CreateMap<UpdateArticleDto, Article>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.HasValue ? DomainEnumMapper.ToDomain(src.Type.Value) : Domain.Enums.ArticleType.Footwear))
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.HasValue ? DomainEnumMapper.ToDomain(src.Type.Value) : PimFlow.Domain.Article.Enums.ArticleType.Footwear))
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
@@ -55,7 +59,7 @@ public class ArticleMappingProfile : Profile
     /// <summary>
     /// Mapea los valores de atributos personalizados a un diccionario
     /// </summary>
-    private static Dictionary<string, object> MapCustomAttributes(ICollection<ArticleAttributeValue>? attributeValues)
+    private static Dictionary<string, object> MapCustomAttributes(ICollection<PimFlow.Domain.CustomAttribute.ArticleAttributeValue>? attributeValues)
     {
         if (attributeValues == null || !attributeValues.Any())
             return new Dictionary<string, object>();
@@ -127,7 +131,7 @@ public class CustomAttributeMappingProfile : Profile
 
         // UpdateCustomAttributeDto -> CustomAttribute Entity
         CreateMap<UpdateCustomAttributeDto, CustomAttribute>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.HasValue ? DomainEnumMapper.ToDomain(src.Type.Value) : Domain.Enums.AttributeType.Text))
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.HasValue ? DomainEnumMapper.ToDomain(src.Type.Value) : PimFlow.Domain.CustomAttribute.Enums.AttributeType.Text))
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))

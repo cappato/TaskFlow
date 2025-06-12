@@ -1,6 +1,8 @@
-using PimFlow.Domain.Enums;
+using PimFlow.Domain.Article.Enums;
+using PimFlow.Domain.CustomAttribute.Enums;
 using PimFlow.Shared.DTOs;
 using PimFlow.Shared.DTOs.Pagination;
+
 
 namespace PimFlow.Server.Services;
 

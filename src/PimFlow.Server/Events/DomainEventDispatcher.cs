@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PimFlow.Domain.Events;
+using PimFlow.Domain.Common;
 
 namespace PimFlow.Server.Events;
 
@@ -48,14 +48,17 @@ public class DomainEventDispatcher : IDomainEventDispatcher
                 var handleMethod = handlerType.GetMethod("HandleAsync");
                 if (handleMethod != null)
                 {
-                    var task = (Task)handleMethod.Invoke(handler, new object[] { domainEvent, cancellationToken })!;
-                    tasks.Add(task);
+                    var invokeResult = handleMethod.Invoke(handler, new object[] { domainEvent, cancellationToken });
+                    if (invokeResult is Task task)
+                    {
+                        tasks.Add(task);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error invoking handler {HandlerType} for event {EventName}", 
-                    handler.GetType().Name, domainEvent.EventName);
+                _logger.LogError(ex, "Error invoking handler {HandlerType} for event {EventName}",
+                    handler?.GetType().Name ?? "Unknown", domainEvent.EventName);
             }
         }
 

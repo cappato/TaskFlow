@@ -1,5 +1,5 @@
 using AutoMapper;
-using PimFlow.Domain.Entities;
+using PimFlow.Domain.Article;
 using PimFlow.Domain.Interfaces;
 using PimFlow.Shared.DTOs;
 using PimFlow.Server.Mappers;

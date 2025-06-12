@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
-using PimFlow.Domain.Events;
+using PimFlow.Domain.Common;
+using PimFlow.Domain.Category;
 
 namespace PimFlow.Server.Events.Handlers;
 

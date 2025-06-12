@@ -1,4 +1,5 @@
-using DomainEnums = PimFlow.Domain.Enums;
+using DomainArticleEnums = PimFlow.Domain.Article.Enums;
+using DomainAttributeEnums = PimFlow.Domain.CustomAttribute.Enums;
 using SharedEnums = PimFlow.Shared.Enums;
 using PimFlow.Shared.Enums;
 
@@ -13,13 +14,13 @@ public static class DomainEnumMapper
     /// <summary>
     /// Convierte ArticleType de Domain a Shared
     /// </summary>
-    public static SharedEnums.ArticleType ToShared(DomainEnums.ArticleType domainType)
+    public static SharedEnums.ArticleType ToShared(DomainArticleEnums.ArticleType domainType)
     {
         return domainType switch
         {
-            DomainEnums.ArticleType.Footwear => SharedEnums.ArticleType.Footwear,
-            DomainEnums.ArticleType.Clothing => SharedEnums.ArticleType.Clothing,
-            DomainEnums.ArticleType.Accessory => SharedEnums.ArticleType.Accessory,
+            DomainArticleEnums.ArticleType.Footwear => SharedEnums.ArticleType.Footwear,
+            DomainArticleEnums.ArticleType.Clothing => SharedEnums.ArticleType.Clothing,
+            DomainArticleEnums.ArticleType.Accessory => SharedEnums.ArticleType.Accessory,
             _ => SharedEnums.ArticleType.Footwear
         };
     }
@@ -27,35 +28,35 @@ public static class DomainEnumMapper
     /// <summary>
     /// Convierte ArticleType de Shared a Domain
     /// </summary>
-    public static DomainEnums.ArticleType ToDomain(SharedEnums.ArticleType sharedType)
+    public static DomainArticleEnums.ArticleType ToDomain(SharedEnums.ArticleType sharedType)
     {
         return sharedType switch
         {
-            SharedEnums.ArticleType.Footwear => DomainEnums.ArticleType.Footwear,
-            SharedEnums.ArticleType.Clothing => DomainEnums.ArticleType.Clothing,
-            SharedEnums.ArticleType.Accessory => DomainEnums.ArticleType.Accessory,
-            _ => DomainEnums.ArticleType.Footwear
+            SharedEnums.ArticleType.Footwear => DomainArticleEnums.ArticleType.Footwear,
+            SharedEnums.ArticleType.Clothing => DomainArticleEnums.ArticleType.Clothing,
+            SharedEnums.ArticleType.Accessory => DomainArticleEnums.ArticleType.Accessory,
+            _ => DomainArticleEnums.ArticleType.Footwear
         };
     }
 
     /// <summary>
     /// Convierte AttributeType de Domain a Shared
     /// </summary>
-    public static SharedEnums.AttributeType ToShared(DomainEnums.AttributeType domainType)
+    public static SharedEnums.AttributeType ToShared(DomainAttributeEnums.AttributeType domainType)
     {
         return domainType switch
         {
-            DomainEnums.AttributeType.Text => SharedEnums.AttributeType.Text,
-            DomainEnums.AttributeType.Number => SharedEnums.AttributeType.Number,
-            DomainEnums.AttributeType.Integer => SharedEnums.AttributeType.Integer,
-            DomainEnums.AttributeType.Boolean => SharedEnums.AttributeType.Boolean,
-            DomainEnums.AttributeType.Date => SharedEnums.AttributeType.Date,
-            DomainEnums.AttributeType.DateTime => SharedEnums.AttributeType.DateTime,
-            DomainEnums.AttributeType.Select => SharedEnums.AttributeType.Select,
-            DomainEnums.AttributeType.MultiSelect => SharedEnums.AttributeType.MultiSelect,
-            DomainEnums.AttributeType.Color => SharedEnums.AttributeType.Color,
-            DomainEnums.AttributeType.Url => SharedEnums.AttributeType.Url,
-            DomainEnums.AttributeType.Email => SharedEnums.AttributeType.Email,
+            DomainAttributeEnums.AttributeType.Text => SharedEnums.AttributeType.Text,
+            DomainAttributeEnums.AttributeType.Number => SharedEnums.AttributeType.Number,
+            DomainAttributeEnums.AttributeType.Integer => SharedEnums.AttributeType.Integer,
+            DomainAttributeEnums.AttributeType.Boolean => SharedEnums.AttributeType.Boolean,
+            DomainAttributeEnums.AttributeType.Date => SharedEnums.AttributeType.Date,
+            DomainAttributeEnums.AttributeType.DateTime => SharedEnums.AttributeType.DateTime,
+            DomainAttributeEnums.AttributeType.Select => SharedEnums.AttributeType.Select,
+            DomainAttributeEnums.AttributeType.MultiSelect => SharedEnums.AttributeType.MultiSelect,
+            DomainAttributeEnums.AttributeType.Color => SharedEnums.AttributeType.Color,
+            DomainAttributeEnums.AttributeType.Url => SharedEnums.AttributeType.Url,
+            DomainAttributeEnums.AttributeType.Email => SharedEnums.AttributeType.Email,
             _ => SharedEnums.AttributeType.Text
         };
     }
@@ -63,29 +64,29 @@ public static class DomainEnumMapper
     /// <summary>
     /// Convierte AttributeType de Shared a Domain
     /// </summary>
-    public static DomainEnums.AttributeType ToDomain(SharedEnums.AttributeType sharedType)
+    public static DomainAttributeEnums.AttributeType ToDomain(SharedEnums.AttributeType sharedType)
     {
         return sharedType switch
         {
-            SharedEnums.AttributeType.Text => DomainEnums.AttributeType.Text,
-            SharedEnums.AttributeType.Number => DomainEnums.AttributeType.Number,
-            SharedEnums.AttributeType.Integer => DomainEnums.AttributeType.Integer,
-            SharedEnums.AttributeType.Boolean => DomainEnums.AttributeType.Boolean,
-            SharedEnums.AttributeType.Date => DomainEnums.AttributeType.Date,
-            SharedEnums.AttributeType.DateTime => DomainEnums.AttributeType.DateTime,
-            SharedEnums.AttributeType.Select => DomainEnums.AttributeType.Select,
-            SharedEnums.AttributeType.MultiSelect => DomainEnums.AttributeType.MultiSelect,
-            SharedEnums.AttributeType.Color => DomainEnums.AttributeType.Color,
-            SharedEnums.AttributeType.Url => DomainEnums.AttributeType.Url,
-            SharedEnums.AttributeType.Email => DomainEnums.AttributeType.Email,
-            _ => DomainEnums.AttributeType.Text
+            SharedEnums.AttributeType.Text => DomainAttributeEnums.AttributeType.Text,
+            SharedEnums.AttributeType.Number => DomainAttributeEnums.AttributeType.Number,
+            SharedEnums.AttributeType.Integer => DomainAttributeEnums.AttributeType.Integer,
+            SharedEnums.AttributeType.Boolean => DomainAttributeEnums.AttributeType.Boolean,
+            SharedEnums.AttributeType.Date => DomainAttributeEnums.AttributeType.Date,
+            SharedEnums.AttributeType.DateTime => DomainAttributeEnums.AttributeType.DateTime,
+            SharedEnums.AttributeType.Select => DomainAttributeEnums.AttributeType.Select,
+            SharedEnums.AttributeType.MultiSelect => DomainAttributeEnums.AttributeType.MultiSelect,
+            SharedEnums.AttributeType.Color => DomainAttributeEnums.AttributeType.Color,
+            SharedEnums.AttributeType.Url => DomainAttributeEnums.AttributeType.Url,
+            SharedEnums.AttributeType.Email => DomainAttributeEnums.AttributeType.Email,
+            _ => DomainAttributeEnums.AttributeType.Text
         };
     }
 
     /// <summary>
     /// Convierte string a ArticleType de Domain de forma segura
     /// </summary>
-    public static DomainEnums.ArticleType? ParseArticleTypeToDomain(string value)
+    public static DomainArticleEnums.ArticleType? ParseArticleTypeToDomain(string value)
     {
         var sharedType = SharedEnums.ArticleTypeExtensions.ParseSafe(value);
         return sharedType.HasValue ? ToDomain(sharedType.Value) : null;
@@ -94,7 +95,7 @@ public static class DomainEnumMapper
     /// <summary>
     /// Convierte string a AttributeType de Domain de forma segura
     /// </summary>
-    public static DomainEnums.AttributeType? ParseAttributeTypeToDomain(string value)
+    public static DomainAttributeEnums.AttributeType? ParseAttributeTypeToDomain(string value)
     {
         var sharedType = SharedEnums.AttributeTypeExtensions.ParseSafe(value);
         return sharedType.HasValue ? ToDomain(sharedType.Value) : null;
@@ -103,7 +104,7 @@ public static class DomainEnumMapper
     /// <summary>
     /// Obtiene el nombre para mostrar de un ArticleType de Domain
     /// </summary>
-    public static string GetArticleTypeDisplayName(DomainEnums.ArticleType domainType)
+    public static string GetArticleTypeDisplayName(DomainArticleEnums.ArticleType domainType)
     {
         return ToShared(domainType).GetDisplayName();
     }
@@ -111,7 +112,7 @@ public static class DomainEnumMapper
     /// <summary>
     /// Obtiene el nombre para mostrar de un AttributeType de Domain
     /// </summary>
-    public static string GetAttributeTypeDisplayName(DomainEnums.AttributeType domainType)
+    public static string GetAttributeTypeDisplayName(DomainAttributeEnums.AttributeType domainType)
     {
         return ToShared(domainType).GetDisplayName();
     }

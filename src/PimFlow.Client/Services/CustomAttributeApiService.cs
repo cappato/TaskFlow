@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using PimFlow.Shared.DTOs;
 using PimFlow.Shared.Common;
 
@@ -7,18 +8,20 @@ namespace PimFlow.Client.Services;
 public class CustomAttributeApiService : ICustomAttributeApiService
 {
     private readonly HttpClient _httpClient;
+    private readonly JsonSerializerOptions _jsonOptions;
     private const string ApiEndpoint = "api/customattributes";
 
-    public CustomAttributeApiService(HttpClient httpClient)
+    public CustomAttributeApiService(HttpClient httpClient, JsonSerializerOptions jsonOptions)
     {
         _httpClient = httpClient;
+        _jsonOptions = jsonOptions;
     }
 
     public async Task<IEnumerable<CustomAttributeDto>> GetAllAttributesAsync()
     {
         try
         {
-            var response = await _httpClient.GetFromJsonAsync<ApiResponse<IEnumerable<CustomAttributeDto>>>(ApiEndpoint);
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<IEnumerable<CustomAttributeDto>>>(ApiEndpoint, _jsonOptions);
             return response?.Data ?? Enumerable.Empty<CustomAttributeDto>();
         }
         catch (Exception ex)
@@ -32,7 +35,7 @@ public class CustomAttributeApiService : ICustomAttributeApiService
     {
         try
         {
-            var response = await _httpClient.GetFromJsonAsync<ApiResponse<IEnumerable<CustomAttributeDto>>>($"{ApiEndpoint}/active");
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<IEnumerable<CustomAttributeDto>>>($"{ApiEndpoint}/active", _jsonOptions);
             return response?.Data ?? Enumerable.Empty<CustomAttributeDto>();
         }
         catch (Exception ex)

@@ -70,9 +70,11 @@ public class ArticleImportService
         // Parse CSV and create articles
         // This service cannot accidentally read articles - focused on writing
         // _articleWriter.GetAllArticlesAsync() - ❌ Not available (ISP benefit)
-        
+
         // Only has access to write operations it actually needs
         // await _articleWriter.CreateArticleAsync(dto);
+
+        await Task.CompletedTask; // Placeholder for actual implementation
     }
 }
 

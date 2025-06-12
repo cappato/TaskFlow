@@ -1,7 +1,11 @@
-using PimFlow.Domain.Entities;
+using PimFlow.Domain.Article;
+using PimFlow.Domain.Category;
+using PimFlow.Domain.User;
+using PimFlow.Domain.CustomAttribute;
 using PimFlow.Domain.Interfaces;
 using PimFlow.Shared.DTOs;
 using PimFlow.Server.Mappers;
+
 
 namespace PimFlow.Server.Services;
 
@@ -85,7 +89,7 @@ public class CustomAttributeCommandService : ICustomAttributeCommandService
         existingAttribute.UpdatedAt = DateTime.UtcNow;
 
         var updatedAttribute = await _customAttributeRepository.UpdateAsync(existingAttribute);
-        return MapToDto(updatedAttribute);
+        return updatedAttribute != null ? MapToDto(updatedAttribute) : null;
     }
 
     public async Task<bool> DeleteAttributeAsync(int id)

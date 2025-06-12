@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PimFlow.Server.Data;
-using PimFlow.Domain.Entities;
-using PimFlow.Domain.Enums;
+using PimFlow.Domain.Article;
+using PimFlow.Domain.Article.Enums;
 using PimFlow.Domain.Interfaces;
 
 namespace PimFlow.Server.Repositories;

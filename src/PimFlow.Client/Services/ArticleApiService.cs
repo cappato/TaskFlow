@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using PimFlow.Shared.DTOs;
 using PimFlow.Shared.DTOs.Pagination;
 using PimFlow.Shared.Enums;
@@ -9,18 +10,20 @@ namespace PimFlow.Client.Services;
 public class ArticleApiService : IArticleApiService
 {
     private readonly HttpClient _httpClient;
+    private readonly JsonSerializerOptions _jsonOptions;
     private const string ApiEndpoint = "api/articles";
 
-    public ArticleApiService(HttpClient httpClient)
+    public ArticleApiService(HttpClient httpClient, JsonSerializerOptions jsonOptions)
     {
         _httpClient = httpClient;
+        _jsonOptions = jsonOptions;
     }
 
     public async Task<IEnumerable<ArticleDto>> GetAllArticlesAsync()
     {
         try
         {
-            var response = await _httpClient.GetFromJsonAsync<ApiResponse<IEnumerable<ArticleDto>>>(ApiEndpoint);
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<IEnumerable<ArticleDto>>>(ApiEndpoint, _jsonOptions);
             return response?.Data ?? Enumerable.Empty<ArticleDto>();
         }
         catch (Exception ex)
@@ -51,7 +54,7 @@ public class ArticleApiService : IArticleApiService
             var queryString = string.Join("&", queryParams);
             var url = $"{ApiEndpoint}/paged?{queryString}";
 
-            var response = await _httpClient.GetFromJsonAsync<ApiResponse<PagedResponse<ArticleDto>>>(url);
+            var response = await _httpClient.GetFromJsonAsync<ApiResponse<PagedResponse<ArticleDto>>>(url, _jsonOptions);
             return response?.Data ?? PagedResponse<ArticleDto>.Empty(request.PageNumber, request.PageSize);
         }
         catch (Exception ex)

@@ -1,4 +1,4 @@
-using PimFlow.Domain.Enums;
+using PimFlow.Domain.Article.Enums;
 using PimFlow.Shared.DTOs;
 using PimFlow.Shared.DTOs.Pagination;
 
